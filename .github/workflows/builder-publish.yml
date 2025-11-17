@@ -1,0 +1,71 @@
+name: Plugin - Builder
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - "v*.*.*"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-builder:
+    runs-on: ubuntu-latest
+    # Sets the permissions for the GITHUB_TOKEN for security
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}/builder
+            ${{ secrets.DOCKERHUB_USERNAME }}/builder
+          tags: |
+            # on git tag push, create a tag with the version number (e.g., v1.2.3)
+            type=ref,event=tag
+            # on push to main, create the 'latest' tag
+            type=raw,value=latest,enable={{is_default_branch}}
+            # create a tag with the git sha for every push
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./plugins/builder
+          file: ./plugins/builder/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Pass build arguments for versioning
+          # Extracts version from git tag e.g., v1.2.3 -> 1, 2, 3
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            CLOUDNESS_VERSION_MAJOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.major || '0' }}
+            CLOUDNESS_VERSION_MINOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.minor || '0' }}
+            CLOUDNESS_VERSION_PATCH=${{ steps.meta.outputs.version && steps.meta.outputs.version.patch || '0' }}
