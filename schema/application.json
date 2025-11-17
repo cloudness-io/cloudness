@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Cloudness application json schema",
+  "properties": {
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Icon for the application"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the application in the app group",
+      "minLength": 1
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Description for the application",
+      "maxLength": 250
+    },
+    "build": {
+      "type": "object",
+      "description": "build configuration",
+      "properties": {
+        "source": {
+          "type": "object",
+          "anyOf": [
+            {
+              "required": [
+                "git"
+              ]
+            },
+            {
+              "required": [
+                "registry"
+              ]
+            }
+          ],
+          "properties": {
+            "git": {
+              "type": "object",
+              "description": "Git configuration",
+              "properties": {
+                "repoURL": {
+                  "type": "string",
+                  "description": "repository url e.g. https://github.com/torwalds/linux.git",
+                  "minLength": 1
+                },
+                "branch": {
+                  "type": "string",
+                  "description": "branch in the git repository",
+                  "minLength": 1
+                },
+                "commit": {
+                  "type": "string",
+                  "description": "commit sha of repo"
+                },
+                "builder": {
+                  "type": "string",
+                  "description": "builder to be used",
+                  "enum": [
+                    "Nixpacks",
+                    "Dockerfile",
+                    "Static"
+                  ]
+                },
+                "basePath": {
+                  "type": "string",
+                  "description": "root path of the application, useful for mono repos",
+                  "pattern": "/"
+                },
+                "isStaticSite": {
+                  "type": "boolean",
+                  "description": "determines if the build generates a static site"
+                },
+                "publishPath": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "output directory of the build application",
+                  "default": "/dist"
+                },
+                "dockerfile": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "docker file name, defaults to Dockerfile"
+                },
+                "buildCommand": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The command to run when building the source code"
+                }
+              },
+              "required": [
+                "repoURL",
+                "branch",
+                "basePath",
+                "builder"
+              ],
+              "additionalProperties": false
+            },
+            "registry": {
+              "type": "object",
+              "description": "image source configuration",
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "description": "full url of image in registry provider",
+                  "minLength": 1
+                },
+                "isPrivate": {
+                  "type": "boolean",
+                  "description": "registry image visibility"
+                }
+              },
+              "required": [
+                "image"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "deploy": {
+      "type": "object",
+      "description": "deployment configuration",
+      "properties": {
+        "startCommand": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The command to run when starting the container"
+        },
+        "sleepApplication": {
+          "type": "boolean",
+          "description": "Should application be stopped when inactive"
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "description": "maximum number of replicas to run the deployment"
+        },
+        "cpu": {
+          "type": "integer",
+          "description": "CPU allocation for the replica in the deployment",
+          "minimum": 1,
+          "multipleOf": 1
+        },
+        "memory": {
+          "type": "number",
+          "description": "Memory allocation for the replica in the  deployment in bytes",
+          "minimum": 0.1,
+          "multipleOf": 0.1
+        },
+        "healthcheckPath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Path to check after starting your deployment to ensure it is healthy",
+          "pattern": "/"
+        },
+        "healthcheckTimeout": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Number of seconds to wait for the healthcheck path to become healthy, defaults to 300",
+          "default": 300,
+          "minimum": 10
+        },
+        "restartPolicyType": {
+          "type": "string",
+          "description": "Deployment crash handling strategy",
+          "enum": [
+            "ON_FAILURE",
+            "ALWAYS",
+            "NEVER"
+          ]
+        },
+        "restartPolicyMaxRetries": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Number of times to retry on failure",
+          "default": 1,
+          "minimum": 1
+        }
+      },
+      "required": [
+        "maxReplicas"
+      ],
+      "if": {
+        "properties": {
+          "sleepApplication": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "minReplicas": {
+            "minimum": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "networking": {
+      "type": "object",
+      "description": "network configuration to expose the service",
+      "properties": {
+        "containerPorts": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "The port number the container listens on",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "serviceDomain": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Service domain through where the application is accessible from",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "description": "Port where the applicaiton is exposed, must match one of container ports"
+            },
+            "domain": {
+              "type": "string",
+              "description": "Doamin name"
+            },
+            "path": {
+              "type": "string",
+              "description": "Path Sufix of the domain, defaults to /"
+            }
+          }
+        },
+        "tcpProxies": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "TCP proxies configuration",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "description": "TCP port of the application"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "volumes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "volume configuration",
+      "items": {
+        "type": "object",
+        "properties": {
+          "mountPath": {
+            "type": "string",
+            "description": "mount path for the volume"
+          }
+        },
+        "required": [
+          "mountPath"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "build",
+    "deploy"
+  ],
+  "additionalProperties": false
+}

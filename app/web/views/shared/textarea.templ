@@ -1,0 +1,49 @@
+package shared
+
+import "fmt"
+
+type TextareaProps struct {
+	Name              string
+	Value             string
+	Label             string
+	Tooltip           string
+	LabelWrapperClass string
+	Description       string
+	Class             string
+	WrapperClass      string
+	Placeholder       string
+	SpinnerId         string
+	Attrs             templ.Attributes
+	Error             string
+}
+
+templ Textarea(props *TextareaProps) {
+	<div class={ "flex flex-col md:flex-row gap-1 justify-center md:items-center max-w-sm sm:max-w-md md:max-w-lg w-full", props.WrapperClass }>
+		@Label(&FormLabelProps{Name: props.Name, Label: props.Label, Tooltip: props.Tooltip, Description: props.Description})
+		<div class="flex flex-col w-full">
+			<div class="flex flex-row space-x-2 items-center">
+				<textarea
+					id={ props.Name }
+					name={ props.Name }
+					type="text"
+					spellcheck="false"
+					autocomplete="off"
+					value={ props.Value }
+					placeholder={ props.Placeholder }
+					{ props.Attrs... }
+					class={ `w-full text-sm rounded-sm bg-transparent border border-divider hover:border-brand
+					focus:border-brand focus:outline-hidden leading-5 px-2 py-1 cursor-auto disabled:bg-secondary
+					disabled:border-0 disabled:hover:border-0 disabled:focus:border-0 disabled:text-substitute resize-y`, templ.KV("border-error", props.Error !="" ) , props.Class }
+				></textarea>
+				<div id={ props.SpinnerId } class="htmx-indicator size-5 -ml-8" x-cloak>
+					<span class="spinner"></span>
+				</div>
+			</div>
+			<p id={ fmt.Sprintf("%s_error", props.Name) } class="text-2xs text-error">
+				if props.Error != "" {
+					{ props.Error }
+				}
+			</p>
+		</div>
+	</div>
+}

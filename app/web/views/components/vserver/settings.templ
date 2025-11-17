@@ -1,0 +1,13 @@
+package vserver
+
+import "github.com/cloudness-io/cloudness/types"
+
+templ Settings(server *types.Server) {
+	<div class="flex flex-col gap-2">
+		@generalSetting(server)
+		@networkSetting(server)
+		@runnerSettings(server)
+		@limits(server)
+		@listCertificatesContainer()
+	</div>
+}

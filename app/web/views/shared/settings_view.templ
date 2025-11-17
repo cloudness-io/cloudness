@@ -1,0 +1,81 @@
+package shared
+
+type SettingsViewProps struct {
+	Header     string
+	BaseUrl    string
+	ActiveName string
+	Options    []*SettingsViewOption
+	Content    templ.Component
+}
+
+type SettingsViewOption struct {
+	Name       string
+	LinkClass  string
+	IconClass  string
+	UrlSegment string
+}
+
+templ SettingsView(props *SettingsViewProps) {
+	<div
+		class="grid grid-rows-[auto_minmax(0px,1fr)] h-full overflow-hidden md:rounded-t-xl"
+	>
+		<header
+			class="flex items-center justify-between space-x-4 pb-3 border-b"
+		>
+			<span class="text-xl font-semibold">{ props.Header }</span>
+		</header>
+		<div
+			class="grid grid-rows-[auto_minmax(0px,1fr)] md:grid-rows-none md:grid-cols-[auto_minmax(0px,1fr)] w-full h-full"
+		>
+			<aside class="hidden md:block ml-2 mt-4">
+				@settingsAsideLinks(props)
+			</aside>
+			<div
+				class="flex items-center header-tabs space-x-3 md:space-x-8 md:min-h-[39px] w-full md:pb-0 overflow-x-auto
+	overflow-y-hidden border-b md:border-transparent md:!hidden px-3 py-3"
+			>
+				@settingsAsideTab(props)
+			</div>
+			<div class="w-full px-5 md:px-0 sm:overflow-y-auto md:pl-8">
+				<div class="md:max-w-container md:mx-auto mt-2 md:mt-6">
+					<section class="pr-0 md:pr-4">
+						@props.Content
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ settingsAsideLinks(props *SettingsViewProps) {
+	for _, opt := range props.Options {
+		<a
+			class={ `focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-light relative
+						cursor-pointer flex items-center space-x-4 md:px-3 py-2 mb-2 mx-1 rounded whitespace-nowrap 
+						hover:text-text hover:bg-secondary font-medium 
+						group`, templ.KV("text-substitute", opt.Name != props.ActiveName), templ.KV("text-brand", opt.Name == props.ActiveName) }
+			name={ opt.Name }
+			hx-get={ props.BaseUrl + "/" + opt.UrlSegment }
+		>
+			<i class={ opt.IconClass , "icon-xl group-hover:animate-bounce", templ.KV("text-brand", opt.Name == props.ActiveName) }></i>
+			<p class={ "text-base", opt.LinkClass }>{ opt.Name }</p>
+		</a>
+	}
+}
+
+templ settingsAsideTab(props *SettingsViewProps) {
+	for _, opt := range props.Options {
+		<a
+			class={ `focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-light relative cursor-pointer inline-block h-10 px-3
+			py-2 rounded-md md:h-auto md:bg-transparent md:p-0 md:pb-3 md:hover:text-secondary
+			md:focus:outline-hidden md:focus:ring-0 md:focus:text-text`, templ.KV("text-substitute", opt.Name != props.ActiveName),templ.KV("text-brand", opt.Name == props.ActiveName) }
+			name={ opt.Name }
+			hx-get={ props.BaseUrl + "/" + opt.UrlSegment }
+		>
+			<span class="flex items-center gap-1">
+				<i class={ opt.IconClass , "icon-xl group-hover:animate-bounce", templ.KV("text-brand", opt.Name == props.ActiveName) }></i>
+				<p class={ "text-base", opt.LinkClass }>{ opt.Name }</p>
+			</span>
+		</a>
+	}
+}

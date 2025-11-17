@@ -1,0 +1,29 @@
+package vvolume
+
+import "github.com/cloudness-io/cloudness/types"
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/types/enum"
+
+func getModelName(volume *types.Volume) string {
+	return fmt.Sprintf("openPatchModel%d", volume.UID)
+}
+
+templ tile(volume *types.Volume, action enum.VolumeFormAction) {
+	<div x-data={ fmt.Sprintf("{%s: false}", getModelName(volume)) }>
+		<div
+			class="block cursor-pointer border bg-primary w-xs shadow-xs rounded-sm transition-all duration-150 
+				hover:border-b-link overflow-ellipsis overflow-hidden hover:scale-105"
+			x-cloak
+		>
+			<div class="mx-3 my-4" x-on:click={ fmt.Sprintf("%s = true", getModelName(volume)) }>
+				<div class="flex items-center justify-between gap-1">
+					<p class="font-medium truncate">{ volume.Name }</p>
+					<p class="text-tx-secondary">{ volume.MountPath }</p>
+					<p class="text-tx-secondary text-xs">{ fmt.Sprintf("%d",volume.Size) } GB</p>
+				</div>
+			</div>
+		</div>
+		@shared.Modal(getModelName(volume), form(action, volume.ToInput(), volume.UID))
+	</div>
+}

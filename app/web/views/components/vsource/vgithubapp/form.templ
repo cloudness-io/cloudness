@@ -1,0 +1,46 @@
+package vgithubapp
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgit"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ GithubSourceForm(ghApp *types.GithubApp, baseUrl string, input *types.ApplicationInput) {
+	<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4" hx-sync="#branch:queue">
+		@shared.Dropdown(&shared.DropdownProps{
+			Name:              "repo",
+			Value:             input.Repo,
+			Label:             "Repository",
+			DefaultOptionText: "Select a repo",
+			SpinnerId:         "spinner-repo",
+			Attrs: templ.Attributes{
+				"x-model":         "form.repo",
+				"hx-get":          fmt.Sprintf("%s/list-repos", baseUrl),
+				"hx-trigger":      "click once",
+				"hx-target":       "#repo",
+				"hx-swap":         "innerHTML",
+				"hx-indicator":    "#spinner-repo",
+				"hx-disabled-elt": "#branch",
+			},
+		})
+		@shared.Dropdown(&shared.DropdownProps{
+			Name:              "branch",
+			Value:             input.Branch,
+			Label:             "Branch",
+			DefaultOptionText: "Select repo first",
+			SpinnerId:         "spinner-branch",
+			Attrs: templ.Attributes{
+				"x-model":      "form.branch",
+				"hx-get":       fmt.Sprintf("%s/list-branches", baseUrl),
+				"hx-trigger":   "click once, change from:#repo",
+				"hx-include":   "[name='repo']",
+				"hx-target":    "#branch",
+				"hx-swap":      "innerHTML",
+				"hx-indicator": "#spinner-branch",
+			},
+		})
+		@vgit.GitBuildConfigForm(input)
+	</div>
+}

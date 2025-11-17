@@ -1,0 +1,64 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+type ManageButtonOptions struct {
+	Name      string
+	CssClass  string
+	IconClass string
+	Attrs     templ.Attributes
+	Content   templ.Component
+}
+
+type ManageButtonSection struct {
+	Options []*ManageButtonOptions
+}
+
+templ ManageButton(sections []*ManageButtonSection) {
+	<div x-data="{ isOpen: false}" class="relative">
+		<!-- Toggle Button -->
+		<button
+			type="button"
+			aria-label="context menu"
+			@click="isOpen = ! isOpen"
+			@contextmenu.prevent="isOpen = true"
+			class="button-primary-neutral px-2 flex items-center gap-1"
+			:aria-expanded="isOpen"
+			aria-haspopup="true"
+		>
+			<i class={ icons.SettingsIcon,"icon-xl" }></i>
+			Settings
+			<i class={ icons.NavDownIcon,"icon-md" }></i>
+		</button>
+		<!-- Dropdown Menu -->
+		<div
+			x-cloak
+			x-show="isOpen"
+			x-transition
+			@click.outside="isOpen = false"
+			class="absolute top-11 right-4 flex w-full min-w-40 flex-col divide-y divide-divider overflow-hidden bg-secondary rounded-md border border-divider z-40"
+			role="menu"
+		>
+			for _, section := range sections {
+				<ul class="flex flex-col py-1.5 px-1.5" role="none">
+					for _, option := range section.Options {
+						<li
+							class={ `flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg hover:text-brand hover:bg-primary`, option.CssClass }
+							{ option.Attrs... }
+							role="menuitem"
+							tabindex="0"
+						>
+							if option.IconClass != "" {
+								<i class={ option.IconClass, "icon-md" }></i>
+							}
+							{ option.Name }
+							if option.Content != nil {
+								@option.Content
+							}
+						</li>
+					}
+				</ul>
+			}
+		</div>
+	</div>
+}

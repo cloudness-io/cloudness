@@ -1,0 +1,71 @@
+package shared
+
+import "fmt"
+
+type SplitViewListItem struct {
+	Name        string
+	Description string
+	IconClass   string
+	Url         string
+}
+
+templ SplitView(props []*SplitViewListItem, selected string, content templ.Component) {
+	<div class="py-1 grid grid-cols-5 gap-4">
+		<div class="max-w-xs grid-cols-1">
+			<ul
+				class="space-y-3"
+				hx-target="#split-view-area"
+				hx-sync="#split-view-area:replace"
+			>
+				for _, item := range props {
+					<li class="hover:scale-105">
+						<label htmlFor={ item.Name } class="block relative">
+							<input
+								id={ item.Name }
+								hx-get={ item.Url }
+								hx-push-url="true"
+								type="radio"
+								name="type"
+								class="sr-only peer"
+								if selected == item.Name {
+									checked
+								}
+							/>
+							<div class="w-full flex gap-x-3 items-start p-4 cursor-pointer rounded-lg border bg-secondary shadow-xs ring-brand peer-checked:ring-1 duration-200">
+								if item.Url != "" {
+									<div class="flex-none">
+										<i class={ fmt.Sprintf("%s", item.IconClass) }></i>
+									</div>
+								}
+								<div>
+									<h3 class="leading-none font-medium pr-3">
+										{ item.Name }
+									</h3>
+									<p class="mt-1 text-xs">
+										{ item.Description }
+									</p>
+								</div>
+							</div>
+							<div class="absolute top-4 right-4 flex-none flex items-center justify-center w-4 h-4 rounded-full border text-secondary peer-checked:text-brand peer-checked:border-brand duration-200">
+								<svg class="w-2.5 h-2.5" viewBox="0 0 12 10">
+									<polyline
+										fill="none"
+										stroke-width="2px"
+										stroke="currentColor"
+										stroke-dasharray="16px"
+										points="1.5 6 4.5 9 10.5 1"
+									></polyline>
+								</svg>
+							</div>
+						</label>
+					</li>
+				}
+			</ul>
+		</div>
+		<div class="col-span-4 md:pl-4">
+			<div class="split-view-area" id="split-view-area">
+				@content
+			</div>
+		</div>
+	</div>
+}

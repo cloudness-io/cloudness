@@ -1,0 +1,16 @@
+{{- range .Volumes }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .VolumeName }}
+  namespace: {{ $.Namespace }}
+  labels:
+    identifier: {{ $.Identifier }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Storage }}
+{{- end }}

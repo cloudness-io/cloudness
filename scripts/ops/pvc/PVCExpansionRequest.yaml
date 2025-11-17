@@ -1,0 +1,355 @@
+# pvc-expansion-crd.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: pvcexpansionrequests.cloudness.io
+spec:
+  group: cloudness.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      additionalPrinterColumns:
+        - name: StatefulSet
+          type: string
+          description: Target StatefulSet
+          jsonPath: .spec.statefulSetRef.name
+        - name: Size
+          type: string
+          description: Target size for expansion
+          jsonPath: .spec.size
+        - name: Phase
+          type: string
+          description: Current phase of the operation
+          jsonPath: .status.phase
+        - name: Force-Offline
+          type: boolean
+          description: Whether to scale down before expansion
+          jsonPath: .spec.forceOffline
+        - name: Age
+          type: date
+          description: Time since creation
+          jsonPath: .metadata.creationTimestamp
+        - name: Message
+          type: string
+          description: Status message
+          jsonPath: .status.message
+          priority: 1
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: ["spec"]
+          properties:
+            spec:
+              type: object
+              required: ["statefulSetRef", "size"]
+              properties:
+                statefulSetRef:
+                  type: object
+                  required: ["name"]
+                  properties:
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 253
+                      pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+                      description: "Name of the StatefulSet to expand PVCs for"
+                    namespace:
+                      type: string
+                      minLength: 1
+                      maxLength: 63
+                      pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+                      description: "Namespace of the StatefulSet (defaults to PVCExpansionRequest namespace if not specified)"
+                  description: "Reference to the target StatefulSet"
+                size:
+                  type: string
+                  pattern: "^[0-9]+([EPTGMK]i?)?$"
+                  description: "New storage size (must be larger than current size). Examples: 100Gi, 1Ti, 500Mi"
+                  x-kubernetes-validations:
+                    - rule: "self.matches(r'^[0-9]+([EPTGMK]i?)?$')"
+                      message: "Size must be a valid Kubernetes resource quantity (e.g., 100Gi, 1Ti, 500Mi)"
+                forceOffline:
+                  type: boolean
+                  default: false
+                  description: "When true, controller will scale down the StatefulSet to 0 before patching PVCs for safer expansion"
+                selectors:
+                  type: object
+                  description: "Optional label selectors to locate specific PVCs if not using volumeClaimTemplates"
+                  properties:
+                    matchLabels:
+                      type: object
+                      additionalProperties:
+                        type: string
+                        maxLength: 63
+                        pattern: "^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$"
+                      description: "Map of key-value pairs for exact label matching"
+                    matchExpressions:
+                      type: array
+                      items:
+                        type: object
+                        required: ["key", "operator"]
+                        properties:
+                          key:
+                            type: string
+                            minLength: 1
+                            maxLength: 316
+                            pattern: '^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/)?([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]$'
+                          operator:
+                            type: string
+                            enum: ["In", "NotIn", "Exists", "DoesNotExist"]
+                          values:
+                            type: array
+                            items:
+                              type: string
+                              maxLength: 63
+                              pattern: "^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$"
+                      description: "List of label selector expressions"
+                timeout:
+                  type: string
+                  pattern: "^[0-9]+[smh]$"
+                  default: "10m"
+                  description: "Timeout for the expansion operation (e.g., 5m, 1h, 30s)"
+                  x-kubernetes-validations:
+                    - rule: "self.matches(r'^[0-9]+[smh]$')"
+                      message: "Timeout must be a valid duration (e.g., 5m, 1h, 30s)"
+              x-kubernetes-validations:
+                - rule: "!has(self.selectors) || (!has(self.selectors.matchLabels) && !has(self.selectors.matchExpressions)) || (has(self.selectors.matchLabels) || has(self.selectors.matchExpressions))"
+                  message: "selectors must have either matchLabels or matchExpressions or both"
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                  enum:
+                    [
+                      "Pending",
+                      "Processing",
+                      "ScalingDown",
+                      "PatchingPVC",
+                      "WaitingForResize",
+                      "ScalingUp",
+                      "Succeeded",
+                      "Failed",
+                    ]
+                  description: "Current phase of the expansion operation"
+                message:
+                  type: string
+                  maxLength: 1000
+                  description: "Human-readable message about the current status"
+                observedGeneration:
+                  type: integer
+                  format: int64
+                  description: "Generation of the spec that was last processed"
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    required: ["type", "status", "lastTransitionTime"]
+                    properties:
+                      type:
+                        type: string
+                        minLength: 1
+                        maxLength: 316
+                        pattern: '^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/)?([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]$'
+                      status:
+                        type: string
+                        enum: ["True", "False", "Unknown"]
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 1024
+                        pattern: "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+                      message:
+                        type: string
+                        maxLength: 32768
+                  description: "Detailed conditions about the expansion progress"
+                expandedPVCs:
+                  type: array
+                  items:
+                    type: object
+                    required: ["name", "namespace", "originalSize", "newSize"]
+                    properties:
+                      name:
+                        type: string
+                        minLength: 1
+                        maxLength: 253
+                      namespace:
+                        type: string
+                        minLength: 1
+                        maxLength: 63
+                      originalSize:
+                        type: string
+                        pattern: "^[0-9]+([EPTGMK]i?)?$"
+                      newSize:
+                        type: string
+                        pattern: "^[0-9]+([EPTGMK]i?)?$"
+                      status:
+                        type: string
+                        enum: ["Pending", "Expanding", "Completed", "Failed"]
+                  description: "List of PVCs that were processed during expansion"
+                startTime:
+                  type: string
+                  format: date-time
+                  description: "Time when the expansion operation started"
+                completionTime:
+                  type: string
+                  format: date-time
+                  description: "Time when the expansion operation completed"
+      subresources:
+        status: {}
+  scope: Namespaced
+  names:
+    plural: pvcexpansionrequests
+    singular: pvcexpansionrequest
+    kind: PVCExpansionRequest
+    shortNames:
+      - pvr
+# ---
+# # Example 1: Basic PVC expansion for a PostgreSQL StatefulSet (online expansion)
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: postgres-expansion
+#   namespace: default
+# spec:
+#   statefulSetRef:
+#     name: postgres-cluster
+#     namespace: default
+#   size: "100Gi"
+#   forceOffline: false
+#   timeout: "15m"
+
+# ---
+# # Example 2: MySQL expansion with force offline (safer for critical operations)
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: mysql-expansion
+#   namespace: production
+#   labels:
+#     app: mysql
+#     environment: production
+# spec:
+#   statefulSetRef:
+#     name: mysql-primary
+#     namespace: production
+#   size: "500Gi"
+#   forceOffline: true
+#   timeout: "30m"
+
+# ---
+# # Example 3: Redis expansion with custom selectors and matchLabels
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: redis-expansion
+#   namespace: default
+# spec:
+#   statefulSetRef:
+#     name: redis-cluster
+#   size: "50Gi"
+#   forceOffline: false
+#   timeout: "10m"
+#   selectors:
+#     matchLabels:
+#       app: redis
+#       component: data
+#       tier: cache
+
+# ---
+# # Example 4: MongoDB expansion with matchExpressions selector
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: mongodb-expansion
+#   namespace: database
+#   labels:
+#     app: mongodb
+#     tier: storage
+#     operation: expansion
+# spec:
+#   statefulSetRef:
+#     name: mongodb-sharded
+#     namespace: database
+#   size: "1Ti"
+#   forceOffline: true
+#   timeout: "45m"
+#   selectors:
+#     matchExpressions:
+#       - key: app
+#         operator: In
+#         values: ["mongodb", "mongo"]
+#       - key: role
+#         operator: In
+#         values: ["shard", "replica"]
+#       - key: backup
+#         operator: DoesNotExist
+
+# ---
+# # Example 5: Elasticsearch expansion with combined selectors
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: elasticsearch-expansion
+#   namespace: logging
+# spec:
+#   statefulSetRef:
+#     name: elasticsearch-data
+#     namespace: logging
+#   size: "200Gi"
+#   forceOffline: false
+#   timeout: "20m"
+#   selectors:
+#     matchLabels:
+#       app: elasticsearch
+#       component: data-node
+#     matchExpressions:
+#       - key: node-type
+#         operator: In
+#         values: ["data", "master-data"]
+#       - key: maintenance
+#         operator: DoesNotExist
+
+# ---
+# # Example 6: Large-scale expansion with extended timeout
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: cassandra-large-expansion
+#   namespace: bigdata
+#   labels:
+#     app: cassandra
+#     operation: massive-expansion
+# spec:
+#   statefulSetRef:
+#     name: cassandra-cluster
+#     namespace: bigdata
+#   size: "2Ti"
+#   forceOffline: true
+#   timeout: "1h"
+#   selectors:
+#     matchLabels:
+#       app: cassandra
+#       cluster: production
+#     matchExpressions:
+#       - key: datacenter
+#         operator: In
+#         values: ["dc1", "dc2"]
+
+# ---
+# # Example 7: Cross-namespace reference (StatefulSet in different namespace)
+# apiVersion: cloudness.io/v1alpha1
+# kind: PVCExpansionRequest
+# metadata:
+#   name: shared-storage-expansion
+#   namespace: operations
+# spec:
+#   statefulSetRef:
+#     name: shared-database
+#     namespace: shared-services
+#   size: "300Gi"
+#   forceOffline: false
+#   timeout: "25m"

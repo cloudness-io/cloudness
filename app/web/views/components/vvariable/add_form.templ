@@ -1,0 +1,78 @@
+package vvariable
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+templ addForm(usrVars []*types.UserVariable) {
+	<div x-data="{header: true}" class="flex flex-col">
+		<div x-show="header" x-cloak>
+			<div class="flex items-center">
+				<div class="font-medium">
+					if len(usrVars) > 0 {
+						<span>{ fmt.Sprintf("%d",len(usrVars)) } Environment Variables</span>
+					} else {
+						No Environment Variables
+					}
+				</div>
+				<div class="flex space-x-1 items-center ml-auto">
+					<button type="button" class="button-primary flex items-center gap-1" x-on:click="header = false">
+						<i class={ icons.AddIcon,"icon-base" }></i>
+						New Variable
+					</button>
+				</div>
+			</div>
+		</div>
+		<form x-show="!header" x-cloak>
+			@addVariablesForm()
+			<p id="new_key_error" class="text-error text-xs"></p>
+			<p id="new_value_error" class="text-error text-xs"></p>
+			<!--
+			<template x-if="!header" x-cloak>
+				@addVariablesForm()
+			</template>
+			-->
+		</form>
+	</div>
+}
+
+templ addVariablesForm() {
+	<div class="grid auto-rows-auto lg:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+		<div class="flex flex-col w-full md:w-auto lg:grow">
+			<fieldset class="flex flex-col grow w-full">
+				<textarea
+					rows="1"
+					name="new_key"
+					class="grow w-full relative z-10 min-w-0 bg-transparent rounded-md border placeholder-substitute focus:outline-hidden leading-5 px-1.5 py-1.5 focus:border-brand overflow-x-hidden resize-none pr-7!"
+					autocomplete="off"
+					spellcheck="false"
+					placeholder="VARIABLE_NAME"
+					style="height: 34px;"
+					required
+				></textarea>
+			</fieldset>
+		</div>
+		<div class="flex flex-col w-full">
+			<textarea
+				rows="2"
+				name="new_value"
+				class="grow w-full relative z-10 min-w-0 rounded-md border bg-transparent placeholder-substitute focus:outline-hidden leading-5 px-1.5 py-1.5 focus:border-brand overflow-x-hidden resize-none pr-7!"
+				autocomplete="off"
+				spellcheck="false"
+				placeholder="VALUE"
+				style="height: 34px;"
+			></textarea>
+		</div>
+		<div class="flex space-x-2">
+			@variableTypeRadio(string(enum.VariableTypeBuildAndRun))
+		</div>
+		<div class="flex space-x-2 h-7">
+			<button type="button" class="button-primary" hx-post={ routes.AppVariables } hx-push-url="false" hx-swap="none">Add</button>
+			<button type="button" class="button-neutral" x-on:click="header = true">Cancel</button>
+		</div>
+	</div>
+}

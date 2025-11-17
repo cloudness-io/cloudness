@@ -1,0 +1,23 @@
+package vnetwork
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+
+templ networkCreateForm() {
+	<div class="flex flex-row gap-2">
+		<template x-for="(containerPort, index) in form.containerPorts">
+			@shared.Input(&shared.InputProps{
+				Name:        "containerPorts[0]",
+				Label:       "Container Port",
+				Type:        "number",
+				Placeholder: "8080",
+				Tooltip:     "The port on the container to listen on",
+				Required:    true,
+				Attrs: templ.Attributes{
+					"x-model.number": "form.containerPorts[index]",
+					"min":            "0",
+					"max":            "65535",
+				},
+			})
+		</template>
+	</div>
+}

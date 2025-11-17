@@ -1,0 +1,70 @@
+package vsource
+
+import "github.com/cloudness-io/cloudness/types"
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/helpers"
+import "github.com/cloudness-io/cloudness/app/services/spec"
+
+templ Image(app *types.Application) {
+	@shared.Icon(spec.GetSourceIcon(app), "")
+}
+
+templ Link(spec *types.ApplicationSpec) {
+	@getSourceLink(spec)
+}
+
+func getSourceLink(spec *types.ApplicationSpec) templ.Component {
+	if spec.IsGit() {
+		gitSpec := spec.Build.Source.Git
+		repoURL := gitSpec.RepoURL
+		owner, repo, err := helpers.SplitGitRepoUrl(repoURL)
+		if err != nil {
+			return emptyLink(err.Error())
+		}
+		branch := gitSpec.Branch
+		commit := gitSpec.Commit
+
+		baseHttpURL := helpers.GetGitHttpUrl(repoURL)
+		httpUrl := baseHttpURL + "/tree/" + branch
+		commitUrl := ""
+		if commit != "" {
+			commitUrl = baseHttpURL + "/commit/" + commit
+		}
+
+		return gitLink(owner+"/"+repo, httpUrl, branch, commit, commitUrl)
+	} else if spec.IsRegistry() {
+		return getRegistryLink(spec.Build.Source.Registry.Image)
+	}
+	return emptyLink("unknow source")
+}
+
+templ getRegistryLink(image string) {
+	<a href={ templ.SafeURL(image) } target="_blank" hx-on:click="event.stopPropagation()" class="flex gap-1">
+		<p>{ image }</p>
+	</a>
+}
+
+templ gitLink(name string, httpURL string, branch string, commit string, commitUrl string) {
+	<a
+		href={ templ.SafeURL(httpURL) }
+		target="_blank"
+		hx-on:click="event.stopPropagation()"
+		class="text-tx-secondary hover:text-brand flex gap-1"
+	>
+		<p>{ name }</p>
+		<p class="italic">{ branch }</p>
+	</a>
+	if len(commit) > 5 {
+		<a
+			href={ templ.SafeURL(commitUrl) }
+			target="_blank"
+			hx-on:click="event.stopPropagation()"
+			class="text-tx-secondary hover:text-brand bg-secondary hover:bg-primary rounded-sm"
+		>{ commit[0:5] }</a>
+	}
+}
+
+templ emptyLink(errMsg string) {
+	<p aria-errormessage={ errMsg }></p>
+}

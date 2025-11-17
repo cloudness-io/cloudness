@@ -1,0 +1,33 @@
+package shared
+
+templ WarningAlert(head string, subtext string) {
+	<div class="relative w-full overflow-hidden rounded-sm border border-warning/50 bg-surface text-on-surface" role="alert">
+		<div class="flex w-full items-center gap-2 bg-warning/10 p-2">
+			<div class="bg-warning/15 text-warning rounded-full p-1" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4" aria-hidden="true">
+					<path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"></path>
+				</svg>
+			</div>
+			<div class="ml-2">
+				<h3 class="text-sm font-semibold text-warning">{ head }</h3>
+				<p class="text-xs font-medium">{ subtext }</p>
+			</div>
+		</div>
+	</div>
+}
+
+templ InfoAlert(head string, subtext string) {
+	<div class="relative w-full overflow-hidden rounded-sm border border-brand/50 bg-surface text-on-surface" role="alert">
+		<div class="flex w-full items-center gap-2 bg-brand/10 p-2">
+			<div class="bg-brand/15 text-brand rounded-full p-1" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4" aria-hidden="true">
+					<path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"></path>
+				</svg>
+			</div>
+			<div class="ml-2">
+				<h3 class="text-sm font-semibold text-brand">{ head }</h3>
+				<p class="text-xs font-medium">{ subtext }</p>
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,144 @@
+package vinstance
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/types/enum"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "github.com/cloudness-io/cloudness/app/web/views/xdata"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+import "github.com/cloudness-io/cloudness/app/controller/auth"
+
+templ Auth(instance *types.Instance, auths map[enum.AuthProvider]*types.AuthSetting) {
+	@header()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: InstanceNavAuth,
+		Options:    getInstanceNav(),
+	}) {
+		<div class="flex items-center gap-1">
+			<i class={ icons.AuthIcon, "icon-2xl" }></i>
+			<h3>Authentication</h3>
+		</div>
+		<div class="flex flex-col gap-2 my-2">
+			@PasswordAuth(instance, auths[enum.AuthProviderPassword])
+			@DemoUser(instance)
+			if instance.FQDN == "" {
+				<h4>OAuth Configuration</h4>
+				@shared.WarningAlert("Instance Domain setup is missing", `We suggest an FQDN for instance domain for
+				security reasons`)
+			}
+			@GithubOath(instance, auths[enum.AuthProviderGithub])
+		</div>
+	}
+}
+
+templ PasswordAuth(instance *types.Instance, authSettings *types.AuthSetting) {
+	if authSettings != nil {
+		<h4>Password Authentication</h4>
+		<form
+			class="flex flex-col gap-2 w-full mt-2"
+			x-data={ xdata.ToFormData(&auth.ChangePasswordSettings{
+							EnableRegistration: instance.UserSignupEnabled,
+							EnablePasswordLogin: authSettings.Enabled,
+			}) }
+			hx-push-url="false"
+			hx-swap="none"
+		>
+			@shared.CheckBox(&shared.CheckBoxProps{
+				Name:    "enable",
+				Label:   "Enable Login",
+				Tooltip: "Allow users to login with their password",
+				Disclaimer: `<span x-show="initial.enable !== form.enable" class="text-error">Make sure you have other auth mechanisms setup and tested before
+				disabling password authentication</span>`,
+				Attrs: templ.Attributes{
+					"x-model.boolean": "form.enable",
+					"x-bind:checked":  "form.enable === 'true'",
+					"@change":         "form.enable = $el.checked ? 'true' : 'false'",
+				},
+			})
+			@shared.CheckBox(&shared.CheckBoxProps{
+				Name:    "enable_registration",
+				Label:   "Enable Registration",
+				Tooltip: "Enabled registration of new users",
+				Attrs: templ.Attributes{
+					"x-model.boolean": "form.enable_registration",
+					"x-bind:checked":  "form.enable_registration === 'true'",
+					"@change":         "form.enable_registration = $el.checked ? 'true' : 'false'",
+				},
+			})
+			@shared.UpdateDiv(routes.InstanceAuthPassword)
+		</form>
+	}
+}
+
+templ DemoUser(instance *types.Instance) {
+	<h4>Demo User Settings</h4>
+	<form
+		class="flex flex-col gap-2 w-full mt-2"
+		x-data={ xdata.ToFormData(&auth.DemoUserSettings{
+						DemoUserEnabled: instance.DemoUserEnabled,
+			}) }
+		hx-push-url="false"
+		hx-swap="none"
+	>
+		@shared.CheckBox(&shared.CheckBoxProps{
+			Name:    "demo_user_enabled",
+			Label:   "Enable",
+			Tooltip: "Add new demo user to the system",
+			Disclaimer: `<span x-show="initial.demo_user_enabled !== form.demo_user_enabled && form.demo_user_enabled ===
+			'true'" class="text-error">Demo user
+			comes with its own risk. Make sure you know what you are doing before enabling this.</span>`,
+			Attrs: templ.Attributes{
+				"x-model.boolean": "form.demo_user_enabled",
+				"x-bind:checked":  "form.demo_user_enabled === 'true'",
+				"@change":         "form.demo_user_enabled = $el.checked ? 'true' : 'false'",
+			},
+		})
+		@shared.UpdateDiv(routes.InstanceAuthDemo)
+	</form>
+}
+
+templ GithubOath(instance *types.Instance, authSettings *types.AuthSetting) {
+	if authSettings != nil {
+		<h4>Github</h4>
+		<form
+			class="flex flex-col gap-5 w-full mt-2"
+			x-data={ xdata.ToFormData(authSettings) }
+			hx-push-url="false"
+			hx-swap="none"
+		>
+			@shared.CheckBox(&shared.CheckBoxProps{
+				Name:    "enabled",
+				Label:   "Enable",
+				Tooltip: "Allow users to login with their password",
+				Attrs: templ.Attributes{
+					"x-model.boolean": "form.enabled",
+					"x-bind:checked":  "form.enabled === 'true'",
+					"@change":         "form.enabled = $el.checked ? 'true' : 'false'",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Name:  "client_id",
+				Label: "Client ID",
+				Attrs: templ.Attributes{
+					"x-model": "form.client_id",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Name:  "client_secret",
+				Label: "Client Secret",
+				Attrs: templ.Attributes{
+					"x-model": "form.client_secret",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Name:      "callback_url",
+				Label:     "Callback URL",
+				Tooltip:   "If you like to use domain instead of ip address, set you Cloudness domain in instance settings menu",
+				Disabled:  true,
+				AllowCopy: true,
+				Value:     instance.GetHttpDomain() + routes.CallbackOAuthGithub,
+			})
+			@shared.UpdateDiv(routes.InstanceAuthGithub)
+		</form>
+	}
+}

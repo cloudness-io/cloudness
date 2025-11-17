@@ -1,0 +1,62 @@
+package toast
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+)
+
+templ ToastSuccess(text string) {
+	@toast(text, "text-success", icons.PipelineSucessIcon, "border-success")
+}
+
+templ ToastError(text string) {
+	@toast(text, "text-error", icons.PipelineErrorIcon, "border-error")
+}
+
+templ CleanToast() {
+	@clean()
+}
+
+templ toast(text string, textCss string, iconClass string, borderCss string) {
+	<div
+		class="absolute top-[10px] right-[10px] toast-wrapper z-50 max-w-full"
+		id="toast"
+		hx-swap-oob="true"
+		x-data="{ toastOpen: true }"
+	>
+		<div hx-ext="remove-me" x-show="toastOpen">
+			<div
+				remove-me="5s"
+				class={ fmt.Sprintf("w-full sm:w-[30rem] flex items-center p-4 mb-4 border bg-primary %s %s", textCss, borderCss) }
+				role="alert"
+			>
+				@shared.Icon(iconClass, "")
+				<div class="ms-3 font-medium">{ text } </div>
+				<button
+					type="button"
+					@click="toastOpen = !toastOpen"
+					class="ms-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-0
+	 p-1.5 hover:bg-primary inline-flex items-center justify-center h-8 w-8"
+					data-dismiss-target="#alert-border-2"
+					aria-label="Close"
+				>
+					<span class="sr-only">Dismiss</span>
+					<svg class="w-3 h-3 cursor-pointer" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+						></path>
+					</svg>
+				</button>
+			</div>
+		</div>
+	</div>
+}
+
+templ clean() {
+	<div id="toast" hx-swap-oob="true"></div>
+}

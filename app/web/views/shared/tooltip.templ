@@ -1,0 +1,30 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ Tooltip(text string, icon string) {
+	<button type="button" aria-label={ text } data-balloon-pos="right" data-balloon-length="large" data-balloon-break="">
+		if icon != "" {
+			@Icon(icon, "text-sm size-3")
+		} else {
+			<i class={ icons.TooltipIcon, "text-link" }></i>
+		}
+	</button>
+}
+
+templ TooltipWrapper(text string) {
+	if text == "" {
+		{ children... }
+	} else {
+		<button
+			type="button"
+			class="relative"
+			aria-label={ text }
+			data-balloon-pos="right"
+			data-balloon-length="medium"
+			data-balloon-break=""
+		>
+			{ children... }
+		</button>
+	}
+}

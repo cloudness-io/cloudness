@@ -1,0 +1,174 @@
+# Namespace for the controller
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudness
+  labels:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: system
+
+---
+# ServiceAccount for the controller
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudness-controller
+  namespace: cloudness
+  labels:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: controller
+
+---
+# ClusterRole with necessary permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cloudness-controller
+  labels:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: controller
+rules:
+  # PVCExpansionRequest permissions
+  - apiGroups: ["cloudness.io"]
+    resources: ["pvcexpansionrequests"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["cloudness.io"]
+    resources: ["pvcexpansionrequests/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["cloudness.io"]
+    resources: ["pvcexpansionrequests/finalizers"]
+    verbs: ["update"]
+
+  # StatefulSet permissions
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+
+  # PVC permissions
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+
+  # Pod permissions (for monitoring scaling)
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+
+  # StorageClass permissions (to check allowVolumeExpansion)
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+
+  # Event permissions (for logging events)
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cloudness-controller
+  labels:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cloudness-controller
+subjects:
+  - kind: ServiceAccount
+    name: cloudness-controller
+    namespace: cloudness
+
+---
+# Controller Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudness-controller
+  namespace: cloudness
+  labels:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudness-operator
+      app.kubernetes.io/component: controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloudness-operator
+        app.kubernetes.io/component: controller
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+    spec:
+      serviceAccountName: cloudness-controller
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+      containers:
+        - name: manager
+          image: your-registry/cloudness-controller:latest # Update this!
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+            - containerPort: 9443
+              name: webhook
+              protocol: TCP
+          args:
+            - --metrics-addr=0.0.0.0:8080
+            - --leader-elect=true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+      terminationGracePeriodSeconds: 10
+
+---
+# Service for metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudness-controller-metrics
+  namespace: cloudness
+  labels:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: controller
+spec:
+  ports:
+    - name: metrics
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: cloudness-operator
+    app.kubernetes.io/component: controller

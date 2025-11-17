@@ -1,0 +1,42 @@
+package vaccount
+
+import (
+	userCtrl "github.com/cloudness-io/cloudness/app/controller/user"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Profile(user *types.User) {
+	@accountHeader(user.DisplayName)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AccountNavInfo,
+		Options:    getAccountPageNav(),
+	}) {
+		<h3>{ user.DisplayName }</h3>
+		<form
+			class="flex flex-col place-items-baseline mt-4 gap-2"
+			x-data={ xdata.ToFormData(&userCtrl.UpdateInput{DisplayName: user.DisplayName}) }
+			hx-push-url="false"
+			hx-swap="none"
+		>
+			@shared.Input(&shared.InputProps{
+				Label:    "Email",
+				Value:    user.Email,
+				Tooltip:  `Email Address cannot be modified.`,
+				Disabled: true,
+			})
+			@shared.Input(&shared.InputProps{
+				Name:     "name",
+				Label:    "Name",
+				Tooltip:  `The name that will be displayed in the dashboard.`,
+				Required: true,
+				Attrs: templ.Attributes{
+					"x-model": "form.name",
+				},
+			})
+			@shared.UpdateDiv(routes.AccountProfile)
+		</form>
+	}
+}

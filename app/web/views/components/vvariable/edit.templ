@@ -1,0 +1,50 @@
+package vvariable
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/types"
+	"strings"
+)
+
+templ edit(v *types.UserVariable) {
+	<form class="grid auto-rows-auto lg:grid-cols-[1fr_2fr_1fr_auto] gap-2 items-center px-4 min-h-[2.25rem]">
+		<div class="flex space-x-4 items-center">
+			<i class={ icons.VariablesIcon, "text-substitute" }></i>
+			<span class="truncate">{ v.Key }</span>
+		</div>
+		<div class="flex items-center h-full space-x-2">
+			<textarea
+				rows="2"
+				name="value"
+				class="grow w-full relative z-10 min-w-0 rounded-md border bg-transparent placeholder-substitute focus:outline-hidden leading-5 px-1.5 py-1.5 focus:border-brand overflow-x-hidden resize-none pr-7!"
+				autocomplete="off"
+				spellcheck="false"
+				placeholder="VALUE"
+				style="height: 34px;"
+			>
+				if strings.Trim(v.ReferenceValue, "") != "" {
+					{ v.ReferenceValue }
+				} else {
+					{ v.TextValue }
+				}
+			</textarea>
+		</div>
+		@variableTypeRadio(string(v.Type))
+		<div class="flex justify-end items-center space-x-2">
+			<button type="button" class="button-neutral" x-on:click="edit=false">
+				Cancel
+			</button>
+			<button
+				type="button"
+				class="button-primary"
+				hx-patch={ fmt.Sprintf("%s/%d", routes.AppVariables, v.UID) }
+				hx-push-url="false"
+				hx-swap="none"
+			>
+				Update
+			</button>
+		</div>
+	</form>
+}

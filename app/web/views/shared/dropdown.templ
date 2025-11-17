@@ -1,0 +1,106 @@
+package shared
+
+import "fmt"
+
+type DropdownOption struct {
+	Name  string
+	Value string
+}
+
+type DropdownProps struct {
+	Name              string
+	Value             string
+	Options           []string
+	Options2          []*DropdownOption
+	Label             string
+	HideLabel         bool
+	Tooltip           string
+	DropdownClass     string
+	LabelWrapperClass string
+	Description       string
+	WrapperClass      string
+	WrapperAttrs      templ.Attributes
+	DefaultOptionText string
+	SpinnerId         string
+	Attrs             templ.Attributes
+	Error             string
+	Hidden            bool
+	Disabled          bool
+}
+
+templ Dropdown(props *DropdownProps) {
+	<div
+		class={
+			"flex flex-col md:flex-row gap-1 justify-center md:items-center max-w-sm sm:max-w-md md:max-w-lg w-full", props.WrapperClass,
+			templ.KV("hidden", props.Hidden),
+		}
+		{ props.WrapperAttrs... }
+	>
+		if !props.HideLabel {
+			@Label(&FormLabelProps{Name: props.Name, Label: props.Label, Tooltip: props.Tooltip, Description: props.Description, Disabled: props.Disabled})
+		}
+		<div class={ "flex flex-col w-full" }>
+			<div class="flex flex-row space-x-2 items-center">
+				<select
+					id={ props.Name }
+					name={ props.Name }
+					value={ props.Value }
+					{ props.Attrs... }
+					x-cloak
+					class={
+						`w-full text-sm rounded-sm bg-primary border border-divider hover:border-brand focus:border-brand focus:outline-hidden leading-5 px-2 py-1 cursor-pointer disabled:bg-secondary disabled:focus:border-0 disabled:text-substitute`,
+						props.DropdownClass,
+						templ.KV("border-error", props.Error != ""),
+						templ.KV("disabled", props.Disabled),
+					}
+					if props.Disabled {
+						disabled
+					}
+				>
+					if len(props.Options) == 0 && len(props.Options2) == 0 {
+						if props.Value == "" {
+							<option disabled selected value="">{ props.DefaultOptionText }</option>
+						} else {
+							<option value={ props.Value } selected>
+								{ props.Value }
+							</option>
+						}
+					} else if len(props.Options2) > 0 {
+						if props.DefaultOptionText != "" && props.Value == "" {
+							<option disabled selected value="">{ props.DefaultOptionText }</option>
+						}
+						for _, v := range props.Options2 {
+							<option
+								value={ v.Value }
+								if v.Value == props.Value {
+									selected
+								}
+							>
+								{ v.Name }
+							</option>
+						}
+					} else if len(props.Options) > 0 {
+						for _, v := range props.Options {
+							<option
+								value={ v }
+								if v == props.Value {
+									selected
+								}
+							>
+								{ v }
+							</option>
+						}
+					}
+				</select>
+				<div id={ props.SpinnerId } class="htmx-indicator size-5 -ml-12" x-cloak>
+					<span class="spinner"></span>
+				</div>
+			</div>
+			<p id={ fmt.Sprintf("%s_error", props.Name) } class="text-xs text-error">
+				if props.Error != "" {
+					{ props.Error }
+				}
+			</p>
+		</div>
+	</div>
+}

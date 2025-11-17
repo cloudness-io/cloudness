@@ -1,0 +1,31 @@
+package vapplication
+
+import (
+	specSvc "github.com/cloudness-io/cloudness/app/services/spec"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vvolume"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ VolumeList(app *types.Application, volumes []*types.Volume) {
+	@appHeader(app)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AppNavVolume,
+		Content:    volumeList(app, volumes),
+		Options:    getAppPageNav(app),
+		Header:     shared.CommandBar(getCommandButtons()),
+	})
+}
+
+templ volumeList(app *types.Application, volumes []*types.Volume) {
+	if !specSvc.IsStateless(app.Spec) {
+		@shared.WarningAlert("Volumes are not supported in stateless apps", `Volumes are not supported if the replica count
+		is more than one or cron schedule is set.`)
+	} else {
+		<div class="flex flex-col gap-2">
+			@vvolume.List(volumes)
+			@vvolume.ListUnattachedContainer(routes.AppVolumeUnAttached)
+		</div>
+	}
+}

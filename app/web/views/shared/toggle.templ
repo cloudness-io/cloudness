@@ -1,0 +1,35 @@
+package shared
+
+type ToggleProps struct {
+	Name              string
+	Value             bool
+	WrapperClass      string
+	Label             string
+	LabelWrapperClass string
+	Attrs             templ.Attributes
+}
+
+templ Toggle(props *ToggleProps) {
+	if props.Label != "" {
+		<div class={ "flex flex-col", props.LabelWrapperClass }>
+			<label for={ props.Name }>{ props.Label }</label>
+		</div>
+	}
+	<div class={ "flex flex-col", props.WrapperClass }>
+		<div class="relative inline-block w-11 h-5">
+			<input
+				checked
+				id={ props.Name }
+				type="checkbox"
+				class="peer appearance-none w-11 h-5 bg-transparent border
+			rounded-full checked:bg-brand-light cursor-pointer transition-colors duration-300"
+			/>
+			<label
+				for={ props.Name }
+				class="absolute top-0 left-0 w-5 h-5 bg-secondary rounded-full border
+			border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-6
+			peer-checked:border-primary cursor-pointer"
+			></label>
+		</div>
+	</div>
+}

@@ -1,0 +1,52 @@
+{{ if gt (len .ServicePorts) 0 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Identifier }}
+  namespace: {{ .Namespace }}
+  labels:
+    app: {{ .Identifier }}
+    identifier: {{ .Identifier }}
+spec:
+  selector:
+    app: {{ .Identifier }}
+  ports:
+  {{- range $index, $value := .ServicePorts }}
+  - name: {{ $value }}-port
+    protocol: TCP
+    port: {{ $value }}
+    targetPort: {{ $value }}
+  {{- end }}
+{{ end }}
+
+{{ if .ServiceDomain }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Identifier }}-http
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  parentRefs:
+    - name: traefik
+      namespace: traefik
+      sectionName: {{ if .ServiceDomain.Websecure }} websecure {{ else }} web {{ end }}
+      kind: Gateway
+
+  hostnames:
+    - {{ .ServiceDomain.Domain }}
+
+  rules:
+     - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+       backendRefs:
+        - name: {{ $.Identifier }}
+          namespace: {{ $.Namespace }}
+          port: {{ .ServiceDomain.Port }}
+{{ end }}

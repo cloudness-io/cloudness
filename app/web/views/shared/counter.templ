@@ -1,0 +1,66 @@
+package shared
+
+import "fmt"
+
+type CounterProps struct {
+	Name              string
+	Value             int
+	Description       string
+	Tooltip           string
+	WrapperClass      string
+	WrapperAttrs      templ.Attributes
+	Label             string
+	LabelWrapperClass string
+	Attrs             templ.Attributes
+	DecreaseAttrs     templ.Attributes
+	IncreaseAttrs     templ.Attributes
+	Error             string
+	Hidden            bool
+	Disabled          bool
+	Readonly          bool
+}
+
+templ Counter(props *CounterProps) {
+	<div
+		class={
+			"flex flex-col md:flex-row gap-1 justify-center md:items-center max-w-sm sm:max-w-md w-full", props.WrapperClass,
+			templ.KV("hidden", props.Hidden),
+		}
+		{ props.WrapperAttrs... }
+	>
+		@Label(&FormLabelProps{Name: props.Name, Label: props.Label, Tooltip: props.Tooltip, Description: props.Description, Disabled: props.Disabled})
+		<div class="flex flex-col w-full">
+			<div class="flex flex-row items-center space-x-2">
+				<button
+					type="button"
+					class=" disabled:opacity-50 cursor-pointer disabled:pointer-events-none"
+					{ props.DecreaseAttrs... }
+				>
+					<i class="ph ph-minus-circle text-brand icon-xl"></i>
+				</button>
+				<input
+					id={ props.Name }
+					name={ props.Name }
+					type="number"
+					class={ `max-w-5 bg-transparent focus:outline-hidden cursor-auto text-center disabeld:opacity-50
+					disabled:pointer-events-none disabled:text-substitute [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`, templ.KV("border-error", props.Error !="" ) }
+					required
+					onKeyDown="return false"
+					{ props.Attrs... }
+				/>
+				<button
+					type="button"
+					class=" disabled:opacity-50 cursor-pointer disabled:pointer-events-none"
+					{ props.IncreaseAttrs... }
+				>
+					<i class="ph ph-plus-circle text-brand icon-xl"></i>
+				</button>
+			</div>
+			<p id={ fmt.Sprintf("%s_error", props.Name) } class="text-xs text-error">
+				if props.Error != "" {
+					{ props.Error }
+				}
+			</p>
+		</div>
+	</div>
+}

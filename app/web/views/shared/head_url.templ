@@ -1,0 +1,60 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/request"
+import "context"
+import "fmt"
+import "strings"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+func getBaseUrl(ctx context.Context) string {
+	baseUrl, _ := request.HostDomainUrlFrom(ctx)
+	tenant, ok := request.TenantFrom(ctx)
+	if !ok {
+		return baseUrl
+	}
+	baseUrl = fmt.Sprintf("%s/team/%d", baseUrl, tenant.UID)
+
+	project, ok := request.ProjectFrom(ctx)
+	if !ok {
+		return baseUrl
+	}
+	baseUrl = fmt.Sprintf("%s/project/%d", baseUrl, project.UID)
+
+	environment, ok := request.EnvironmentFrom(ctx)
+	if !ok {
+		return baseUrl
+	}
+	//custom logic to add environment only if the current route is any application sub route
+	currUrl, _ := request.CurrentFullUrlFrom(ctx)
+	if routes.HasApplicationRoute(currUrl, environment) {
+		baseUrl = fmt.Sprintf("%s/environment/%d", baseUrl, environment.UID)
+	}
+
+	application, ok := request.ApplicationFrom(ctx)
+	if !ok {
+		return baseUrl
+	}
+	baseUrl = fmt.Sprintf("%s/application/%d", baseUrl, application.UID)
+
+	//	deployment, ok := request.DeploymentFrom(ctx)
+	//	if !ok {
+	//		return baseUrl
+	//	}
+
+	//	baseUrl = fmt.Sprintf("%s/deployment/%d", baseUrl, deployment.UID)
+	return baseUrl
+}
+
+func formatedBaseUrl(ctx context.Context) string {
+	baseUrl := getBaseUrl(ctx)
+	if strings.HasSuffix(baseUrl, "/") {
+		return baseUrl
+	}
+	return baseUrl + "/"
+}
+
+templ BaseUrl() {
+	<head hx-head="re-eval">
+		<base href={ formatedBaseUrl(ctx) }/>
+	</head>
+}

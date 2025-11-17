@@ -1,0 +1,15 @@
+package views
+
+import "fmt"
+
+templ ValidationErrors(errs map[string]string) {
+	for key, msg := range errs {
+		@validationError(key, msg)
+	}
+}
+
+templ validationError(key string, msg string) {
+	<span id={ fmt.Sprintf("%s_error", key) } hx-swap-oob="innerHTML">
+		{ msg }
+	</span>
+}

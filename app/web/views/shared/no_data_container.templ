@@ -1,0 +1,12 @@
+package shared
+
+templ NoData(message string, button templ.Component) {
+	<div class="grid px-6 py-14 lg:px-8">
+		<div class="flex flex-col text-center space-y-2">
+			<p>{ message }</p>
+			if button != nil {
+				@button
+			}
+		</div>
+	</div>
+}

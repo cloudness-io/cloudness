@@ -1,0 +1,151 @@
+package vtenant
+
+import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Limits(tenant *types.Tenant, restrictions *types.TenantRestrictions, canEdit bool) {
+	@header(tenant)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: TenantNavLimits,
+		Options:    getTenantNav(tenant),
+	}) {
+		<div class="max-w-7xl flex flex-col gap-2">
+			<div class="flex items-center gap-1">
+				<i class={ icons.LimitsIcon, "icon-2xl" }></i>
+				<h3>Limits</h3>
+			</div>
+			<form
+				class="flex flex-col gap-5 w-full mt-2"
+				x-data={ xdata.ToFormData(restrictions) }
+				x-cloak
+			>
+				<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4">
+					@shared.CheckBox(&shared.CheckBoxProps{
+						Name:     "allow_admin",
+						Label:    "Allow Admin",
+						Tooltip:  "Allow admins to edit team settings and restrictions, if unset only super admins can do it.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.boolean": "form.allow_admin",
+							"x-bind:checked":  "form.allow_admin === 'true'",
+							"@change":         "form.allow_admin = $el.checked ? 'true' : 'false'",
+						},
+					})
+				</div>
+				<h3>Project Limits</h3>
+				<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4">
+					@shared.Input(&shared.InputProps{
+						Name:     "max_projects",
+						Label:    "Max Projects",
+						Type:     "number",
+						Tooltip:  "Maximum number of projects allowed to be created in this team.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_projects",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+				</div>
+				<h3>Application Limits</h3>
+				<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4">
+					@shared.Input(&shared.InputProps{
+						Name:     "max_apps",
+						Label:    "Max Apps",
+						Type:     "number",
+						Tooltip:  "Maximum number of applications allowed to be created in this team.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_apps",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+					@shared.Input(&shared.InputProps{
+						Name:     "max_instances",
+						Label:    "Max Instances",
+						Type:     "number",
+						Tooltip:  "Maximum number of instances allowed per application in this team.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_instances",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+					@shared.Input(&shared.InputProps{
+						Name:     "max_cpu",
+						Label:    "Max CPUs",
+						Type:     "number",
+						Tooltip:  "Maximum CPUs per application.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_cpu",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+					@shared.Input(&shared.InputProps{
+						Name:     "max_memory",
+						Label:    "Max Memory",
+						Type:     "number",
+						Tooltip:  "Maximum Memory per application.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_memory",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+				</div>
+				<h3>Volume Limits</h3>
+				<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4">
+					@shared.Input(&shared.InputProps{
+						Name:     "max_volumes",
+						Label:    "Max Volumes",
+						Type:     "number",
+						Tooltip:  "Maximum number of volumes allowed to be created in this team.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_volumes",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+					@shared.Input(&shared.InputProps{
+						Name:     "min_volume_size",
+						Label:    "Min Volume Size",
+						Type:     "number",
+						Tooltip:  "Minimum size allowed per volume in this team.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.min_volume_size",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+					@shared.Input(&shared.InputProps{
+						Name:     "max_volume_size",
+						Label:    "Max Volume Size",
+						Type:     "number",
+						Tooltip:  "Maximum size allowed per volume in this team.",
+						Disabled: !canEdit,
+						Attrs: templ.Attributes{
+							"x-model.number": "form.max_volume_size",
+							"x-bind:min":     "1",
+							"x-bind:max":     "100",
+						},
+					})
+				</div>
+				if canEdit {
+					@shared.UpdateDiv(routes.TenantLimits)
+				}
+			</form>
+		</div>
+	}
+}

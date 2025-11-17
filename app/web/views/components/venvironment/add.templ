@@ -1,0 +1,43 @@
+package venvironment
+
+import (
+	"github.com/cloudness-io/cloudness/app/controller/environment"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+)
+
+templ add(values *environment.CreateEnvironmentInput, errors map[string]string) {
+	<form
+		id="addEnvironment"
+		hx-push-url="false"
+	>
+		<div class="flex items-center justify-between">
+			<h1 class="text-2xl font-medium">Create New Environment</h1>
+		</div>
+		<p class="text-xs text-tx-secondary">
+			Environment is a logical container where you can group related services
+		</p>
+		<div class="mt-2 flex flex-col gap-4">
+			<label for="Name">Environment Display Name</label>
+			@shared.Input(&shared.InputProps{
+				Name:        "name",
+				Value:       values.Name,
+				Placeholder: "Production",
+				Attrs: templ.Attributes{
+					"autofocus": true,
+				},
+				Error: errors["name"],
+			})
+		</div>
+		<div class="flex justify-end mt-6">
+			<button
+				type="submit"
+				class="button-primary"
+				hx-swap="none"
+				hx-post={ routes.EnvironmentCreate() }
+			>
+				Create
+			</button>
+		</div>
+	</form>
+}

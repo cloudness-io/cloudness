@@ -1,0 +1,26 @@
+package venvironment
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ EnvTile(env *types.Environment) {
+	<div
+		class="block cursor-pointer border bg-primary w-40 sm:w-52 shadow-xs rounded-sm transition-all duration-150 
+				hover:border-b-link overflow-ellipsis overflow-hidden hover:scale-105"
+		:class={ fmt.Sprintf("{ 'border-link': selected === '%d' }", env.UID) }
+		@click={ fmt.Sprintf("selected = '%d'", env.UID) }
+		x-cloak
+	>
+		<div class="mx-3 my-4">
+			<div class="flex items-center gap-1">
+				<p
+					class="font-medium truncate"
+					:class={ fmt.Sprintf(`selected === '%d' ? 'text-tx-primary' :	'text-tx-secondary'`, env.UID) }
+					x-cloak
+				>{ env.Name }</p>
+			</div>
+		</div>
+	</div>
+}

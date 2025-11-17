@@ -1,0 +1,74 @@
+package venvironment
+
+import (
+	"context"
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ List(envs []*types.Environment, selected *types.Environment, urlPathPattern string) {
+	<div class="flex flex-col gap-3" x-data="{openAddEnvironmentModal: false}">
+		@Header(false)
+		if len(envs) == 0 {
+			@shared.NoData("No environments found", createButton())
+		} else {
+			<ul
+				class="flex flex-wrap gap-3"
+				if selected != nil {
+					x-data={ fmt.Sprintf("{selected: '%d'}", selected.UID) }
+				} else {
+					x-data="{selected: ''}"
+				}
+			>
+				for _, env := range envs {
+					<li hx-get={ fmt.Sprintf(urlPathPattern, env.UID) }>
+						@EnvTile(env)
+					</li>
+				}
+			</ul>
+		}
+	</div>
+}
+
+func getEnvMenuDropdownProps(ctx context.Context, env *types.Environment) []*shared.MenuDropDownProps {
+	props := []*shared.MenuDropDownProps{}
+
+	//view
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Rename",
+		IconClass: icons.EditIcon,
+		Attrs: templ.Attributes{
+			"x-on:click": "environmentEditModel = true",
+		},
+	})
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Delete",
+		IconClass: icons.DeleteIcon,
+		Class:     "text-error",
+		Attrs: templ.Attributes{
+			"x-on:click": "environmentDeleteModel = true",
+		},
+	})
+
+	return props
+}
+
+templ ListEdit(envs []*types.Environment, selected *types.Environment) {
+	<div x-data="{openAddEnvironmentModal: false}">
+		@Header(true)
+		<div class="flex flex-col gap-2 mt-2 mb-4">
+			for _,env := range envs {
+				<div class="flex items-center place-content-between max-w-md px-4 py-2 border rounded-md" x-data="{environmentEditModel: false, environmentDeleteModel: false}">
+					<div class="whitespace-nowrap text-left">{ env.Name }</div>
+					<div class="whitespace-nowrap cursor-pointer">
+						@shared.MenuDropDown(getEnvMenuDropdownProps(ctx, env))
+						@shared.Modal("environmentEditModel", editEnvironmentForm(env))
+						@shared.Modal("environmentDeleteModel", deleteEnvironmentForm(env))
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}

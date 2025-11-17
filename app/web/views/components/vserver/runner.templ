@@ -1,0 +1,96 @@
+package vserver
+
+import (
+	serverCtrl "github.com/cloudness-io/cloudness/app/controller/server"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ runnerSettings(server *types.Server) {
+	<div class="flex items-center gap-1">
+		@shared.Icon(icons.RunnerIcon, "icon-xl")
+		<h3>Build/Runner Settings</h3>
+	</div>
+	<form
+		class="flex flex-col place-items-baseline mt-4 gap-2"
+		x-data={ xdata.ToFormData(&serverCtrl.ServerBuilderUpdateModel{ 
+							Enabled: server.BuildEnabled,
+							IsBuildServer: server.IsBuildServer,
+							MaxConcurrentBuilds: server.MaxConcurrentBuilds,
+							MaxCPUPerBuild: server.MaxCPUPerBuild,
+							MaxMemoryPerBuild: server.MaxMemoryPerBuild,
+			}) }
+		x-clock
+		hx-push-url="false"
+	>
+		@shared.CheckBox(&shared.CheckBoxProps{
+			Name:    "enabled",
+			Label:   "Enable",
+			Tooltip: "If enabled, the server will be used to build apps.",
+			Attrs: templ.Attributes{
+				"x-model.boolean": "form.enabled",
+				"x-bind:checked":  "form.enabled=== 'true'",
+				"@change":         "form.enabled= $el.checked ? 'true' : 'false'",
+			},
+		})
+		<div class="flex flex-col place-items-baseline mt-4 gap-2" x-show="form.enabled === 'true'">
+			<!--
+			@shared.CheckBox(&shared.CheckBoxProps{
+				Name:    "is_build_server",
+				Label:   "Build Server",
+				Tooltip: "If enabled, the server will be used only to build apps and will not accept deployments.",
+				Attrs: templ.Attributes{
+					"x-model.boolean": "form.is_build_server",
+					"x-bind:checked":  "form.is_build_server === 'true'",
+					"@change":         "form.is_build_server= $el.checked ? 'true' : 'false'",
+				},
+				Disclaimer: `<span x-show="form.is_build_server === 'true'" class="text-error">If checked, this server will be used only to run builds and applications cannot
+be deployed here.</span>`,
+			})
+			-->
+			@shared.Input(&shared.InputProps{
+				Name:        "max_concurrent_builds",
+				Label:       "Max Concurrent Builds",
+				Tooltip:     "Size of the volume in GB, cannot be downsized",
+				Type:        "number",
+				Placeholder: "1",
+				Required:    true,
+				Attrs: templ.Attributes{
+					"x-model.number": "form.max_concurrent_builds",
+					"x-bind:min":     "1",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Name:        "max_cpu_per_build",
+				Label:       "Max CPUs Per Build",
+				Tooltip:     "Maximum number of CPUs to be used per build. Remove restriction by setting to 0",
+				Type:        "number",
+				Placeholder: "1",
+				Required:    true,
+				Attrs: templ.Attributes{
+					"x-bind:step":    "0.1",
+					"x-model.number": "form.max_cpu_per_build",
+					"x-bind:min":     "0.1",
+					"x-bind:max":     "10",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Name:        "max_memory_per_build",
+				Label:       "Max Memory Per Build",
+				Tooltip:     "Maximum number of Memory to be used per build. Remove restriction by setting to 0",
+				Type:        "number",
+				Placeholder: "1",
+				Required:    true,
+				Attrs: templ.Attributes{
+					"x-bind:step":    "0.1",
+					"x-model.number": "form.max_memory_per_build",
+					"x-bind:min":     "0.1",
+					"x-bind:max":     "10",
+				},
+			})
+		</div>
+		@shared.UpdateDiv("/settings/server/builder")
+	</form>
+}

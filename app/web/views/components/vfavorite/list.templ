@@ -1,0 +1,57 @@
+package vfavorite
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ ListPlaceholder(tenant *types.Tenant) {
+	@shared.LazyLoader("favorites", routes.TenantCtx(ctx)+"/favorites")
+}
+
+templ List(favs []*types.FavoriteDTO) {
+	if len(favs) == 0 {
+		<div class="grid px-6 py-14 lg:px-8">
+			<div class="flex flex-col text-center space-y-2">
+				<p>
+					You do not have any favorites set. 
+				</p>
+				<p class="text-tx-secondary">
+					Set one by clicking on the star icon on appliaction page
+				</p>
+			</div>
+		</div>
+	} else {
+		<div hx-push-url="true" hx-sync="#main:drop">
+			<table class="min-w-full divide-y bg-primary text-left">
+				<thead>
+					<tr>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Name</th>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Project</th>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Environment</th>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%] hidden md:block">URL</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y overflow-y-visible">
+					for _,fav:= range favs {
+						<tr
+							class="hover:bg-secondary group cursor-pointer"
+							hx-get={ routes.ApplicationProject(fav.ProjectUID, fav.EnvironmentUID, fav.ApplicationUID) }
+						>
+							<td class="whitespace-nowrap px-4 py-2 link">{ fav.AppName }</td>
+							<td class="whitespace-nowrap px-4 py-2">{ fav.ProjectName }</td>
+							<td class="whitespace-nowrap px-4 py-2">{ fav.EnvironmentName }</td>
+							<td
+								class="whitespace-nowrap px-4 py-2 hidden md:block"
+								onClick="event.stopPropagation()"
+							>
+								if fav.AppDomain != "" {
+									<a class="link" href={ templ.SafeURL(fav.AppDomain) } target="_blank">{ fav.AppDomain }</a>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}

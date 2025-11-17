@@ -1,0 +1,222 @@
+package vgithubapp
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+	"strings"
+)
+
+templ Info(tenant *types.Tenant, project *types.Project, ghApp *types.GithubApp) {
+	<hr class="w-full border-t border-dotted"/>
+	<div class="flex flex-col gap-3 mt-2">
+		<div class="flex font-medium divide-x">
+			<h3 class="pr-2">{ ghApp.Name }</h3>
+			if ghApp.AppID != 0 && ghApp.InstallationID != 0 {
+				<a class="link px-2 flex items-center" href={ fmt.Sprintf("https://github.com/apps/%s/installations/new", ghApp.Name) }>
+					@shared.Icon(icons.OutIcon, "")
+					Update Repositories
+				</a>
+			}
+			<div class="px-2">
+				@deleteGithubApp(ghApp)
+			</div>
+		</div>
+		if ghApp.AppID == 0 {
+			@creationForm(tenant, project, ghApp)
+		} else if ghApp.InstallationID == 0 {
+			@installationForm(ghApp)
+		} else {
+			@info(ghApp)
+		}
+	</div>
+}
+
+templ info(ghApp *types.GithubApp) {
+	<form class="flex flex-wrap gap-3">
+		@shared.Input(&shared.InputProps{
+			Name:     "name",
+			Label:    "Name",
+			Value:    ghApp.Name,
+			Disabled: true,
+		})
+		@shared.Input(&shared.InputProps{
+			Name:        "org",
+			Label:       "Organization",
+			Value:       ghApp.Organization,
+			Placeholder: "If empty, personal username will be used",
+			Disabled:    true,
+		})
+		<div class="w-full"></div>
+		@shared.Input(&shared.InputProps{
+			Name:     "html_url",
+			Label:    "HTML Url",
+			Value:    ghApp.HtmlUrl,
+			Disabled: true,
+		})
+		@shared.Input(&shared.InputProps{
+			Name:     "app_id",
+			Label:    "API Url",
+			Value:    ghApp.ApiUrl,
+			Disabled: true,
+		})
+		<div class="w-full"></div>
+		@shared.Input(&shared.InputProps{
+			Name:     "user",
+			Label:    "User",
+			Value:    ghApp.CustomUser,
+			Disabled: true,
+		})
+		@shared.Input(&shared.InputProps{
+			Name:     "port",
+			Label:    "Port",
+			Value:    fmt.Sprintf("%d", ghApp.CustomPort),
+			Disabled: true,
+		})
+		<div class="w-full"></div>
+		@shared.Input(&shared.InputProps{
+			Name:     "app_id",
+			Label:    "App ID",
+			Value:    fmt.Sprintf("%d", ghApp.AppID),
+			Disabled: true,
+		})
+		@shared.Input(&shared.InputProps{
+			Name:     "installation_id",
+			Label:    "Installation ID",
+			Value:    fmt.Sprintf("%d", ghApp.InstallationID),
+			Disabled: true,
+		})
+	</form>
+}
+
+templ installationForm(ghApp *types.GithubApp) {
+	<div class="flex flex-col gap-3 mb-4">
+		<span class="text-error flex place-items-baseline gap-2">
+			<i class="ph ph-warning"></i>
+			<p>You must complete this step before you can use this source!</p>
+		</span>
+		<a
+			type="button"
+			class="flex items-center justify-center box bg-secondary cursor-pointer hover:border-link
+		hover:scale-105 border w-sm h-16"
+			href={ templ.URL(fmt.Sprintf("%s/apps/%s/installations/new", ghApp.HtmlUrl, strings.ReplaceAll(ghApp.Name, " ", "-"))) }
+		>
+			Install respositories on github
+		</a>
+	</div>
+}
+
+templ creationForm(tenant *types.Tenant, project *types.Project, ghApp *types.GithubApp) {
+	<script type="text/javascript">
+		function initData(
+			name,
+			tenant_uid,
+			project_uid,
+			uid,
+			organization,
+			html_url,
+		) {
+			return {
+				name: name,
+				tenant_uid: tenant_uid,
+				project_uid: project_uid,
+				uid: uid,
+				organization: organization,
+				html_url: html_url,
+				baseUrl: location.protocol + "//" + location.host,
+				createGithubApp() {
+					const appIdententifer = `${this.tenant_uid}-${this.project_uid}-${this.uid}`;
+					const webhookBaseUrl = `${this.baseUrl}/webhooks`;
+					const path = this.organization
+						? `organizations/${this.organization}/settings/apps/new`
+						: "settings/apps/new";
+					const default_permissions = {
+						contents: "read",
+						metadata: "read",
+						emails: "read",
+						administration: "read",
+					};
+					const data = {
+						name,
+						url: this.baseUrl,
+						hook_attributes: {
+							url: `${webhookBaseUrl}/source/github/events`,
+							active: true,
+						},
+						redirect_url: `${webhookBaseUrl}/source/github/redirect`,
+						callback_urls: [`${this.baseUrl}/login/github/app`],
+						public: false,
+						request_oauth_on_install: false,
+						setup_url: `${webhookBaseUrl}/source/github/install?source=${appIdententifer}`,
+						setup_on_update: true,
+						default_permissions,
+						default_events: ["push"],
+					};
+
+					const form = document.createElement("form");
+					form.setAttribute("method", "post");
+					form.setAttribute(
+						"action",
+						`${this.html_url}/${path}?state=${appIdententifer}`,
+					);
+					const input = document.createElement("input");
+					input.setAttribute("id", "manifest");
+					input.setAttribute("name", "manifest");
+					input.setAttribute("type", "hidden");
+					input.setAttribute("value", JSON.stringify(data));
+					form.appendChild(input);
+					document.getElementsByTagName("body")[0].appendChild(form);
+					form.submit();
+				},
+			};
+		}
+	</script>
+	<div
+		id="githubappsConfiguration"
+		class="flex flex-col gap-2"
+		x-data={ fmt.Sprintf("initData('%s','%d','%d', '%d', '%s', '%s')", ghApp.Name, tenant.UID, project.UID, ghApp.UID, ghApp.Organization, ghApp.HtmlUrl) }
+	>
+		<span class="text-error flex place-items-baseline gap-2">
+			<i class="ph ph-warning"></i>
+			<p>You must complete this step before you can use this source!</p>
+		</span>
+		<form
+			class="flex flex-col place-items-baseline mt-2 gap-2"
+		>
+			@shared.Input(&shared.InputProps{
+				Name:     "name",
+				Label:    "Name",
+				Value:    ghApp.Name,
+				Disabled: true,
+			})
+			@shared.Input(&shared.InputProps{
+				Name:     "organization",
+				Label:    "Organization",
+				Tooltip:  "Github organization name",
+				Value:    ghApp.Organization,
+				Disabled: true,
+			})
+			@shared.Input(&shared.InputProps{
+				Name:  "endpoint",
+				Label: "Webhook",
+				Tooltip: `Git webhooks will be sent to this endpoint. 
+											If you would like to use domain instead of IP address, set your Cloudness instance's FQDN in the Settings menu.`,
+				Attrs: templ.Attributes{
+					"x-model": "baseUrl",
+				},
+				Disabled: true,
+			})
+			<div class="flex justify-end h-full max-w-sm sm:max-w-md md:max-w-lg w-full mt-2" x-cloak>
+				<button
+					type="submit"
+					class="button-primary"
+					hx-swap="none"
+					x-on:click.prevent="createGithubApp()"
+				>
+					Register
+				</button>
+			</div>
+		</form>
+	</div>
+}

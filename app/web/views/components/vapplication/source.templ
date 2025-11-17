@@ -1,0 +1,30 @@
+package vapplication
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgithubapp"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgitpublic"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ SourceSettings(app *types.Application, ghApp *types.GithubApp) {
+	if app.GetGithubAppID() > 0 {
+		@vgithubapp.GithubSourceForm(ghApp, fmt.Sprintf("%s/source/github/%d", routes.ProjectCtx(ctx), ghApp.UID), app.Spec.ToInput())
+	} else if app.Spec.IsGit() {
+		@vgitpublic.GitPublicSourceFrom(app.Spec.ToInput())
+	} else if app.Spec.IsRegistry() {
+		<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4 ">
+			@shared.Input(&shared.InputProps{
+				Name:        "image",
+				Label:       "Image",
+				Placeholder: "nginx:latest",
+				Required:    true,
+				Attrs: templ.Attributes{
+					"x-model": "form.image",
+				},
+			})
+		</div>
+	}
+}

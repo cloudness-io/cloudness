@@ -1,0 +1,14 @@
+package shared
+
+templ PanelView(items []templ.Component) {
+	<div class="grid grid-cols-12 gap-2 w-full">
+		<div class="col-span-2 flex flex-col">
+			for _, item := range items {
+				@item
+			}
+		</div>
+		<div class="col-span-10">
+			{ children... }
+		</div>
+	</div>
+}

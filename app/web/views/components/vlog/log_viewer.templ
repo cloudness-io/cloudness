@@ -1,0 +1,80 @@
+package vlog
+
+import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+const logContainerClass = "flex flex-col h-[calc(100vh-10rem)] overflow-y-auto break-word text-[0.8rem] font-mono pr-4 pt-2 bg-black"
+
+func getInitMsg(status enum.DeploymentStatus) string {
+	switch status {
+	case enum.DeploymentStatusPending:
+		return "Waiting to be picked by a builder...."
+	case enum.DeploymentStatusRunning:
+		return "Deployment started, loading live logs..."
+	default:
+		return ""
+	}
+}
+
+templ LogContainer(d *types.Deployment) {
+	<div hx-push-url="false">
+		if d.Status == enum.DeploymentStatusRunning  || d.Status == enum.DeploymentStatusPending {
+			<div
+				hx-ext="sse"
+				sse-connect={ routes.DeploymentLogStream(d.UID) }
+				sse-swap="message"
+				sse-close="close"
+				hx-target="#logcontainer"
+				hx-swap="beforeend"
+			>
+				@logContainer(false, getInitMsg(d.Status))
+			</div>
+		} else {
+			<div
+				hx-get={ routes.DeploymentLog(d.UID) }
+				hx-trigger="load"
+				hx-target="#logcontainer"
+				hx-indicator=".log-spinner"
+			></div>
+			@logContainer(true, "")
+		}
+	</div>
+}
+
+templ LogViewer(logs []*types.LogLine) {
+	if len(logs) == 0 {
+		<div class="text-tx-secondary p-1">No logs found</div>
+	} else {
+		for _, log := range logs {
+			if log.Message != "" {
+				@LogLine(log)
+			}
+		}
+	}
+}
+
+templ logContainer(withSpinner bool, initMsg string) {
+	<div
+		id="logcontainer"
+		class={ logContainerClass }
+	>
+		if withSpinner {
+			<div class="log-spinner mx-auto mt-16">
+				<span class="spinner w-12 h-12"></span>
+			</div>
+		} else {
+			<div class="text-tx-secondary p-1">{ initMsg }</div>
+		}
+	</div>
+}
+
+templ EmptyLogContainerSwap() {
+	<div
+		id="logcontainer"
+		class={ logContainerClass }
+		hx-swap-oob="true"
+	></div>
+}

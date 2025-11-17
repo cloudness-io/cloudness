@@ -1,0 +1,35 @@
+package shared
+
+import (
+	"context"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/web/views"
+)
+
+func getTitleText(ctx context.Context) string {
+	application, ok := request.ApplicationFrom(ctx)
+	if ok {
+		return application.Name
+	}
+	project, ok := request.ProjectFrom(ctx)
+	if ok {
+		return project.Name
+	}
+	tenant, ok := request.TenantFrom(ctx)
+	if ok {
+		return tenant.Name
+	}
+	return ""
+}
+
+templ Title() {
+	@title(getTitleText(ctx))
+}
+
+templ title(title string) {
+	if title != "" {
+		<title>{ title } | { views.AppName }</title>
+	} else {
+		<title>{ views.AppName }</title>
+	}
+}

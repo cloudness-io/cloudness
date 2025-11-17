@@ -1,0 +1,16 @@
+package vapplication
+
+import (
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Metrics(app *types.Application) {
+	@appHeader(app)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AppNavMetrics,
+		Header:     shared.CommandBar(getCommandButtons()),
+		Content:    shared.Maintainance(&shared.MaintainanceProps{}),
+		Options:    getAppPageNav(app),
+	})
+}

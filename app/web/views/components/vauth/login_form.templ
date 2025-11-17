@@ -1,0 +1,45 @@
+package vauth
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+import "github.com/cloudness-io/cloudness/types"
+
+templ LoginForm(userSignupEnabled bool, demoUser *types.DemoUser) {
+	<form class="mt-6 space-y-3" hx-post={ routes.Login } hx-swap="none">
+		<div>
+			<label class="text-sm font-medium mb-2 block">Email</label>
+			<div class="relative flex items-center">
+				@shared.Input(&shared.InputProps{
+					Name:        "email",
+					HideLabel:   true,
+					Placeholder: "Enter Email",
+					Value:       demoUser.Email,
+				})
+			</div>
+		</div>
+		<div>
+			<label class="text-sm font-medium mb-2 block">Password</label>
+			<div class="relative flex items-center">
+				@shared.Input(&shared.InputProps{
+					Name:        "password",
+					Type:        "password",
+					HideLabel:   true,
+					Placeholder: "Enter password",
+					Value:       demoUser.Password,
+				})
+			</div>
+		</div>
+		<button type="submit" class="w-full py-2 px-4 text-sm button-primary">
+			Sign in
+		</button>
+		if userSignupEnabled {
+			<p class="text-sm text-center">
+				Don't have an account? 
+				<a
+					href={ routes.Register }
+					class="text-brand hover:underline ml-1 whitespace-nowrap font-semibold"
+				>Register</a>
+			</p>
+		}
+	</form>
+}

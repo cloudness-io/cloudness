@@ -1,0 +1,20 @@
+CREATE TABLE instances (
+    instance_id SERIAL PRIMARY KEY,
+    instance_super_admin INTEGER REFERENCES principals (principal_id) ON UPDATE NO ACTION ON DELETE RESTRICT,
+    instance_public_ipv4 TEXT,
+    instance_public_ipv6 TEXT,
+    instance_fqdn TEXT,
+    instance_update_enabled BOOLEAN,
+    instance_update_check_frequency TEXT,
+    instance_dns_validation_enabled BOOLEAN,
+    instance_dns_servers TEXT,
+    instance_user_signup_enabled BOOLEAN,
+    instance_demo_user_enabled BOOLEAN,
+	 instance_registry_enabled	BOOLEAN,
+	 instance_registry_size	INTEGER ,
+	 instance_registry_mirror_enabled BOOLEAN,
+	 instance_registry_mirror_size INTEGER,
+	 instance_external_scripts TEXT,
+	 instance_created BIGINT,
+    instance_updated BIGINT
+);

@@ -1,0 +1,33 @@
+package vvariable
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/request"
+
+templ variablesLister(usrVars []*types.UserVariable) {
+	if len(usrVars) == 0 {
+		<div class="flex flex-col space-y-1 justify-center text-center py-14 rounded-lg border border-dashed">
+			<p class="text-substitute leading-6 font-semibold">No Environment Variables</p>
+		</div>
+	} else {
+		<div class="border-b border-opacity-25"></div>
+		@variableListItem(usrVars, request.IsProjectContributor(ctx))
+	}
+}
+
+templ variableListItem(usrVars []*types.UserVariable, canEdit bool) {
+	<div class="flex flex-col space-y-2 my-2 mb-20">
+		for _, v := range usrVars {
+			<div x-data="{edit:false, generate:false, deleteModel:false}" x-cloak>
+				<div x-show="!edit">
+					@info(v, canEdit, editOptions(canEdit))
+				</div>
+				<div x-show="edit">
+					@edit(v)
+				</div>
+				@shared.Modal("generate", generateModal(v))
+				@shared.Modal("deleteModel", variableDeleteModal(v))
+			</div>
+		}
+	</div>
+}

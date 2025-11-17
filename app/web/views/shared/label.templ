@@ -1,0 +1,23 @@
+package shared
+
+type FormLabelProps struct {
+	Name        string
+	Label       string
+	Tooltip     string
+	Description string
+	Disabled    bool
+}
+
+templ Label(props *FormLabelProps) {
+	if props.Label != "" {
+		<span class="flex flex-col min-w-24 md:min-w-32">
+			<span class="flex items-center gap-1 text-tx-secondary">
+				<label class={ templ.KV("text-tx-secondary", props.Disabled) } for={ props.Name }>{ props.Label }</label>
+				if props.Tooltip != "" {
+					@Tooltip(props.Tooltip, "")
+				}
+			</span>
+			<p class="text-tx-secondary text-xs">{ props.Description }</p>
+		</span>
+	}
+}

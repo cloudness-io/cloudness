@@ -1,0 +1,60 @@
+package vinstance
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/xdata"
+import "fmt"
+
+templ Settings(instance *types.Instance, server *types.Server) {
+	@header()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: InstanceNavSettings,
+		Options:    getInstanceNav(),
+	}) {
+		<h3>Instance Settings</h3>
+		<form
+			class="flex flex-col place-items-baseline mt-4 gap-2"
+			x-data={ xdata.ToFormData(instance) }
+			x-clock
+		>
+			@shared.Input(&shared.InputProps{
+				Name:  "fqdn",
+				Label: "Instance Domain",
+				Disclaimer: fmt.Sprintf(`If DNS validation fails, please check if your DNS entry is pointing to your primary
+				server's IP	address <i>%s</i>`, server.IPV4),
+				Tooltip: `Enter the full domain name (FQDN) of the instance, including 'https://' if you want to secure the	dashboard with HTTPS. Setting this will make the dashboard accessible via this domain, secured by HTTPS, instead of just the IP address.`,
+				Attrs: templ.Attributes{
+					"x-model": "form.fqdn",
+				},
+			})
+			<h4 class="mt-2">DNS Configuration</h4>
+			@shared.CheckBox(&shared.CheckBoxProps{
+				Name:  "dns_validation_enabled",
+				Label: "DNS Validation",
+				Attrs: templ.Attributes{
+					"x-model.boolean": "form.dns_validation_enabled",
+					"x-bind:checked":  "form.dns_validation_enabled == 'true'",
+					"@change":         "form.dns_validation_enabled = $el.checked ? 'true' : 'false'",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Name:    "dns_servers",
+				Label:   "DNS Servers",
+				Tooltip: `Comma separated list of DNS servers to use for DNS validation. `,
+				Attrs: templ.Attributes{
+					"x-model": "form.dns_servers",
+				},
+			})
+			<h4 class="mt-2">External Scripts</h4>
+			@shared.Textarea(&shared.TextareaProps{
+				Name:    "external_scripts",
+				Label:   "External Scripts",
+				Tooltip: "External scripts to be loaded in the dashboard,e.g. analytics",
+				Attrs: templ.Attributes{
+					"x-model": "form.external_scripts",
+				},
+			})
+			@shared.UpdateDiv("/settings")
+		</form>
+	}
+}

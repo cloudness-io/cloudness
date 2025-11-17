@@ -1,0 +1,51 @@
+package vserver
+
+import (
+	serverCtrl "github.com/cloudness-io/cloudness/app/controller/server"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ limits(server *types.Server) {
+	<div class="flex items-center gap-1">
+		@shared.Icon(icons.LimitsIcon, "icon-xl")
+		<h3>Server Limits</h3>
+	</div>
+	<form
+		class="flex flex-col place-items-baseline mt-4 gap-2"
+		x-data={ xdata.ToFormData(&serverCtrl.ServerLimitsUpdateModel{ 
+				SupportsOnlineExpansion: server.VolumeSupportsOnlineExpansion,
+				MinVolumeSize: server.VolumeMinSize,
+			}) }
+		x-clock
+		hx-push-url="false"
+	>
+		<h4>Volume Limits</h4>
+		@shared.CheckBox(&shared.CheckBoxProps{
+			Name:    "supports_online_expansion",
+			Label:   "Allows Online Expansion",
+			Tooltip: "When unchecked, Volumes to be unmounted from pod before resizing, since many cloud providers do not support volumes online expansion in place.",
+			Attrs: templ.Attributes{
+				"x-model.boolean": "form.supports_online_expansion",
+				"x-bind:checked":  "form.supports_online_expansion === 'true'",
+				"@change":         "form.supports_online_expansion = $el.checked ? 'true' : 'false'",
+			},
+		})
+		@shared.Input(&shared.InputProps{
+			Name:  "min_volume_size",
+			Label: "Min Volume Size",
+			Tooltip: `Minimum size of the volume in GB, this is to handle the limitations of the underlying cloud
+				providers if any. E.g. linode cannot have volumes less than 10GB.`,
+			Type:        "number",
+			Placeholder: "1",
+			Required:    true,
+			Attrs: templ.Attributes{
+				"x-model.number": "form.min_volume_size",
+				"x-bind:min":     "1",
+			},
+		})
+		@shared.UpdateDiv("/settings/server/limits")
+	</form>
+}

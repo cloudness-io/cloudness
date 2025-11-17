@@ -1,0 +1,26 @@
+package shared
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+)
+
+type CopyToClipboardProps struct {
+	Value string
+}
+
+templ CopyToClipboard(value string) {
+	<span x-data="{ copied: false }">
+		<span
+			x-show="!copied"
+			x-transition
+			@click={ fmt.Sprintf(`navigator.clipboard.writeText('%s'), copied=true, setTimeout(() => copied = false,
+			3000)`, value) }
+		>
+			@Icon(icons.CopyIcon, "cursor-pointer")
+		</span>
+		<span x-show="copied" x-transition>
+			@Icon(icons.SuccessIcon, "cursor-pointer")
+		</span>
+	</span>
+}

@@ -1,0 +1,37 @@
+package common
+
+import "fmt"
+
+templ Date(t int64) {
+	<span x-data={ fmt.Sprintf("{ time : %d }", t) } x-init="time = moment(time).format('MMM Do')">
+		<span x-text="time"></span>
+	</span>
+}
+
+templ DateTimeYear(t int64) {
+	<span x-data={ fmt.Sprintf("{ time : %d }", t) } x-init="time = moment(time).format('MM/DD/YYYY, h:mm:ss A')">
+		<span x-text="time"></span>
+	</span>
+}
+
+templ DateTime(t int64) {
+	<span x-data={ fmt.Sprintf("{ time : %d }", t) } x-init="time = moment(time).format('MMM Do h:mm:ss A')">
+		<span x-text="time"></span>
+	</span>
+}
+
+templ TimeAgo(t int64) {
+	<span x-data={ fmt.Sprintf("{ time : %d }", t) } x-init="time = moment(time).fromNow()">
+		<span x-text="time"></span>
+	</span>
+}
+
+templ TimeDiff(startTime int64, endTime int64) {
+	<span
+		x-data={ fmt.Sprintf("{ startTime : %d, endTime: %d, diff:'' }", startTime, endTime) }
+		x-init="diff =
+	humanizeDuration(moment.duration(moment(endTime).diff(moment(startTime))), {round: true, languages:{en:{h:'h',m:'m',s:'s',}}})"
+	>
+		<span x-text="diff"></span>
+	</span>
+}

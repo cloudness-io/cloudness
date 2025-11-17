@@ -1,0 +1,28 @@
+package shared
+
+type Command struct {
+	Name  string
+	Icon  string
+	Attrs templ.Attributes
+}
+
+templ CommandBar(commands []*Command) {
+	if len(commands) > 0 {
+		<div
+			id="command-bar"
+			class="flex space-x-2 overflow-hidden h-8 w-full max-w-sceen border-b mb-2"
+			hx-push-url="false"
+			hx-swap="none"
+		>
+			for _, cmd := range commands {
+				<button
+					class="command-btn flex gap-1 items-center px-2 cursor-pointer hover:bg-secondary"
+					{ cmd.Attrs... }
+				>
+					<i class={ cmd.Icon, "text-link" }></i>
+					<span>{ cmd.Name }</span>
+				</button>
+			}
+		</div>
+	}
+}

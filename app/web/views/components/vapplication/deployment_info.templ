@@ -1,0 +1,17 @@
+package vapplication
+
+import (
+	"github.com/cloudness-io/cloudness/app/web/views/components/vdeployment"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ DeploymentInfo(app *types.Application, d *types.Deployment) {
+	@appHeader(app)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AppNavDeployments,
+		Content:    vdeployment.Info(app, d),
+		Options:    getAppPageNav(app),
+		Header:     shared.CommandBar(getCommandButtons()),
+	})
+}

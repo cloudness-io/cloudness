@@ -1,0 +1,56 @@
+package vgithubapp
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ deleteGithubApp(ghApp *types.GithubApp) {
+	if request.IsProjectOwner(ctx) {
+		<div x-data="{ghAppDeleteModel: false}">
+			<buton type="button" class="button-danger" x-on:click="ghAppDeleteModel = true">
+				Delete 
+			</buton>
+			@shared.Modal("ghAppDeleteModel", deleteGithubAppForm(ghApp))
+		</div>
+	}
+}
+
+templ deleteGithubAppForm(ghApp *types.GithubApp) {
+	<form class="flex flex-col gap-2 w-sm" x-data={ fmt.Sprintf("{name:'%s', confirm:''}", ghApp.Name) }>
+		<h2 class="text-xl font-semibold text-error">Delete Environment</h2>
+		<p class="w-full max-w-full">
+			Are you sure you want to delete the Github app <span class="italic font-semibold">{ ghApp.Name }</span> ? This
+			action is permanent.
+		</p>
+		<p class="text-tx-secondary">
+			Type <span class="notranslate font-bold">{ ghApp.Name }</span> to confirm.
+		</p>
+		@shared.Input(&shared.InputProps{
+			Name:       "confirm",
+			InputClass: "focus:border-error",
+			Attrs: templ.Attributes{
+				"x-model": "confirm",
+			},
+		})
+		<footer class="flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="ghAppDeleteModel = false">
+					Close	
+				</button>
+				<button
+					type="submit"
+					class="button-danger"
+					:disabled="name != confirm"
+					hx-delete={ fmt.Sprintf("%s/%d", routes.ProjectSourceGithub, ghApp.UID) }
+					hx-swap="none"
+				>
+					Delete
+				</button>
+			</div>
+		</footer>
+	</form>
+}

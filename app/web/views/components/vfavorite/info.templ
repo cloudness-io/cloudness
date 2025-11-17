@@ -1,0 +1,40 @@
+package vfavorite
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ SymbolPlaceHolder(app *types.Application) {
+	<div
+		id={ fmt.Sprintf("favorite-%d", app.UID) }
+		hx-get={ routes.ApplicationCtx(ctx) + "/" + routes.AppFavorite }
+		hx-trigger="load"
+		hx-swap="innerHTML"
+		hx-indicator="#fav-app"
+	>
+		<div id="fav-app">
+			@Symbol(app, false)
+		</div>
+	</div>
+}
+
+templ Symbol(app *types.Application, isFav bool) {
+	<span
+		class="cursor-pointer"
+		if !isFav {
+			hx-get={ routes.AppFavorite + "/add" }
+		} else {
+			hx-get={ routes.AppFavorite + "/remove" }
+		}
+		hx-trigger="click"
+	>
+		if isFav {
+			<i class={ icons.IsFavIcon }></i>
+		} else {
+			<i class={ icons.ToFavIcon }></i>
+		}
+	</span>
+}

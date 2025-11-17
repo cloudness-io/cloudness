@@ -1,0 +1,37 @@
+package vapplication
+
+import (
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+)
+
+func getCommandButtons() []*shared.Command {
+	commands := []*shared.Command{}
+
+	commands = append(commands, &shared.Command{
+		Name: "Start",
+		Icon: "ph ph-play",
+		Attrs: templ.Attributes{
+			"hx-patch": "test",
+		},
+	})
+
+	commands = append(commands, &shared.Command{
+		Name: "Stop",
+		Icon: "ph ph-stop",
+	})
+
+	commands = append(commands, &shared.Command{
+		Name:  "Deploy",
+		Icon:  icons.DeployIcon,
+		Attrs: templ.Attributes{"hx-patch": "deploy"},
+	})
+
+	commands = append(commands, &shared.Command{
+		Name:  "Redeploy",
+		Icon:  icons.RedoIcon,
+		Attrs: templ.Attributes{"hx-patch": "redeploy"},
+	})
+
+	return commands
+}

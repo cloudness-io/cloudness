@@ -1,0 +1,38 @@
+package vvariable
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+var variableLenghtRange = []string{}
+
+func init() {
+	for i := 1; i < 36; i++ {
+		variableLenghtRange = append(variableLenghtRange, fmt.Sprintf("%d", i))
+	}
+}
+
+templ generateModal(v *types.UserVariable) {
+	<h2 class="flex text-xl font-semibold text-center items-center">Variable Generator</h2>
+	<p class="text-substitute text-xs">Generate a random variable value</p>
+	<form
+		class="w-full pt-4"
+		hx-patch={ fmt.Sprintf("%s/%d/generate", routes.AppVariables, v.UID) }
+		hx-push-url="false"
+		hx-swap="none"
+	>
+		@shared.Dropdown(&shared.DropdownProps{
+			Name:    "length",
+			Label:   "Variable Length",
+			Value:   "15",
+			Options: variableLenghtRange,
+		})
+		<div class="pt-4 flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="generate=false">Cancel</button>
+				<button type="submit" class="button-primary">Save</button>
+			</div>
+		</div>
+	</form>
+}

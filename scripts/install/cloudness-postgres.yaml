@@ -1,0 +1,29 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: pg-cluster
+  namespace: cloudness
+spec:
+  terminationPolicy: Delete
+  clusterDef: postgresql
+  topology: replication
+  componentSpecs:
+    - name: postgresql
+      serviceVersion: 17.5.0
+      replicas: 1
+      tls: true  # Enable TLS encryption
+      issuer:
+        name: KubeBlocks  # Use KubeBlocks' built-in certificate authority
+      disableExporter: true
+      resources:
+        requests:
+          cpu: "0.5"
+          memory: "0.5Gi"
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi

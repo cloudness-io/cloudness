@@ -1,0 +1,43 @@
+package vproject
+
+import (
+	"github.com/cloudness-io/cloudness/app/controller/project"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+)
+
+templ AddProject(values *project.CreateProjectInput, errors map[string]string) {
+	<form
+		id="addProject"
+		hx-push-url="false"
+	>
+		<div class="flex items-center justify-between">
+			<h1 class="text-2xl font-medium">Create New Project</h1>
+		</div>
+		<p class="text-xs text-tx-secondary">
+			Project is a logical container where you can group related services
+		</p>
+		<div class="mt-2 flex flex-col space-y-2">
+			<label for="Name">Project Display Name</label>
+			@shared.Input(&shared.InputProps{
+				Name:        "name",
+				Value:       values.Name,
+				Placeholder: "My Cool Project",
+				Attrs: templ.Attributes{
+					"autofocus": true,
+				},
+				Error: errors["name"],
+			})
+		</div>
+		<div class="flex justify-end mt-6">
+			<button
+				type="submit"
+				class="button-primary"
+				hx-swap="none"
+				hx-post={ routes.ProjectCreate() }
+			>
+				Create
+			</button>
+		</div>
+	</form>
+}

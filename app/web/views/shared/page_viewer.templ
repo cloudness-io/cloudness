@@ -1,0 +1,108 @@
+package shared
+
+type PageViewProps struct {
+	ActiveName string
+	Options    []*PageNavItem
+	Content    templ.Component
+	Header     templ.Component
+}
+
+type PageNavItem struct {
+	Name        string
+	Class       string
+	Icon        string
+	IconContent templ.Component
+	ActionUrl   string
+	Hide        bool
+}
+
+templ PageView(props *PageViewProps) {
+	<div
+		hx-target="#main"
+		hx-push-url="true"
+		hx-replace-url="true"
+		hx-push-url="true"
+		hx-sync="#main:replace"
+		class="grid grid-rows-[auto_minmax(0px,1fr)] md:grid-rows-none md:grid-cols-[auto_minmax(0px,1fr)] w-full h-full"
+	>
+		<aside class="hidden md:block">
+			@pageNavAside(props)
+		</aside>
+		<div
+			class="flex items-center header-tabs space-x-3 md:space-x-8 md:min-h-[39px] w-full max-w-screen md:pb-0
+			overflow-x-auto
+	border-b md:border-transparent md:!hidden pl-1 py-3"
+		>
+			@pageNavTab(props)
+		</div>
+		<div class="w-full max-w-screen px-2 md:px-0 mt-2 md:mt-0 md:pl-4">
+			<div class="max-w-screen md:max-w-container md:mx-auto pr-0 md:pr-1 mb-2">
+				if props.Header != nil {
+					@props.Header
+				}
+				if props.Content != nil {
+					@props.Content
+				}
+				{ children... }
+			</div>
+		</div>
+	</div>
+}
+
+templ pageNavAside(props *PageViewProps) {
+	<ul class="m-0 w-40">
+		for _, opt := range props.Options {
+			if !opt.Hide {
+				<li
+					class={ `relative flex m-0 p-0 align-top overflow-hidden hover:bg-secondary cursor-pointer`,
+			templ.KV("font-semibold inset-shadow-sidebar bg-secondary", opt.Name == props.ActiveName), opt.Class }
+				>
+					<a
+						class="columns-2 flex items-center w-full py-2 px-5 min-h-8 box-border overflow-hidden"
+						href={ opt.ActionUrl }
+					>
+						<span class="pr-0 self-auto relative mr-2">
+							if opt.IconContent != nil {
+								@opt.IconContent
+							} else {
+								@Icon(opt.Icon, "")
+							}
+						</span>
+						<span class="overflow-hidden text-ellipsis grow capitalize">
+							{ opt.Name }
+						</span>
+					</a>
+				</li>
+			}
+		}
+	</ul>
+}
+
+templ pageNavTab(props *PageViewProps) {
+	<ul class="m-0 flex flex-row">
+		for _, opt := range props.Options {
+			if !opt.Hide {
+				<li
+					class={ `relative flex m-0 p-0 align-top overflow-hidden hover:bg-secondary cursor-pointer`,
+			templ.KV("font-semibold inset-shadow-tabbar bg-secondary", opt.Name == props.ActiveName), opt.Class }
+				>
+					<a
+						class="flex items-center w-full py-1 px-5 min-h-8 box-border overflow-hidden"
+						href={ opt.ActionUrl }
+					>
+						<span class="pr-0 self-auto relative mr-2">
+							if opt.IconContent != nil {
+								@opt.IconContent
+							} else {
+								@Icon(opt.Icon, "")
+							}
+						</span>
+						<span class="text-ellipsis grow capitalize">
+							{ opt.Name }
+						</span>
+					</a>
+				</li>
+			}
+		}
+	</ul>
+}

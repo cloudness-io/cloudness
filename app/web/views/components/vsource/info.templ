@@ -1,0 +1,10 @@
+package vsource
+
+import "github.com/cloudness-io/cloudness/types"
+
+templ Info(app *types.Application, spec *types.ApplicationSpec) {
+	<div class="flex gap-2 text-xs">
+		@Image(app)
+		@Link(spec)
+	</div>
+}

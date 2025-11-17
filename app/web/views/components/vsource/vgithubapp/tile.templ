@@ -1,0 +1,28 @@
+package vgithubapp 
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ GithubTile(ghApp *types.GithubApp) {
+	<div
+		class="cursor-pointer border bg-primary w-40 sm:w-52 h-12 shadow-xs rounded-sm transition-all duration-150 
+				hover:border-b-link overflow-ellipsis overflow-hidden hover:scale-105 flex items-center"
+		:class={ fmt.Sprintf("{ 'border-link': selected === '%d' }", ghApp.UID) }
+		@click={ fmt.Sprintf("selected = '%d'", ghApp.UID) }
+		x-cloak
+	>
+		<div class="flex flex-col gap-1 mx-3">
+			<p
+				class="font-medium truncate"
+				x-cloak
+			>{ ghApp.Name }</p>
+			if ghApp.AppID == 0 {
+				<p class="text-xs text-error">Registration pending</p>
+			} else if ghApp.InstallationID == 0 {
+				<p class="text-xs text-error">Installation pending</p>
+			}
+		</div>
+	</div>
+}

@@ -1,0 +1,96 @@
+package shared
+
+import "fmt"
+
+type InputNumberProps struct {
+	Name              string
+	Description       string
+	Value             int
+	Tooltip           string
+	WrapperClass      string
+	WrapperAttrs      templ.Attributes
+	Label             string
+	LabelWrapperClass string
+	Attrs             templ.Attributes
+	DecreaseAttrs     templ.Attributes
+	IncreaseAttrs     templ.Attributes
+	Error             string
+	Hidden            bool
+	Disabled          bool
+}
+
+templ InputNumber(props *InputNumberProps) {
+	<div
+		class={
+			"flex flex-col md:flex-row gap-1 justify-center md:items-center max-w-sm sm:max-w-md w-full", props.WrapperClass,
+			templ.KV("hidden", props.Hidden),
+		}
+		{ props.WrapperAttrs... }
+	>
+		@Label(&FormLabelProps{Name: props.Name, Label: props.Label, Tooltip: props.Tooltip, Description: props.Description, Disabled: props.Disabled})
+		<div class="flex flex-col w-full">
+			<div class="flex flex-row">
+				<div class="flex items-center space-x-2">
+					<button
+						type="button"
+						class="size-5 inline-flex justify-center items-center font-medium rounded-full border
+					border-brand text-brand
+					bg-transparent focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none hover:bg-brand-light-hover"
+						{ props.DecreaseAttrs... }
+					>
+						<svg
+							class="shrink-0 size-3.5"
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M5 12h14"></path>
+						</svg>
+					</button>
+					<input
+						type="number"
+						class={ `max-w-9 bg-transparent focus:outline-hidden cursor-auto text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`, templ.KV("border-error", props.Error !="" ) }
+						required
+						disabled
+						onKeyDown="return false"
+						{ props.Attrs... }
+					/>
+					<button
+						type="button"
+						class="size-5 inline-flex justify-center items-center font-medium rounded-full border
+					border-brand text-brand
+					bg-transparent focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none hover:bg-brand-light-hover"
+						{ props.IncreaseAttrs... }
+					>
+						<svg
+							class="shrink-0 size-3.5"
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M5 12h14"></path>
+							<path d="M12 5v14"></path>
+						</svg>
+					</button>
+				</div>
+			</div>
+			<p id={ fmt.Sprintf("%s_error", props.Name) } class="text-xs text-error">
+				if props.Error != "" {
+					{ props.Error }
+				}
+			</p>
+		</div>
+	</div>
+}

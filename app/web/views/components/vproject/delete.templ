@@ -1,0 +1,72 @@
+package vproject
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ ProjectDelete(project *types.Project) {
+	@projectHeader(project)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: ProjectNavDelete,
+		Content:    projectDelette(project),
+		Options:    getProjectPageNav(ctx),
+	})
+}
+
+templ projectDelette(project *types.Project) {
+	<div class="flex items-center gap-1">
+		<i class={ icons.DeleteIcon, "icon-2xl" }></i>
+		<h3>Delete Project</h3>
+	</div>
+	<div class="mt-2" x-data="{projectDeleteModel: false}">
+		<div class="text-error mb-4">
+			Deleting this project will permanently delete all data components in the project for all environments.
+			This cannot be undone.
+		</div>
+		<buton type="button" class="button-danger w-20" x-on:click="projectDeleteModel = true">
+			Delete
+		</buton>
+		@shared.Modal("projectDeleteModel", deleteProjectForm(project))
+	</div>
+}
+
+templ deleteProjectForm(p *types.Project) {
+	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{name:'%s', confirm:''}", p.Name) }>
+		<h2 class="text-xl font-semibold text-error">Delete Project</h2>
+		<p class="w-full max-w-full">
+			Are you sure you want to delete the project <span class="italic font-semibold">{ p.Name }</span> ? This
+			action is permanent and will delete all your project data. This includes all data in components for
+			all environments.
+		</p>
+		<p class="text-tx-secondary">
+			Type <span class="notranslate font-bold">{ p.Name }</span> to confirm.
+		</p>
+		@shared.Input(&shared.InputProps{
+			Name:       "confirm",
+			InputClass: "focus:border-error",
+			Attrs: templ.Attributes{
+				"x-model": "confirm",
+			},
+		})
+		<footer class="flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="projectDeleteModel = false">
+					Close	
+				</button>
+				<button
+					type="submit"
+					class="button-danger"
+					:disabled="name != confirm"
+					hx-delete={ routes.ProjectDelete }
+					hx-swap="none"
+				>
+					Delete
+				</button>
+			</div>
+		</footer>
+	</form>
+}

@@ -1,0 +1,39 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ LazyLoader(identifier string, url string) {
+	<div
+		id={ identifier }
+		hx-get={ url }
+		hx-trigger="load"
+		hx-push-url="false"
+		hx-swap="innerHTML"
+		hx-target={ "#" + identifier + "-target" }
+		hx-indicator={ "#" + identifier + "indicator" }
+	>
+		<div
+			id={ identifier + "indicator" }
+			class="htmx-indicator w-full"
+		>
+			<div class="min-h-44 inset-0 flex items-center justify-center bg-primary bg-opacity-75 z-10 pointer-events-none">
+				<div class="size-8">
+					<div class="spinner"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id={ identifier + "-target" }></div>
+}
+
+templ LazyRefresher(identifier string, url string) {
+	<div
+		hx-get={ url }
+		hx-push-url="false"
+		hx-swap-oob="true"
+		hx-target={ "#" + identifier + "-target" }
+		class="cursor-pointer"
+	>
+		@Icon(icons.RefreshIcon, "")
+	</div>
+}

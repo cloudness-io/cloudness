@@ -1,0 +1,211 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Namespace }}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Identifier }}-sa
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Identifier }}-role
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+rules:
+- apiGroups: [""] # Core API group
+  resources: ["services"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Identifier }}-rolebinding
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+subjects:
+- kind: ServiceAccount
+  name: {{ .Identifier }}-sa
+  namespace: {{ .Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Identifier }}-role
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Identifier }}
+  labels:
+    identifier: {{ .Identifier }}
+data:
+  {{- range $key, $value := .Variables }}
+  {{ $key }}: {{ $value }}
+  {{ end }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Identifier }}
+  labels:
+    identifier: {{ .Identifier }}
+type: Opaque
+data:
+  {{- range $key, $value := .Secrets }}
+  {{ $key }}: {{ $value }}
+  {{ end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Identifier }}
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Identifier }} # Must match .spec.template.metadata.labels
+  template:
+    metadata:
+      labels:
+        app: {{ .Identifier }} # Must match .spec.selector.matchLabels
+    spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      serviceAccountName: {{ .Identifier }}-sa
+      terminationGracePeriodSeconds: 10
+      automountServiceAccountToken: false
+      containers:
+      - name: app
+        image: {{ .Image }}
+        {{- if .Command }}
+        command:
+          {{- range .Command }}
+        - {{ . }}
+          {{- end }}
+          {{- if .Args }}
+        args:
+            {{- range .Args }}
+        - {{ . }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        ports:
+        {{- range $index, $value := .ServicePorts }}
+        - containerPort: {{ $value }}
+          protocol: TCP
+          name: port-{{ $value }}
+        {{- end }}
+        env:
+        {{- range $key, $value:= .Variables }}
+        - name: {{ $key }} 
+          valueFrom:
+            configMapKeyRef:
+              name: {{ $.Identifier }}
+              key: {{ $key }}
+        {{ end }}
+        {{- range $key, $value := .Secrets }}
+        - name: {{ $key }} 
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Identifier }}
+              key: {{ $key }}
+        {{ end }}
+      enableServiceLinks: false
+
+{{ if gt (len .ServicePorts) 0 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Identifier }}
+  namespace: {{ .Namespace }}
+  labels:
+    app: {{ .Identifier }}
+    identifier: {{ .Identifier }}
+spec:
+  selector:
+    app: {{ .Identifier }}
+  ports:
+  {{- range $index, $value := .ServicePorts }}
+  - name: {{ $value }}-port
+    protocol: TCP
+    port: {{ $value }}
+    targetPort: {{ $value }}
+  {{- end }}
+{{ end }}
+
+{{ if .ServiceDomain }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Identifier }}-http
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  parentRefs:
+    - name: traefik
+      namespace: traefik
+      sectionName: {{ if .ServiceDomain.Websecure }} websecure {{ else }} web {{ end }}
+      kind: Gateway
+
+  hostnames:
+    - {{ .ServiceDomain.Domain }}
+
+  rules:
+     - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+       backendRefs:
+        - name: {{ $.Identifier }}
+          namespace: {{ $.Namespace }}
+          port: {{ .ServiceDomain.Port }}
+{{ end }}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Identifier }}-hpa
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Identifier }}
+  minReplicas: 1
+  maxReplicas: {{ .MaxReplicas }}  # Configurable Max Replicas
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75  # Scale up if CPU usage exceeds 75%
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75  # Scale up if Memory usage exceeds 75%

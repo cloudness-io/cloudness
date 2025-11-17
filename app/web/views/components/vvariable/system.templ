@@ -1,0 +1,56 @@
+package vvariable
+
+import "github.com/cloudness-io/cloudness/types"
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/xdata"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ systemVariables(sysVars []*types.SystemVariable) {
+	<div class="w-full pt-3 border-t" x-data="{open:false}">
+		<button
+			type="button"
+			class="focus-visible:outline-none focus-visible:ring-2 rounded group flex items-center gap-x-2 text-disabled cursor-pointer"
+			x-on:click="open = !open"
+		>
+			<i
+				class="ph ph-caret-right icon-base transition-transform"
+				:class="open ? 'rotate-90' : 'rotate-0'"
+			></i>
+			{ fmt.Sprintf("%d Platform variables", len(sysVars)) }
+		</button>
+		<div class="flex flex-col space-y-2 my-2" x-show="open" x-cloak x-transition>
+			<span class="text-disabled text-xs py-2">
+				Cloudness provides additional system environment variables to all builds and
+				deployments.
+			</span>
+			for _, v := range sysVars {
+				@sysVarItem(v)
+			}
+		</div>
+	</div>
+}
+
+templ sysVarItem(sysVar *types.SystemVariable) {
+	<form
+		class="py-2 rounded-md gap-1 group hover:bg-secondary grid
+		grid-cols-[minmax(0,2fr)_minmax(0,3fr)] justify-items-stretch min-h-[2.25rem] px-4 items-center
+		font-mono"
+		x-data={ xdata.ToJsonData(sysVar) }
+	>
+		<div class="flex space-x-4 items-center">
+			<span class="truncate" x-text="key"></span>
+		</div>
+		<div class="flex items-center h-full space-x-2" x-data="{show : false}">
+			<div>
+				<span :class="show ? 'truncate' : 'hidden'" x-text="text_value"></span>
+				<span :class="show ? 'hidden' : ''">**********</span>
+			</div>
+			<span x-show="!show">
+				<i class={ icons.HiddenIcon,"icon-base cursor-pointer" } x-on:click="show = true"></i>
+			</span>
+			<span x-show="show">
+				<i class={ icons.ShownIcon,"icon-base cursor-pointer" } x-on:click="show = false"></i>
+			</span>
+		</div>
+	</form>
+}

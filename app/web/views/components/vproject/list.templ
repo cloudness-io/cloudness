@@ -1,0 +1,63 @@
+package vproject
+
+import (
+	"context"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/common"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+func getProjectMenuDropdownProps(ctx context.Context, project *types.Project) []*shared.MenuDropDownProps {
+	props := []*shared.MenuDropDownProps{}
+
+	//view
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "View",
+		IconClass: icons.ShownIcon,
+		Attrs:     templ.Attributes{"hx-get": routes.Project(project.UID)},
+	})
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Settings",
+		IconClass: icons.SettingsIcon,
+		Attrs:     templ.Attributes{"hx-get": routes.Project(project.UID) + "/" + routes.ProjectSettings},
+	})
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Delete",
+		IconClass: icons.DeleteIcon,
+		Class:     "text-error",
+		Attrs:     templ.Attributes{"hx-get": routes.Project(project.UID) + "/" + routes.ProjectDelete},
+	})
+
+	return props
+}
+
+templ ListProjects(projects []*types.Project) {
+	<div hx-push-url="true" hx-sync="#main:drop">
+		<table class="min-w-full divide-y bg-primary text-left">
+			<thead>
+				<tr>
+					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Name</th>
+					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden text-ellipsis">Description</th>
+					<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%] hidden md:block">Created</th>
+					<th class="whitespace-nowrap px-4 py-2 font-medium w-[10%]"></th>
+				</tr>
+			</thead>
+			<tbody class="divide-y overflow-y-visible">
+				for _,project := range projects {
+					<tr class="hover:bg-secondary group cursor-pointer" hx-get={ routes.Project(project.UID) }>
+						<td class="whitespace-nowrap px-4 py-2 link">{ project.Name }</td>
+						<td class="whitespace-nowrap px-4 py-2 max-w-40 sm:max-w-full truncate overflow-hidden text-ellipsis">{ project.Description }</td>
+						<td class="whitespace-nowrap px-4 py-2 hidden md:block">
+							@common.DateTimeYear(project.Created)
+						</td>
+						<td class="whitespace-nowrap px-4 py-2 text-right">
+							@shared.MenuDropDown(getProjectMenuDropdownProps(ctx, project))
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

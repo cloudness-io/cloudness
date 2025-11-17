@@ -1,0 +1,26 @@
+package navigations
+
+import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views"
+	"github.com/cloudness-io/cloudness/app/web/views/dto"
+)
+
+templ MainNav(dto *dto.NavBarOption) {
+	<header
+		hx-sync="#main:replace"
+		hx-push-url="true"
+		class="h-12 grid grid-flow-col pl-4 min-w-full border-b bg-secondary"
+	>
+		<a
+			class="flex items-center space-x-1 md:w-auto md:min-w-0 text-brand text-xl cursor-pointer"
+			hx-get={ routes.TenantCtx(ctx) }
+		>
+			<img src={ views.Asset("logo.svg") } class="h-5 w-auto" alt="logo"/>
+			<span class="font-semibold text-md">{ views.AppName }</span>
+		</a>
+		<div class="flex items-center ml-auto space-x-8 hover:bg-secondary-hover">
+			@ProfileDropdown(dto)
+		</div>
+	</header>
+}

@@ -1,0 +1,9 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/types"
+
+templ ExternalScripts(instance *types.Instance, ok bool) {
+	if ok && instance.ExternalScripts!= "" {
+		@templ.Raw("<script hx-preserve='true'>" + instance.ExternalScripts + "</script>")
+	}
+}

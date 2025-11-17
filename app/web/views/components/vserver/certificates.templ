@@ -1,0 +1,55 @@
+package vserver
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/components/common"
+
+templ listCertificatesContainer() {
+	<div class="flex items-center gap-1">
+		@shared.Icon(icons.CertificateIcon, "icon-lg")
+		<h3>Certificates</h3>
+		@shared.LazyRefresher("server-certificates", "/settings/server/certificates")
+	</div>
+	@shared.LazyLoader("server-certificates", "/settings/server/certificates")
+}
+
+templ ListCertificates(certs []*types.Certificate) {
+	<div class="relative mt-3" x-cloak>
+		if len(certs) <= 0 {
+			@shared.NoData("No Certificates found", nil)
+		} else {
+			<table class="min-w-full divide-y bg-primary text-left">
+				<thead>
+					<tr>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Name</th>
+						<th
+							class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden
+					text-ellipsis"
+						>DNSNames</th>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%] hidden md:block">RenewalTime</th>
+						<th class="whitespace-nowrap px-4 py-2 font-medium w-[10%]">Ready</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y overflow-y-visible">
+					for _,cert:= range certs {
+						<tr class="hover:bg-secondary group">
+							<td class="whitespace-nowrap px-4 py-2">{ cert.Name }</td>
+							<td
+								class="whitespace-nowrap px-4 py-2 max-w-40 sm:max-w-full truncate overflow-hidden
+						text-ellipsis"
+							>{ fmt.Sprintf("%s", cert.DNSNames) }</td>
+							<td class="whitespace-nowrap px-4 py-2 hidden md:block">
+								@common.DateTimeYear(cert.RenewalTime.UTC().UnixMilli())
+							</td>
+							<td class="whitespace-nowrap px-4 py-2">
+								{ cert.Ready }
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+	</div>
+}

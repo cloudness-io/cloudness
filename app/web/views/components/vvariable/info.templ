@@ -1,0 +1,54 @@
+package vvariable
+
+import (
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+	"strings"
+)
+
+templ info(v *types.UserVariable, canEdit bool, options templ.Component) {
+	<div
+		class="grid auto-rows-auto lg:grid-cols-[1fr_2fr_1fr_auto] gap-2 items-center px-4 min-h-[2.25rem]"
+	>
+		<div class="flex space-x-4 items-center">
+			if v.IsGenerated {
+				<i class={ icons.FunctionIcon, "text-substitute" }></i>
+			} else {
+				<i class={ icons.VariablesIcon, "text-substitute" }></i>
+			}
+			<span class="truncate">{ v.Key }</span>
+		</div>
+		<div class="flex items-center h-full space-x-2" x-data="{show : false, copied: false}">
+			<div>
+				<span
+					id={ v.Key }
+					x-show="show"
+					:class="show ? 'truncate' : 'hidden'"
+				>
+					if v.TextValue != "" && canEdit {
+						{ v.TextValue }
+					} else {
+						&lt;empty string&gt
+					}
+				</span>
+				<span x-show="!show" :class="show ? 'hidden' : ''">**********</span>
+			</div>
+			if canEdit {
+				<span x-show="!show">
+					<i class={ icons.HiddenIcon,"icon-base cursor-pointer" } x-on:click="show = true, setTimeout(() => show = false, 5000)"></i>
+					@shared.CopyToClipboard(v.TextValue)
+				</span>
+				<span x-show="show">
+					<i class={ icons.ShownIcon,"icon-base cursor-pointer" } x-on:click="show = false"></i>
+				</span>
+			}
+		</div>
+		<div>
+			<span class="capitalize">{ strings.ReplaceAll(v.Type, "_", " & ") }</span>
+		</div>
+		<div class="flex justify-end items-center space-x-1">
+			@options
+		</div>
+	</div>
+}

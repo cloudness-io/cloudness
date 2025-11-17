@@ -1,0 +1,61 @@
+package shared
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"strings"
+)
+
+type ContentViewerProps struct {
+	ContentWrapperClass string
+	Sections            []*ContentViewerSection
+	Footer              templ.Component
+}
+
+type ContentViewerSection struct {
+	Name        string
+	IconClass   string
+	HeaderClass string
+	Content     templ.Component
+}
+
+templ ContentViewer(props *ContentViewerProps) {
+	<div id="content-viewer-container" class="flex">
+		<div
+			class="w-[100%] sm:w-[80%] min-h-full border-l-0 sm:border-l sm:border-r border-divider border-opacity-[8%] mx-2 sm:mx-6"
+		>
+			for _,section := range props.Sections {
+				<section class="relative pb-5 scroll-mt-32" id={ strings.ToLower(section.Name) }>
+					<div
+						class={ "text-base absolute hidden! sm:flex! top-[-6px] left-[-18px] border rounded-full p-[8px] bg-primary", section.HeaderClass }
+						size="40"
+						aria-hidden="true"
+					>
+						@Icon(section.IconClass, "icon-plain grayscale-100")
+					</div>
+					<h4 class={ "text-tx-secondary mb-4 sm:pl-8", section.HeaderClass }>{ section.Name }</h4>
+					<div class={ "sm:pl-8 pb-2 sm:pb-3" , props.ContentWrapperClass }>
+						@section.Content
+					</div>
+				</section>
+			}
+			if props.Footer != nil {
+				<footer id="content-viewer-footer" class="border-y border-l-0 border-opacity-[8%] sticky bottom-0 z-40">
+					@props.Footer
+				</footer>
+			}
+		</div>
+		<aside id="side-pane-container" class="hidden sm:block sm:w-[20%]">
+			<ul class="grid gap-3 fixed top-64 md:top-48 mr-12" hx-boost="false">
+				for _,section := range props.Sections {
+					<li class="text-substitute">
+						<a
+							class="cursor-pointer hover:text-brand"
+							href={ templ.SafeURL(fmt.Sprintf("%s#%s", routes.AppSettings, strings.ToLower(section.Name))) }
+						>{ section.Name }</a>
+					</li>
+				}
+			</ul>
+		</aside>
+	</div>
+}

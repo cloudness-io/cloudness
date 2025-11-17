@@ -1,0 +1,50 @@
+package vcreate
+
+import (
+	"github.com/cloudness-io/cloudness/app/services/spec"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vnetwork"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+)
+
+templ RegistryView() {
+	@createHeader()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navRegistry,
+		Options:    getCreatePageNavs(),
+	}) {
+		<div class="max-w-7xl flex flex-col gap-2 mt-1 pl-1 md:pl-5">
+			<div class="flex place-items-baseline align-middle gap-1">
+				@shared.Icon(icons.SourceRegistryIcon, ``)
+				<h3>Registry</h3>
+			</div>
+			<form
+				class="flex flex-col gap-4 w-full"
+				x-data={ xdata.ToFormData(spec.DefaultRegistryIn()) }
+				hx-post={ routes.AppNewRegistry }
+				hx-swap="none"
+			>
+				<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4 ">
+					@shared.Input(&shared.InputProps{
+						Name:        "image",
+						Label:       "Image",
+						Placeholder: "nginx:latest",
+						Required:    true,
+						Attrs: templ.Attributes{
+							"x-model": "form.image",
+						},
+					})
+				</div>
+				@vnetwork.NetworkCreate()
+				<button
+					type="submit"
+					class="button-primary max-w-fit"
+				>
+					Create	
+				</button>
+			</form>
+		</div>
+	}
+}

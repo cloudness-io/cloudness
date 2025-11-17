@@ -1,0 +1,54 @@
+package vnetwork
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ tcpProxy() {
+	<template x-if="form.tcpProxiesEnabled">
+		<div class="flex flex-col space-y-4 mt-4 max-w-sm sm:max-w-md md:max-w-lg w-full">
+			<span class="text-xs text-tx-secondary">Connect to your service over TCP using below port</span>
+			<div class="group flex items-center w-full gap-3 px-4 py-3 rounded-lg border">
+				<div class="flex space-x-2 items-center">
+					<i class="ph ph-arrow-right"></i>
+					<p class="text-sm flex-grow text-left whitespace-nowrap">
+						<span x-text="form.tcpProxiesPort"></span>
+					</p>
+				</div>
+				<div class="flex space-x-1 ml-auto">
+					<button type="button" hx-delete={ routes.AppNetworkTCP }>
+						<i class={ icons.DeleteIcon, "cursor-pointer" }></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</template>
+	<template x-if="showTCPProxyForm" x-cloak>
+		@tcpProxyForm()
+	</template>
+}
+
+templ tcpProxyForm() {
+	<div class="p-2 border rounded-lg text-xs mt-2 max-w-sm sm:max-w-md md:max-w-lg w-full">
+		<p class="mb-4 font-semibold">Add TCP Proxy</p>
+		<form>
+			@shared.Input(&shared.InputProps{
+				Name:        "tcpProxyPort",
+				HideLabel:   true,
+				Placeholder: "5432",
+				Required:    true,
+				Attrs: templ.Attributes{
+					"min": "0",
+					"max": "65535",
+				},
+			})
+			<div class="flex justify-between mt-4 w-full">
+				<p class="text-disabled">Enter your application port</p>
+				<div class="flex space-x-2 items-center">
+					<button type="button" class="button-neutral" x-on:click="showTCPProxyForm = false">Cancel</button>
+					<button type="submit" class="button-inert" hx-post={ routes.AppNetworkTCP }>Add Proxy</button>
+				</div>
+			</div>
+		</form>
+	</div>
+}

@@ -1,0 +1,30 @@
+package vcreate
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "github.com/cloudness-io/cloudness/app/web/views/components/vtemplate"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ DatabaseView(templates []*types.Template) {
+	@createHeader()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navDatabase,
+		Options:    getCreatePageNavs(),
+	}) {
+		<div class="flex place-items-baseline align-middle gap-1">
+			@shared.Icon(icons.SourceDatabaseIcon, ``)
+			<h3>Database</h3>
+		</div>
+		@vtemplate.List(templates, routes.AppNewDatabase)
+	}
+}
+
+templ DatabasePreview(template *types.Template) {
+	@createHeader()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navDatabase,
+		Options:    getCreatePageNavs(),
+		Content:    vtemplate.Preview(template, routes.AppNewDatabase),
+	})
+}

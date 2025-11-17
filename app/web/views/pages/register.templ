@@ -1,0 +1,36 @@
+package pages
+
+import "github.com/cloudness-io/cloudness/app/web/views"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/vauth"
+
+templ RegistrationDisabled() {
+	<div class="flex min-h-full flex-col justify-center px-0 sm:px-6 py-12 lg:px-8">
+		<div class="sm:mx-auto sm:w-full sm:max-w-sm">
+			<img class="mx-auto h-10 w-auto" src={ views.Asset("logo.svg") }/>
+			<h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight">
+				Welcome to Cloudness
+			</h2>
+		</div>
+		<div class="mx-auto min-w-xs sm:max-w-md">
+			@shared.Maintainance(&shared.MaintainanceProps{
+				Header:    "Registration disabled",
+				Subheader: "Please contact administrator",
+			})
+		</div>
+	</div>
+}
+
+templ RegistrationPage() {
+	<div class="flex min-h-full flex-col justify-center px-0 sm:px-6 py-12 lg:px-8">
+		<div class="sm:mx-auto sm:w-full sm:max-w-sm">
+			<img class="mx-auto h-10 w-auto" src={ views.Asset("logo.svg") }/>
+			<h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight">
+				Register to Cloudness
+			</h2>
+		</div>
+		<div class="mx-auto min-w-xs sm:max-w-md">
+			@vauth.RegisterForm()
+		</div>
+	</div>
+}

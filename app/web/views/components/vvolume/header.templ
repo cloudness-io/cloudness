@@ -1,0 +1,32 @@
+package vvolume
+
+import (
+	specSvc "github.com/cloudness-io/cloudness/app/services/spec"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+templ header(action enum.VolumeFormAction) {
+	<div class="flex items-center gap-1" x-data="{openAddVolumeModal: false}">
+		@shared.Icon(icons.VolumeSectionIcon, "size-6 icon-2xl")
+		<h3>
+			switch action {
+				case enum.VolumeFormActionCreate, enum.VolumeFormActionUpdate:
+					Volumes
+				default:
+					Unattached Volumes
+			}
+		</h3>
+		if action == enum.VolumeFormActionCreate || action == enum.VolumeFormActionUpdate {
+			<button
+				type="button"
+				class="button-link"
+				x-on:click="openAddVolumeModal = true"
+			>
+				<i class={ icons.AddIcon }></i> Add
+			</button>
+		}
+		@shared.Modal("openAddVolumeModal", form(enum.VolumeFormActionCreate, specSvc.DefaultVolumeInput(), 0))
+	</div>
+}

@@ -1,0 +1,63 @@
+package vvariable
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+templ variableTypeRadio(selected string) {
+	<div class="flex flex-col gap-2">
+		<div class="flex items-center justify-start gap-2 font-medium text-on-surface has-disabled:opacity-75">
+			for _, v := range enum.VariableTypesStr {
+				<input
+					id={ v }
+					name="type"
+					type="radio"
+					class="before:content[''] relative h-4 w-4 appearance-none rounded-full border-2
+		bg-secondary before:invisible before:absolute before:left-1/2 before:top-1/2 before:h-1.5
+		before:w-1.5 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-primary
+		checked:border-brand checked:bg-brand checked:before:visible focus:outline-2 focus:outline-offset-2
+		focus:outline-brand checked:focus:outline-brand disabled:cursor-default"
+					value={ v }
+					if v == selected {
+						checked
+					}
+				/>
+				<label for={ v } class="text-sm capitalize">
+					if v == string(enum.VariableTypeBuildAndRun) {
+						Build & Run
+					} else {
+						{ v }
+					}
+				</label>
+			}
+		</div>
+	</div>
+}
+
+templ variableTypeSelector() {
+	<div class="flex space-x-2">
+		@variableTypeCheckBox("Build", string(enum.VariableTypeBuild))
+		@variableTypeCheckBox("Run", string(enum.VariableTypeRun))
+		@variableTypeCheckBox("Build & Run", string(enum.VariableTypeBuildAndRun))
+	</div>
+}
+
+templ variableTypeCheckBox(key string, value string) {
+	<div class="relative flex items-center space-x-1">
+		<input
+			x-bind:key="key"
+			id={ key }
+			type="radio"
+			class="before:content[''] relative h-4 w-4 appearance-none rounded-full border-2
+		bg-secondary before:invisible before:absolute before:left-1/2 before:top-1/2 before:h-1.5
+		before:w-1.5 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-primary
+		checked:border-brand checked:bg-brand checked:before:visible focus:outline-2 focus:outline-offset-2
+		focus:outline-brand checked:focus:outline-brand disabled:cursor-default"
+			value={ value }
+			x-model="type"
+			x-bind:checked={ fmt.Sprintf("type === '%s'", value) }
+		/>
+		<label for={ key }>{ key }</label>
+	</div>
+}

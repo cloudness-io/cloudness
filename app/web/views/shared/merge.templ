@@ -1,0 +1,9 @@
+package shared
+
+templ Merge(contents ...templ.Component) {
+	<div class="flex flex-col gap-4">
+		for _, component := range contents {
+			@component
+		}
+	</div>
+}

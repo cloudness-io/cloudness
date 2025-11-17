@@ -1,0 +1,60 @@
+{
+  "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/redis.svg",
+  "name": "Redis",
+  "readme": "Redis is the world’s fastest data platform for caching, vector search, and NoSQL databases.",
+  "tags": ["database"],
+  "services": [
+    {
+      "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/redis.svg",
+      "name": "Redis",
+      "build": {
+        "source": {
+          "registry": {
+            "image": "bitnami/redis"
+          }
+        }
+      },
+      "deploy": {},
+      "networking": {
+        "containerPorts": [6379],
+        "tcpProxies": {
+          "tcpPort": 6379
+        }
+      },
+      "volumes": [
+        {
+          "name": "RedisData",
+          "mountPath": "/bitnami"
+        }
+      ],
+      "variables": [
+        {
+          "key": "REDIS_PRIVATE_URL",
+          "value": "redis://${{REDIS_USER}}:${{REDIS_PASSWORD}}@${{REDIS_HOST}}:${{REDIS_PORT}}",
+          "type": "run"
+        },
+        {
+          "key": "REDIS_HOST",
+          "value": "${{CLOUDNESS_PRIVATE_DOMAIN}}",
+          "type": "run"
+        },
+        {
+          "key": "REDIS_PORT",
+          "value": "6379",
+          "type": "run"
+        },
+        {
+          "key": "REDIS_USER",
+          "value": "default",
+          "type": "run"
+        },
+        {
+          "key": "REDIS_PASSWORD",
+          "value": "${{secret(32)}}",
+          "type": "run"
+        }
+      ]
+    }
+  ]
+}
+

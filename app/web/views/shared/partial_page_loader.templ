@@ -1,0 +1,14 @@
+package shared
+
+templ PartialPageLoader(divId string) {
+	<div
+		id={ divId }
+		class="htmx-indicator"
+	>
+		<div class="absolute inset-0 flex items-center justify-center bg-primary bg-opacity-75 z-10 pointer-events-none">
+			<div class="size-8">
+				<div class="spinner"></div>
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,110 @@
+package shared
+
+import (
+	"context"
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+)
+
+type bcItem struct {
+	name string
+	url  string
+}
+
+func buildProps(ctx context.Context) []*bcItem {
+	props := []*bcItem{}
+	_, ok := request.TenantFrom(ctx)
+	if !ok {
+		return props
+	}
+
+	//project
+	p, ok := request.ProjectFrom(ctx)
+	if !ok {
+		return props
+	}
+	props = append(props, &bcItem{name: "Home", url: routes.TenantCtx(ctx)})
+	props = append(props, &bcItem{name: p.Name, url: routes.ProjectCtx(ctx)})
+
+	// environment
+	e, ok := request.EnvironmentFrom(ctx)
+	if !ok {
+		return props
+	}
+	props = append(props, &bcItem{name: e.Name, url: routes.EnvironmentCtx(ctx) + routes.EnvironmentApplication + routes.TargetMainQuery})
+
+	// application
+	a, ok := request.ApplicationFrom(ctx)
+	if !ok {
+		return props
+	}
+	props = append(props, &bcItem{name: a.Name, url: routes.ApplicationCtx(ctx)})
+
+	// deployment
+	d, ok := request.DeploymentFrom(ctx)
+	if !ok {
+		return props
+	}
+	props = append(props, &bcItem{name: fmt.Sprintf("%d", d.UID), url: routes.DeploymentCtx(ctx)})
+
+	return props
+}
+
+templ BreadCrumb(isHtmlRender bool) {
+	if len(buildProps(ctx)) > 0 {
+		@breadCrumb(buildProps(ctx), isHtmlRender)
+	}
+}
+
+templ breadCrumb(crumbs []*bcItem, isHTMLRender bool) {
+	<div
+		id="breadcrumb"
+		class="pt-2 pl-1 md:pl-5"
+		if isHTMLRender {
+			hx-swap-oob="true"
+		}
+	>
+		<nav
+			class="text-xs font-medium text-substitute select-none"
+			aria-label="breadcrumb"
+			hx-push-url="true"
+			hx-target="#main"
+			hx-sync="#main:replace"
+		>
+			<ol class="flex flex-wrap items-center gap-1 text-xs">
+				for i:=0;i < len(crumbs) ; i++ {
+					<li
+						class="flex items-center justify-center gap-1"
+					>
+						if i < len(crumbs) - 1 {
+							<a
+								href={ crumbs[i].url }
+								class="link text-xs cursor-pointer"
+							>{ crumbs[i].name }</a>
+						} else {
+							<span class="text-tx-secondary">{ crumbs[i].name }</span>
+						}
+						<div class="self-end mb-[0.215rem] text-disabled">
+							<svg
+								class="rtl:rotate-180 w-2 h-2 text-substitute"
+								aria-hidden="true"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 6 10"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="m1 9 4-4-4-4"
+								></path>
+							</svg>
+						</div>
+					</li>
+				}
+			</ol>
+		</nav>
+	</div>
+}

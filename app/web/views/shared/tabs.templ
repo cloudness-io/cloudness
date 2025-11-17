@@ -1,0 +1,41 @@
+package shared
+
+type TabItem struct {
+	Name      string
+	IconClass string
+	Prefix    templ.Component
+	Url       string
+	Selected  bool
+}
+
+templ Tabs(items []*TabItem, selected string) {
+	<div class="w-full">
+		<div class="flex gap-2 overflow-x-auto border-b border-divider" role="tablist" aria-label="tab options">
+			for _, item := range items {
+				<button
+					hx-get={ item.Url }
+					hx-push-url="true"
+					class={
+						`flex items-center gap-1 h-min px-4 py-2 text-base capitalize hover:cursor-pointer`,
+						templ.KV(`font-bold border-b-2 border-brand text-brand`, item.Name == selected),
+						templ.KV(` font-medium text-substitute hover:text-text hover:border-b-substitute hover:border-b-2`, item.Name != selected),
+					}
+					type="button"
+					role="tab"
+					aria-controls={ item.Name }
+				>
+					if item.Prefix != nil {
+						@item.Prefix
+					}
+					if item.IconClass != "" {
+						<i class={ item.IconClass, "icon-md" }></i>
+					}
+					{ item.Name }
+				</button>
+			}
+		</div>
+		<div class="px-2 py-4">
+			{ children... }
+		</div>
+	</div>
+}

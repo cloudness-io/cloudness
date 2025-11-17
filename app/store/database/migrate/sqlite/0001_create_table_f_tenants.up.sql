@@ -1,0 +1,24 @@
+CREATE TABLE tenants (
+	tenant_id							INTEGER PRIMARY KEY AUTOINCREMENT,
+	tenant_uid							INTEGER NOT NULL,
+	tenant_name							TEXT NOT NULL,
+	tenant_description				TEXT,
+	tenant_allow_admin_to_modify  BOOLEAN,
+	tenant_max_projects     		INTEGER,
+	tenant_max_apps  					INTEGER,
+	tenant_max_instances          INTEGER,
+	tenant_max_cpu_per_app  		INTEGER,
+	tenant_max_memory_per_app 		REAL,
+	tenant_max_volumes 				INTEGER,
+	tenant_min_volume_size 			INTEGER,
+	tenant_max_volume_size 			INTEGER,
+
+	tenant_created_by					INTEGER,
+
+	tenant_created						BIGINT NOT NULL,
+	tenant_updated						BIGINT NOT NULL,
+	tenant_deleted						BIGINT DEFAULT NULL,
+
+	UNIQUE(tenant_uid)
+
+);

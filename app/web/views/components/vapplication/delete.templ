@@ -1,0 +1,91 @@
+package vapplication
+
+import (
+	"github.com/cloudness-io/cloudness/app/controller/application"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Delete(app *types.Application) {
+	@appHeader(app)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AppNavDelete,
+		Content:    delete(app),
+		Options:    getAppPageNav(app),
+		Header:     shared.CommandBar(getCommandButtons()),
+	})
+}
+
+templ delete(c *types.Application) {
+	<div class="flex items-center gap-1">
+		<i class={ icons.DeleteIcon, "icon-2xl" }></i>
+		<h3>Delete Application</h3>
+	</div>
+	<div x-data="{applicationDeleteModel: false}" class="col-span-6 w-full">
+		<div class="text-error mb-4">
+			Deleting this application will permanently delete all its deployments and remove it from this environment.
+			This cannot be undone.
+		</div>
+		<buton type="button" class="button-danger w-40" x-on:click="applicationDeleteModel = true">
+			Delete Application
+		</buton>
+		@shared.Modal("applicationDeleteModel", deleteApplicationForm(c))
+	</div>
+}
+
+templ deleteApplicationForm(c *types.Application) {
+	<form
+		class="flex flex-col gap-2"
+		x-data={ xdata.ToFormData(application.DefaultDeleteOption(c)) }
+		hx-delete={ routes.AppDelete }
+		hx-swap="none"
+	>
+		<h2 class="text-xl font-semibold text-center items-center">Delete Application</h2>
+		<p class="w-full max-w-full">
+			Are you sure you want to delete the application <span class="italic font-semibold">{ c.Name }</span>? All data
+			associated with this application will
+			be removed forever.
+		</p>
+		<div class="flex justify-between w-full mt-1">
+			<p class="text-tx-secondary">Delete volumes associated with this resource</p>
+			@shared.CheckBoxWithoutWrapper(&shared.CheckBoxProps{
+				Name:    "volume",
+				Checked: true,
+				Attrs: templ.Attributes{
+					"x-model.boolean": "form.volume",
+					"x-bind:checked":  "form.volume == 'true'",
+					"@change":         "form.volume = $el.checked ? 'true' : 'false'",
+				},
+			})
+		</div>
+		<p class="3 text-substitute">
+			Type <span class="notranslate font-bold">{ c.Name }</span> @shared.CopyToClipboard(c.Name)
+			to confirm.
+		</p>
+		@shared.Input(&shared.InputProps{
+			Name:       "confirm",
+			InputClass: "focus:border-error",
+			Required:   true,
+			Attrs: templ.Attributes{
+				"x-model": "form.confirm",
+			},
+		})
+		<footer class="flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="applicationDeleteModel = false">
+					Close	
+				</button>
+				<button
+					type="submit"
+					class="button-danger"
+					:disabled="form.name != form.confirm"
+				>
+					Delete
+				</button>
+			</div>
+		</footer>
+	</form>
+}

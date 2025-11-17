@@ -1,0 +1,149 @@
+package vproject
+
+import (
+	"github.com/cloudness-io/cloudness/app/auth"
+	projectCtrl "github.com/cloudness-io/cloudness/app/controller/project"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+templ Members(session *auth.Session, project *types.Project, members []*types.ProjectMembershipUser) {
+	@projectHeader(project)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: ProjectNavMembers,
+		Options:    getProjectPageNav(ctx),
+	}) {
+		<div class="max-w-7xl flex flex-col gap-2">
+			<div class="flex items-center gap-1">
+				<i class={ icons.MembersIcon, "icon-2xl" }></i>
+				<h3>Members</h3>
+			</div>
+			@shared.InfoAlert("Team admins are owners of all projects in the team by default", "")
+			if len(members) == 0 {
+				@shared.NoData("No members found!", nil)
+			} else {
+				<div class="overflow-x-auto">
+					<table class="min-w-full divide-y bg-primary text-left">
+						<thead>
+							<tr>
+								<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%]">Name</th>
+								<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Email</th>
+								<th class="whitespace-nowrap px-4 py-2 font-medium w-[15%]">Role</th>
+								<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Action</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y overflow-y-visible">
+							for _,member:= range members {
+								<tr
+									class="hover:bg-secondary group"
+									x-data={ xdata.ToFormData(&projectCtrl.ProjectMembershipUpdateModel {
+										Email: member.Email,
+										Role:  member.Role,
+									}) }
+									x-cloak
+								>
+									<td class="whitespace-nowrap px-4 py-2 max-w-32 overflow-hidden">{ member.DisplayName }</td>
+									<td class="whitespace-nowrap px-4 py-2">
+										@shared.Input(&shared.InputProps{
+											Name:       "email",
+											HideLabel:  true,
+											Disabled:   true,
+											AllowCopy:  true,
+											InputClass: "min-w-xs",
+											Attrs: templ.Attributes{
+												"x-model": "form.email",
+											},
+										})
+									</td>
+									<td class="whitespace-nowrap px-4 py-2 capitalize">
+										@shared.Dropdown(&shared.DropdownProps{
+											HideLabel:     true,
+											Value:         string(member.Role),
+											Options:       enum.ProjectRolesStr,
+											DropdownClass: "min-w-52 capitalize",
+											Attrs: templ.Attributes{
+												"x-model": "form.role",
+											},
+										})
+									</td>
+									<td class="whitespace-nowrap px-4 py-2">
+										<form
+											class="flex gap-1 text-xs"
+											hx-push-url="false"
+											hx-swap="none"
+										>
+											<input type="hidden" class="hidden" name="email" x-model="form.email"/>
+											<input type="hidden" class="hidden" name="role" x-model="form.role"/>
+											<button class="button-neutral" x-on:click="reset()">Reset</button>
+											<button
+												type="submit"
+												class="button-primary"
+												:class="isModified() ? '' :	'disabled'"
+												hx-patch={ routes.ProjectMembers }
+											>
+												Update
+											</button>
+											<button type="submit" class="button-danger" hx-delete={ routes.ProjectMembers }>Remove</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+			<div class="flex items-center gap-2 mt-2">
+				<i class={ icons.AddIcon, "icon-xl text-brand" }></i>
+				<h3>Add Members</h3>
+			</div>
+			<form
+				class="flex flex-col gap-4 w-full my-2"
+				hx-swap="none"
+				hx-push-url="false"
+				hx-post={ routes.ProjectMembers }
+			>
+				@shared.Dropdown(&shared.DropdownProps{
+					Name:              "new_email",
+					Label:             "Member",
+					DefaultOptionText: "Select a member",
+					SpinnerId:         "spinner-member",
+					Attrs: templ.Attributes{
+						"hx-get":          routes.ProjectMembers + "/list-nonmembers",
+						"hx-trigger":      "click once",
+						"hx-target":       "#new_email",
+						"hx-swap":         "innerHTML",
+						"hx-indicator":    "#spinner-member",
+						"hx-disabled-elt": "#role",
+					},
+				})
+				@shared.Dropdown(&shared.DropdownProps{
+					Name:          "role",
+					Label:         "Role",
+					Options:       enum.ProjectRolesStr,
+					DropdownClass: "capitalize",
+				})
+				<button
+					type="submit"
+					class="button-primary max-w-fit"
+				>
+					Add	
+				</button>
+			</form>
+		</div>
+	}
+}
+
+templ ListMembers(members []*types.TenantMembershipUser) {
+	<option disabled selected>Select a member</option>
+	for _, member:= range members {
+		<option
+			value={ member.Email }
+		>
+			{ member.DisplayName } (<span class="text-xxs">{ member.Email }</span>)
+		</option>
+	}
+}

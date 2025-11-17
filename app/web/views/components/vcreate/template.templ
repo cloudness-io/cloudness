@@ -1,0 +1,30 @@
+package vcreate
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/components/vtemplate"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ TemplateView(templates []*types.Template) {
+	@createHeader()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navOneclick,
+		Options:    getCreatePageNavs(),
+	}) {
+		<div class="flex place-items-baseline align-middle gap-1">
+			@shared.Icon(icons.SourceOneclickIcon, ``)
+			<h3>OneClick</h3>
+		</div>
+		@vtemplate.List(templates, routes.AppNewDatabase)
+	}
+}
+
+templ TemplatePreview(template *types.Template) {
+	@createHeader()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navOneclick,
+		Options:    getCreatePageNavs(),
+		Content:    vtemplate.Preview(template, routes.AppNewOneclick),
+	})
+}

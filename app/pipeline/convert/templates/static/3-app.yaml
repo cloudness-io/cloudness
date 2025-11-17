@@ -1,0 +1,163 @@
+{{ if not .HasState }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Identifier }}
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Identifier }} # Must match .spec.template.metadata.labels
+  template:
+    metadata:
+      labels:
+        app: {{ .Identifier }} # Must match .spec.selector.matchLabels
+    spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      serviceAccountName: {{ .Identifier }}-sa
+      terminationGracePeriodSeconds: 10
+      automountServiceAccountToken: false
+      containers:
+      - name: app
+        image: {{ .Image }}
+        {{- if .Command }}
+        command:
+          {{- range .Command }}
+        - {{ . }}
+          {{- end }}
+          {{- if .Args }}
+        args:
+            {{- range .Args }}
+        - {{ . }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        ports:
+        {{- range $index, $value := .ServicePorts }}
+        - containerPort: {{ $value }}
+          protocol: TCP
+          name: port-{{ $value }}
+        {{- end }}
+        env:
+        {{- range $key, $value:= .Variables }}
+        - name: {{ $key }} 
+          valueFrom:
+            configMapKeyRef:
+              name: {{ $.Identifier }}
+              key: {{ $key }}
+        {{ end }}
+        {{- range $key, $value := .Secrets }}
+        - name: {{ $key }} 
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Identifier }}
+              key: {{ $key }}
+        {{ end }}
+      enableServiceLinks: false
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Identifier }}-hpa
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Identifier }}
+  minReplicas: 1
+  maxReplicas: {{ .MaxReplicas }}  # Configurable Max Replicas
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75  # Scale up if CPU usage exceeds 75%
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75  # Scale up if Memory usage exceeds 75%
+{{ end }}
+
+{{ if .HasState }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Identifier }}
+  namespace: {{ .Namespace }}
+  labels:
+    identifier: {{ .Identifier }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Identifier }} # Must match .spec.template.metadata.labels
+  template:
+    metadata:
+      labels:
+        app: {{ .Identifier }} # Must match .spec.selector.matchLabels
+    spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      serviceAccountName: {{ .Identifier }}-sa
+      terminationGracePeriodSeconds: 10
+      automountServiceAccountToken: false
+      containers:
+      - name: app
+        image: {{ .Image }}
+        {{- if .Command }}
+        command:
+          {{- range .Command }}
+        - {{ . }}
+          {{- end }}
+          {{- if .Args }}
+        args:
+            {{- range .Args }}
+        - {{ . }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        ports:
+         {{- range $index, $value := .ServicePorts }}
+        - containerPort: {{ $value }}
+          protocol: TCP
+          name: port-{{ $value }}
+        {{- end }}
+        volumeMounts:
+        {{- range .Volumes }}
+        - name: {{ .VolumeName }}
+          mountPath: {{ .MountPath }}
+        {{- end }}
+        env:
+        {{- range $key, $value:= .Variables }}
+        - name: {{ $key }} 
+          valueFrom:
+            configMapKeyRef:
+              name: {{ $.Identifier }}
+              key: {{ $key }}
+        {{ end }}
+        {{- range $key, $value:= .Secrets }}
+        - name: {{ $key }} 
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Identifier }}
+              key: {{ $key }}
+        {{ end }}
+      enableServiceLinks: false
+      volumes:
+      {{- range .Volumes }}
+      - name: {{ .VolumeName }}
+        persistentVolumeClaim:
+          claimName: {{ .VolumeName }}
+      {{- end }}
+{{ end }}

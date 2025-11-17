@@ -1,0 +1,14 @@
+package vapplication
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/types"
+
+templ Terminal(app *types.Application) {
+	@appHeader(app)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AppNavTerminal,
+		Header:     shared.CommandBar(getCommandButtons()),
+		Content:    shared.Maintainance(&shared.MaintainanceProps{}),
+		Options:    getAppPageNav(app),
+	})
+}

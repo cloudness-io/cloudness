@@ -1,0 +1,64 @@
+package vtemplate
+
+import "github.com/cloudness-io/cloudness/types"
+
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+
+templ Preview(template *types.Template, actionUrl string) {
+	<div class="flex space-x-3 items-center">
+		@icon(template.Icon)
+		<div class="flex flex-col">
+			<p class="text-semibold">{ template.Name }</p>
+			<p class="text-xs text-disabled">
+				@templ.Raw(template.ReadMe)
+			</p>
+		</div>
+	</div>
+	<div class="mt-2 grid gap-4">
+		for _, service := range template.Spec.Services {
+			<div class="border rounded-xl overflow-hidden py-2">
+				<header class="flex items-center justify-between gap-4 px-6 py-2">
+					<div class="flex items-center gap-4">
+						<div class="text-current icon-container icon-xl text-2xl relative flex-shrink-0">
+							@icon(service.Icon)
+						</div>
+						<div class="text-sm">
+							<p class="font-semibold">{ service.Name }</p>
+							<p>{ service.Build.GetSource() }</p>
+						</div>
+					</div>
+				</header>
+				<div class="w-full" x-data="{open:false}">
+					<button
+						type="button"
+						class="focus-visible:outline-none focus-visible:ring-2 rounded group flex items-center gap-x-2 px-6 py-2 text-disabled cursor-pointer"
+						x-on:click="open = !open"
+					>
+						<i
+							class="ph ph-caret-right icon-base transition-transform"
+							:class="open ? 'rotate-90' : 'rotate-0'"
+						></i>
+						{ fmt.Sprintf("%d pre-configured variables", len(service.Variables)) }
+					</button>
+					<div class="flex flex-col space-y-2 my-2 px-6" x-show="open" x-cloak x-transition>
+						for _, v := range service.Variables {
+							@shared.Input(&shared.InputProps{
+								Label:    v.Key,
+								Value:    v.Value,
+								Disabled: true,
+							})
+						}
+					</div>
+				</div>
+			</div>
+		}
+		<button
+			type="button"
+			class="button-primary w-max"
+			hx-post={ fmt.Sprintf("%s/%d", actionUrl, template.ID) }
+			hx-swap="none"
+			hx-push-url="false"
+		>Deploy Template </button>
+	</div>
+}

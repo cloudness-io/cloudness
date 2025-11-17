@@ -1,0 +1,25 @@
+package venvironment
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/xdata"
+import "github.com/cloudness-io/cloudness/app/controller/environment"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ editEnvironmentForm(env *types.Environment) {
+	<form
+		class="flex flex-col place-items-baseline gap-2 max-w-sm sm:max-w-md"
+		x-data={ xdata.ToFormData(&environment.CreateEnvironmentInput{Name: env.Name}) }
+		hx-push-url="false"
+	>
+		<h2 class="text-xl font-semibold">Edit Environment</h2>
+		@shared.Input(&shared.InputProps{
+			Name:  "name",
+			Label: "Name",
+			Attrs: templ.Attributes{
+				"x-model": "form.name",
+			},
+		})
+		@shared.UpdateDiv(routes.Environment(env.UID) + routes.EnvironmentSettings)
+	</form>
+}

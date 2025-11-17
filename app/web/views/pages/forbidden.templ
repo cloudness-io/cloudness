@@ -1,0 +1,30 @@
+package pages
+
+type ForbiddenProps struct {
+	Header    string
+	Subheader string
+}
+
+templ Forbiden(props *ForbiddenProps) {
+	<section class="bg-primary">
+		<div class="py-8 px-4 mx-auto max-w-screen-md text-center lg:py-16 lg:px-12">
+			<i class="ph ph-prohibit icon-4xl text-error"></i>
+			<h1
+				class="mb-4 text-xl font-bold tracking-tight leading-none text-tx-primary lg:mb-6"
+			>
+				if props.Header != "" {
+					{ props.Header }
+				} else {
+					You do not have access to view this page
+				}
+			</h1>
+			<p class="font-light text-tx-secondary md:text-md">
+				if props.Subheader != "" {
+					{ props.Subheader }
+				} else {
+					Please contact your administrator, if you think you should have access to this page
+				}
+			</p>
+		</div>
+	</section>
+}

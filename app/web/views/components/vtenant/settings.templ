@@ -1,0 +1,46 @@
+package vtenant
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+import "github.com/cloudness-io/cloudness/app/web/views/xdata"
+
+type tenantGeneralForm struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+templ Settings(tenant *types.Tenant) {
+	@header(tenant)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: tenant.Name,
+		Options:    getTenantNav(tenant),
+	}) {
+		<div class="flex items-center gap-1">
+			<i class={ icons.TeamIcon, "icon-2xl" }></i>
+			<h3>{ tenant.Name }</h3>
+		</div>
+		<form
+			class="flex flex-col place-items-baseline my-2 gap-2"
+			x-data={ xdata.ToFormData(&tenantGeneralForm{tenant.Name, tenant.Description}) }
+			x-clock
+		>
+			@shared.Input(&shared.InputProps{
+				Name:  "name",
+				Label: "Name",
+				Attrs: templ.Attributes{
+					"x-model": "form.name",
+				},
+			})
+			@shared.Textarea(&shared.TextareaProps{
+				Name:  "description",
+				Label: "Description",
+				Attrs: templ.Attributes{
+					"x-model": "form.description",
+				},
+			})
+			@shared.UpdateDiv(routes.TenantSettings)
+		</form>
+	}
+}

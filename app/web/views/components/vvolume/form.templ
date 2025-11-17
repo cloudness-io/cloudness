@@ -1,0 +1,129 @@
+package vvolume
+
+import (
+	"context"
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+func getDeleteRoute(ctx context.Context, uid int64) string {
+	route := fmt.Sprintf("%s/%d", routes.EnvironmentVolumes, uid)
+	return routes.EnvironmentCtx(ctx) + route
+}
+
+templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64) {
+	<form
+		id="addVolume"
+		hx-push-url="false"
+		hx-swap="none"
+		if action == enum.VolumeFormActionCreate {
+			hx-post={ routes.AppVolumeCreate }
+		}
+		if action == enum.VolumeFormActionUpdate || action == enum.VolumeFormActionAttach {
+			hx-patch={ fmt.Sprintf("%s/%d", routes.AppVolume, uid) }
+		}
+		x-data={ xdata.ToFormData(in) }
+	>
+		<div class="flex items-center justify-between">
+			<h1 class="text-2xl font-medium">
+				switch action {
+					case enum.VolumeFormActionCreate:
+						Create New Volume
+					case enum.VolumeFormActionUpdate:
+						Update Volume
+					case enum.VolumeFormActionAttach:
+						Attach Volume
+					case enum.VolumeFormActionDelete:
+						Delete Volume
+				}
+			</h1>
+		</div>
+		<div class="mt-2 flex flex-col gap-4">
+			@shared.Input(&shared.InputProps{
+				Label:       "Name",
+				Name:        "name",
+				Placeholder: "Database Storage",
+				Value:       "Database Storage",
+				Required:    true,
+				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
+				Attrs: templ.Attributes{
+					"x-model":   "form.name",
+					"autofocus": true,
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Label:       "Mount Path",
+				Tooltip:     "Directory inside the container",
+				Name:        "mountPath",
+				Placeholder: "/data",
+				Value:       "/data",
+				Required:    true,
+				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
+				Attrs: templ.Attributes{
+					"x-model": "form.mountPath",
+				},
+			})
+			@shared.Input(&shared.InputProps{
+				Label:       "Size",
+				Tooltip:     "Size of the volume in GB, cannot be downsized",
+				Name:        "size",
+				Type:        "number",
+				Placeholder: "1",
+				Required:    true,
+				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
+				Attrs: templ.Attributes{
+					"x-model": "form.size",
+				},
+			})
+		</div>
+		@volumeFormFooter(action, uid)
+	</form>
+}
+
+templ volumeFormFooter(action enum.VolumeFormAction, uid int64) {
+	<div class="flex flex-row justify-end gap-2 mt-3">
+		if action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach {
+			<button
+				type="button"
+				class="button-danger"
+				hx-delete={ getDeleteRoute(ctx, uid) }
+			>
+				Delete	
+			</button>
+		}
+		if action == enum.VolumeFormActionUpdate {
+			<button
+				type="button"
+				class="button-danger"
+				hx-patch={ fmt.Sprintf("%s/%d/%s", routes.AppVolume, uid, routes.AppVolumeDetach) }
+			>
+				Detach
+			</button>
+			<button type="button" class="button-neutral" x-on:click="reset()">
+				Reset
+			</button>
+		}
+		if action == enum.VolumeFormActionCreate || action == enum.VolumeFormActionUpdate || action == enum.VolumeFormActionAttach {
+			<button
+				type="submit"
+				class="button-primary"
+				if action == enum.VolumeFormActionUpdate {
+					:disabled="JSON.stringify(form) == JSON.stringify(initial)"
+				}
+			>
+				switch action {
+					case enum.VolumeFormActionCreate:
+						Create 
+					case enum.VolumeFormActionUpdate:
+						Update 
+					case enum.VolumeFormActionAttach:
+						Attach
+				}
+			</button>
+		}
+	</div>
+}

@@ -1,0 +1,32 @@
+package vgithubapp
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ List(ghApps []*types.GithubApp, selected *types.GithubApp, urlPathPattern string) {
+	<hr class="w-full border-t border-dotted"/>
+	<div class="flex flex-col gap-3 mt-2" x-data="{openAddGithubAppModal: false}">
+		@header()
+		if len(ghApps) == 0 {
+			@shared.NoData("No Github Apps found", createButton())
+		} else {
+			<ul
+				class="flex flex-wrap gap-3"
+				if selected != nil {
+					x-data={ fmt.Sprintf("{selected: '%d'}", selected.UID) }
+				} else {
+					x-data="{selected: ''}"
+				}
+			>
+				for _, ghApp := range ghApps {
+					<li hx-get={ fmt.Sprintf(urlPathPattern, ghApp.UID) }>
+						@GithubTile(ghApp)
+					</li>
+				}
+			</ul>
+		}
+	</div>
+}

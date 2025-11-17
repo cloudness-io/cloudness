@@ -1,0 +1,21 @@
+package vgit
+
+import "github.com/cloudness-io/cloudness/types"
+
+templ ListRepos(repos []*types.GitRepo, selected string) {
+	<option disabled selected>Select a repo</option>
+	for _, repo := range repos {
+		@repoOption(repo.FullName, selected)
+	}
+}
+
+templ repoOption(value string, selected string) {
+	<option
+		value={ value }
+		if value == selected {
+			selected
+		}
+	>
+		{ value }
+	</option>
+}

@@ -1,0 +1,98 @@
+package vdeployment
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+var swapAttr = templ.Attributes{
+	"hx-swap-oob": "true",
+}
+
+func getAttributes(swap bool) templ.Attributes {
+	if swap {
+		return swapAttr
+	}
+	return templ.Attributes{}
+}
+
+func getDeploymenStatusId(d *types.Deployment) string {
+	return fmt.Sprintf("deployment-status-%d", d.UID)
+}
+
+templ DeploymentStatusStream(d *types.Deployment) {
+	@deploymentStatus(d, true)
+}
+
+templ DeploymentStatus(d *types.Deployment) {
+	@deploymentStatus(d, false)
+}
+
+templ deploymentStatus(d *types.Deployment, swap bool) {
+	<div id={ getDeploymenStatusId(d) } { getAttributes(swap)... }>
+		@statusIcon(d.Status)
+	</div>
+}
+
+templ statusIcon(status enum.DeploymentStatus) {
+	<span class="flex items-center rounded-sm cursor-pointer px-0 py-1">
+		switch status {
+			case enum.DeploymentStatusPending:
+				@statusPending()
+			case enum.DeploymentStatusRunning:
+				@statusRunning()
+			case enum.DeploymentStatusSuccess:
+				@statusSuccess()
+			case enum.DeploymentStatusSkipped:
+				@statusSkipped()
+			case enum.DeploymentStatusFailed:
+				@statusFailed()
+			case enum.DeploymentStatusCancelled:
+				@statusCancelled()
+		}
+	</span>
+}
+
+func getStatusTextColor(status enum.DeploymentStatus) string {
+	switch status {
+	case enum.DeploymentStatusPending:
+		return "text-tx-secondary"
+	case enum.DeploymentStatusRunning:
+		return "text-brand"
+	case enum.DeploymentStatusSuccess:
+		return "text-success"
+	case enum.DeploymentStatusSkipped:
+		return "text-tx-secondary"
+	case enum.DeploymentStatusFailed:
+		return "text-error"
+	case enum.DeploymentStatusCancelled:
+		return "text-tx-secondary"
+	}
+	return ""
+}
+
+templ statusPending() {
+	<i class={ icons.PipelinePendingIcon,"icon-base" , getStatusTextColor(enum.DeploymentStatusPending) }></i>
+}
+
+templ statusRunning() {
+	<i class={ icons.PipelineRunningIcon,"icon-base animate-spin", getStatusTextColor(enum.DeploymentStatusRunning) }></i>
+}
+
+templ statusSuccess() {
+	<i class={ icons.PipelineSucessIcon, "icon-base", getStatusTextColor(enum.DeploymentStatusSuccess) }></i>
+}
+
+templ statusSkipped() {
+	<i class={ icons.PipelineSkippedIcon,"icon-base", getStatusTextColor(enum.DeploymentStatusSkipped) }></i>
+}
+
+templ statusFailed() {
+	<i class={ icons.PipelineErrorIcon, "icon-base", getStatusTextColor(enum.DeploymentStatusFailed) }></i>
+}
+
+templ statusCancelled() {
+	<i class={ icons.PipelineCancelIcon,"icon-base", getStatusTextColor(enum.DeploymentStatusCancelled) }></i>
+}

@@ -1,0 +1,37 @@
+package common
+
+import (
+	"context"
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+)
+
+func renderStreamer(ctx context.Context) bool {
+	_, projOk := request.ProjectFrom(ctx)
+	prevUrl, ok := request.HxCallerUrlFrom(ctx)
+	if !ok {
+		// not a hx request
+		return projOk
+	}
+
+	isPreviousProjectUrl := routes.IsProjectUrl(prevUrl)
+	isCurrentProjectUrl := projOk
+
+	return isCurrentProjectUrl && (isPreviousProjectUrl == false)
+}
+
+templ RenderSSEStreamer() {
+	if renderStreamer(ctx) {
+		<div id="stream-container" hx-swap-oob="true">
+			<div
+				hx-ext="sse"
+				sse-connect={ fmt.Sprintf("%s/events", routes.ProjectCtx(ctx)) }
+				sse-swap="message"
+				sse-close="close"
+			></div>
+		</div>
+	} else {
+		<div id="stream-container"></div>
+	}
+}

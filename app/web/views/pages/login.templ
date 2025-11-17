@@ -1,0 +1,68 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vauth"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
+)
+
+templ LoginNoAuth() {
+	@shared.Maintainance(&shared.MaintainanceProps{
+		Header:    "No Auth provider configured",
+		Subheader: "Please contact administrator",
+	})
+}
+
+func listOAuths(enabledAuths map[enum.AuthProvider]*types.AuthSetting) []*types.AuthSetting {
+	oauths := []*types.AuthSetting{}
+	for _, auth := range enabledAuths {
+		if auth.Provider != enum.AuthProviderPassword {
+			oauths = append(oauths, auth)
+		}
+	}
+	return oauths
+}
+
+templ LoginPage(userSignupEnabled bool, enabledAuths map[enum.AuthProvider]*types.AuthSetting, demoUser *types.DemoUser) {
+	@loginPage(userSignupEnabled, enabledAuths[enum.AuthProviderPassword], listOAuths(enabledAuths), demoUser)
+}
+
+script onRedirectClickHandler(redirectUrl string) {
+	document.location.href = redirectUrl
+}
+
+templ loginPage(userSignupEnabled bool, passwordAuth *types.AuthSetting, oauths []*types.AuthSetting, demoUser *types.DemoUser) {
+	<div class="flex min-h-full flex-col justify-center px-0 sm:px-6 py-12 lg:px-8">
+		<div class="sm:mx-auto sm:w-full sm:max-w-sm">
+			<img class="mx-auto h-10 w-auto" src={ views.Asset("logo.svg") }/>
+			<h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight">
+				Welcome to Cloudness
+			</h2>
+		</div>
+		<div class="mx-auto min-w-xs sm:max-w-md flex flex-col gap-2">
+			if passwordAuth != nil {
+				@vauth.LoginForm(userSignupEnabled, demoUser)
+				if len(oauths) > 0 {
+					<div class="relative flex justify-center">
+						<span class="px-2 text-sm dark:text-neutral-500 dark:bg-base">or</span>
+					</div>
+				}
+			}
+			<div class="flex flex-col mt-2">
+				for _, auth := range oauths {
+					<button
+						class="button-neutral"
+						onclick={ onRedirectClickHandler(routes.GetOAuthRedirectUrl(auth.Provider)) }
+					>
+						Login with 
+						<span class="capitalize">{ fmt.Sprintf("%s", auth.Provider) }</span>
+					</button>
+				}
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,65 @@
+{
+    "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/valkey.svg",
+    "name": "Valkey",
+    "readme": "Valkey is an open source (BSD) high-performance key/value datastore that supports a variety of workloads such as caching, message queues, and can act as a primary database.",
+    "tags": [
+        "database"
+    ],
+    "services": [
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/valkey.svg",
+            "name": "Valkey",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "valkey/valkey:latest"
+                    }
+                }
+            },
+            "deploy": {
+                "startCommand": "/bin/sh -c \"exec docker-entrypoint.sh valkey-server --port ${VALKEY_PORT} --requirepass ${VALKEY_PASSWORD}\""
+            },
+            "networking": {
+                "containerPorts": [
+                    6379
+                ],
+                "tcpProxies": {
+                    "tcpPort": 6379
+                }
+            },
+            "volumes": [
+                {
+                    "name": "ValkeyData",
+                    "mountPath": "/data"
+                }
+            ],
+            "variables": [
+                {
+                    "key": "VALKEY_PRIVATE_URL",
+                    "value": "redis://${{VALKEY_USER}}:${{VALKEY_PASSWORD}}@${{VALKEY_HOST}}:${{VALKEY_PORT}}",
+                    "type": "run"
+                },
+                {
+                    "key": "VALKEY_HOST",
+                    "value": "${{CLOUDNESS_PRIVATE_DOMAIN}}",
+                    "type": "run"
+                },
+                {
+                    "key": "VALKEY_PORT",
+                    "value": "6379",
+                    "type": "run"
+                },
+                {
+                    "key": "VALKEY_USER",
+                    "value": "default",
+                    "type": "run"
+                },
+                {
+                    "key": "VALKEY_PASSWORD",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                }
+            ]
+        }
+    ]
+}

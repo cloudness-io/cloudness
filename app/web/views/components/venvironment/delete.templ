@@ -1,0 +1,44 @@
+package venvironment
+
+import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ deleteEnvironmentForm(env *types.Environment) {
+	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{name:'%s', confirm:''}", env.Name) }>
+		<h2 class="text-xl font-semibold text-error">Delete Environment</h2>
+		<p class="w-full max-w-full">
+			Are you sure you want to delete the environment <span class="italic font-semibold">{ env.Name }</span> ? This
+			action is permanent and will delete all your applications in the environment. 
+		</p>
+		<p class="text-tx-secondary">
+			Type <span class="notranslate font-bold">{ env.Name }</span> to confirm.
+		</p>
+		@shared.Input(&shared.InputProps{
+			Name:       "confirm",
+			InputClass: "focus:border-error",
+			Attrs: templ.Attributes{
+				"x-model": "confirm",
+			},
+		})
+		<footer class="flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="environmentDeleteModel = false">
+					Close	
+				</button>
+				<button
+					type="submit"
+					class="button-danger"
+					:disabled="name != confirm"
+					hx-delete={ routes.Environment(env.UID) + routes.EnvironmentDelete }
+					hx-swap="none"
+				>
+					Delete
+				</button>
+			</div>
+		</footer>
+	</form>
+}

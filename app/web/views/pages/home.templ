@@ -1,0 +1,53 @@
+package pages
+
+import (
+	"github.com/cloudness-io/cloudness/app/controller/project"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vfavorite"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ projectCreateButton() {
+	if request.IsTeamAdmin(ctx) {
+		<button class="button-link" x-on:click="openAddProjectModal = true">
+			<i class={ icons.AddIcon }></i> Create
+		</button>
+	}
+}
+
+templ Home(tenant *types.Tenant, projects []*types.Project) {
+	<div class="max-w-7xl mx-auto flex flex-col gap-1 mt-1 px-1 md:px-2">
+		<div
+			id="projects"
+			x-data="{openAddProjectModal: false}"
+			class="min-h-72"
+		>
+			<div class="flex items-center gap-1">
+				@shared.Icon(icons.ProjectIcon, "icon-lg size-5")
+				<h3>
+					Projects
+				</h3>
+				@projectCreateButton()
+				@shared.Modal("openAddProjectModal",
+					vproject.AddProject(&project.CreateProjectInput{}, map[string]string{}))
+			</div>
+			if len(projects) == 0 {
+				@shared.NoData("No Projects found", projectCreateButton())
+			} else {
+				@vproject.ListProjects(projects)
+			}
+		</div>
+		<div id="favorites">
+			<div class="flex items-center gap-1">
+				<i class={ icons.IsFavIcon, "icon-lg" }></i>
+				<h3>
+					Favorites	
+				</h3>
+			</div>
+			@vfavorite.ListPlaceholder(tenant)
+		</div>
+	</div>
+}

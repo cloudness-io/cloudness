@@ -1,0 +1,14 @@
+package vnetwork
+
+import "github.com/cloudness-io/cloudness/types"
+
+templ NetworkCreate() {
+	<div class="flex place-items-baseline align-middle gap-1">
+		<h5>Private Network</h5>
+	</div>
+	@networkCreateForm()
+}
+
+templ NetworkSettings(app *types.Application) {
+	@networkSettingsForm(app)
+}

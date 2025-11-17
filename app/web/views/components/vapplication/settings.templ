@@ -1,0 +1,115 @@
+package vapplication
+
+import (
+	"github.com/cloudness-io/cloudness/app/services/spec"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Settings(project *types.Project, app *types.Application, ghApp *types.GithubApp, restrictions *types.ApplicationRestrction) {
+	@appHeader(app)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: AppNavSettings,
+		Header:     shared.CommandBar(getCommandButtons()),
+		Content:    settingsForm(project, app, ghApp, restrictions),
+		Options:    getAppPageNav(app),
+	})
+}
+
+templ settingsForm(project *types.Project, app *types.Application, ghApp *types.GithubApp, restrictions *types.ApplicationRestrction) {
+	<form
+		x-data={ xdata.ToFormData(app.Spec.ToInput()) }
+		x-cloak
+		class="mt-3"
+		hx-push-url="false"
+		hx-patch={ routes.AppSettings }
+		hx-swap="none"
+	>
+		@shared.ContentViewer(&shared.ContentViewerProps{
+			Sections: getSettingsSections(project, app, ghApp, restrictions),
+			Footer:   settingsFooter(),
+		})
+	</form>
+}
+
+func getSettingsSections(
+	project *types.Project,
+	application *types.Application,
+	ghApp *types.GithubApp,
+	restrictions *types.ApplicationRestrction,
+) []*shared.ContentViewerSection {
+	sections := []*shared.ContentViewerSection{}
+
+	sections = append(sections, &shared.ContentViewerSection{
+		Name:      "General",
+		IconClass: icons.SettingsIcon,
+		Content:   settingsGeneral(),
+	})
+
+	sections = append(sections, &shared.ContentViewerSection{
+		Name:      spec.GetSourceText(application),
+		IconClass: spec.GetSourceIcon(application),
+		Content:   SourceSettings(application, ghApp),
+	})
+	sections = append(sections, &shared.ContentViewerSection{
+		Name:      "Networking",
+		IconClass: icons.NetworkSectionIcon,
+		Content:   NetworkSettings(application),
+	})
+
+	sections = append(sections, &shared.ContentViewerSection{
+		Name:      "Deploy",
+		IconClass: icons.DeploySectionIcon,
+		Content:   settingsDeploy(project, application, restrictions),
+	})
+
+	return sections
+}
+
+templ settingsGeneral() {
+	<div class="flex flex-col gap-2">
+		@shared.Input(&shared.InputProps{
+			Name:     "name",
+			Label:    "Name",
+			Required: true,
+			Attrs: templ.Attributes{
+				"x-model": "form.name",
+			},
+		})
+		@shared.Textarea(&shared.TextareaProps{
+			Name:  "description",
+			Label: "Description",
+			Attrs: templ.Attributes{
+				"x-model": "form.description",
+			},
+		})
+	</div>
+}
+
+templ settingsFooter() {
+	<div class="flex flex-col sm:flex-row justify-end h-full space-x-2 w-full gap-2 p-3 sm:p-6 bg-primary">
+		<div
+			class="flex flex-row items-center gap-2 text-yellow-500"
+			:class="isModified() ? 'block' :	'hidden'"
+		>
+			<i class={ icons.WarningIcon,"icon-base" }></i>
+			<p class="font-semibold">You have unsaved changes.</p>
+		</div>
+		<div class="flex gap-2">
+			<button type="button" class="button-neutral" x-on:click="reset()">
+				Reset
+			</button>
+			<button
+				type="submit"
+				class="button-primary"
+				:disabled="JSON.stringify(form) == JSON.stringify(initial)"
+				hx-swap="none"
+			>
+				Save	
+			</button>
+		</div>
+	</div>
+}

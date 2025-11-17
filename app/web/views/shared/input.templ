@@ -1,0 +1,115 @@
+package shared
+
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+type InputProps struct {
+	Name              string
+	Label             string
+	Tooltip           string
+	LabelWrapperClass string
+	Description       string
+	Disclaimer        string
+	Value             string
+	Type              string
+	HideLabel         bool
+	WrapperClass      string
+	WrapperAttrs      templ.Attributes
+	InputClass        string
+	Placeholder       string
+	SpinnerId         string
+	Attrs             templ.Attributes
+	Error             string
+	Hidden            bool
+	Disabled          bool
+	Readonly          bool
+	Required          bool
+	AllowCopy         bool
+	Password          bool
+}
+
+func isInputDisabled(props *InputProps) bool {
+	return props.Disabled || props.Readonly
+}
+
+templ Input(props *InputProps) {
+	<div
+		class={
+			"flex flex-col md:flex-row gap-1 justify-center md:items-center max-w-sm sm:max-w-md md:max-w-lg w-full", props.WrapperClass,
+			templ.KV("hidden", props.Hidden),
+		}
+		{ props.WrapperAttrs... }
+	>
+		if !props.HideLabel {
+			@Label(&FormLabelProps{Name: props.Name, Label: props.Label, Tooltip: props.Tooltip, Description: props.Description, Disabled: props.Disabled})
+		}
+		<div class="flex flex-col w-full" x-data="{ show: false, copyMsg: false }">
+			<div class="flex flex-row space-x-2 items-center">
+				<input
+					id={ props.Name }
+					name={ props.Name }
+					if props.Password {
+						:type="show ? 'text' : 'password'"
+					}
+					if props.Type != "" {
+						type={ props.Type }
+					} else {
+						type="text"
+					}
+					spellcheck="false"
+					autocomplete="off"
+					value={ props.Value }
+					placeholder={ props.Placeholder }
+					{ props.Attrs... }
+					if props.Required {
+						required
+						hx-validate="true"
+					}
+					x-cloak
+					class={
+						`w-full text-sm rounded-sm bg-transparent border border-divider hover:border-brand focus:border-brand focus:outline-hidden leading-5 px-2 py-1 cursor-auto disabled:bg-secondary disabled:hover:border-0 disabled:focus:border-0 disabled:text-substitute`,
+						templ.KV("border-error", props.Error != ""),
+						templ.KV("disabled", isInputDisabled(props)),
+						props.InputClass,
+					}
+					if props.Disabled {
+						disabled
+					}
+					if props.Readonly {
+						readonly
+					}
+				/>
+				if props.Password && !props.Disabled {
+					<div class="cursor-pointer -ml-8 z-10">
+						<i class={ icons.ShownIcon } x-show="!show" x-on:click="show = true"></i>
+						<i class={ icons.HiddenIcon } x-show="show" x-on:click="show = false"></i>
+					</div>
+				}
+				<div id={ props.SpinnerId } class="htmx-indicator size-5 -ml-8" x-cloak>
+					<span class="spinner"></span>
+				</div>
+				if props.AllowCopy && props.Name != "" {
+					<button
+						type="button"
+						@click={ fmt.Sprintf("navigator.clipboard.writeText(document.getElementById('%s').value), copyMsg = true, setTimeout(() => copyMsg = false, 1000)", props.Name) }
+					>
+						@Icon(icons.CopyIcon, "cursor-pointer")
+					</button>
+				}
+			</div>
+			<p id={ fmt.Sprintf("%s_error", props.Name) } class="text-xs text-error">
+				if props.Error != "" {
+					{ props.Error }
+				}
+			</p>
+			<p x-show="copyMsg" x-transition x-cloak class="text-xs text-success">
+				Coppied to clipboard!
+			</p>
+		</div>
+	</div>
+	if props.Disclaimer != "" {
+		<p class="text-tx-secondary text-xs">
+			@templ.Raw(props.Disclaimer)
+		</p>
+	}
+}

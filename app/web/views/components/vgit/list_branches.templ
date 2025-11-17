@@ -1,0 +1,21 @@
+package vgit
+
+import "github.com/cloudness-io/cloudness/types"
+
+templ ListBranches(branches []*types.GitBranch, selected string) {
+	<option disabled selected>Select a branch</option>
+	for _, branch := range branches {
+		@branchOption(branch.Name, selected)
+	}
+}
+
+templ branchOption(value string, selected string) {
+	<option
+		value={ value }
+		if value == selected {
+			selected
+		}
+	>
+		{ value }
+	</option>
+}

@@ -1,0 +1,15 @@
+package vvariable
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+
+templ VariablesManager(dto *types.VariableDTO) {
+	<div class="flex flex-col gap-y-4 mt-2">
+		if len(dto.UserVariable) > 0 {
+			@shared.WarningAlert("", "Please redeploy the application to reflect the changes if you have modified a referenced variable.")
+		}
+		@addForm(dto.UserVariable)
+		@systemVariables(dto.SystemVariable)
+		@variablesLister(dto.UserVariable)
+	</div>
+}

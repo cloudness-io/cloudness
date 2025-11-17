@@ -1,0 +1,46 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cloudness-runner-role
+  namespace: cloudness
+rules:
+  - apiGroups: [''] # '' indicates core apiGroup (don't remove)
+    resources: ['namespaces','serviceaccounts','persistentvolumeclaims','events']
+    verbs: ["get", "list", "create", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods", "services",  "endpoints", "configmaps", "secrets"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+  - apiGroups: ['apps'] # '' indicates core apiGroup (don't remove)
+    resources: ['statefulsets', 'deployments', 'replicasets','controllerrevisions']
+    verbs: ["get", "list", "create", "patch", "watch", "delete"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles","rolebindings"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudness-runner-account
+  namespace: cloudness
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cloudness-runner-role-binding
+  namespace: cloudness
+subjects:
+  - kind: ServiceAccount
+    name: cloudness-runner-account
+    namespace: cloudness
+roleRef:
+  kind: ClusterRole
+  name: cloudness-runner-role
+  apiGroup: rbac.authorization.k8s.io

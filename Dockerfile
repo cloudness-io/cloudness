@@ -1,0 +1,67 @@
+# ---------------------------------------------------------#
+#                     Build web image                      #
+# ---------------------------------------------------------#
+FROM node:24 AS web
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm i
+
+# Copy full web assets for tailwind to parse templ files
+COPY ./app/web ./app/web
+
+RUN npx esbuild ./app/web/assets/index.js --bundle --outdir=./dist
+RUN npx @tailwindcss/cli -i ./app/web/assets/app.css -o ./dist/styles.css
+
+# ---------------------------------------------------------#
+#                     Cert image                           #
+# ---------------------------------------------------------#
+FROM alpine:latest AS cert-image
+
+RUN apk --update add ca-certificates
+
+
+# ---------------------------------------------------------#
+#                   Build Cloudness image                  #
+# ---------------------------------------------------------#
+FROM golang:1.25-trixie AS builder
+
+# Setup workig dir
+WORKDIR /app
+# Get dependencies - will also be cached if we won't change mod/sum
+COPY go.mod .
+COPY go.sum .
+
+ENV CGO_CFLAGS="-D_LARGEFILE64_SOURCE"
+RUN go install tool
+RUN go mod download
+
+# COPY the source code
+COPY . .
+COPY --from=web /app/dist ./app/web/public/assets
+
+
+# Generate the template code
+RUN go tool templ generate
+
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg \
+    LDFLAGS="-X github.com/cloudness-io/cloudness/version.GitCommit=${GIT_COMMIT} -X github.com/cloudness-io/cloudness/version.major=${CLOUDNESS_VERSION_MAJOR} -X github.com/cloudness-io/cloudness/version.minor=${CLOUDNESS_VERSION_MINOR} -X github.com/cloudness-io/cloudness/version.patch=${CLOUDNESS_VERSION_PATCH} -extldflags '-static'" && \
+    CGO_ENABLED=1 \
+    CC=$CC go build -ldflags="$LDFLAGS" -o ./cloudness ./cmd/app
+
+# ---------------------------------------------------------#
+#                   Create final image                     #
+# ---------------------------------------------------------#
+FROM scratch AS final
+
+# setup app dir and its content
+WORKDIR /app
+
+COPY --from=builder /app/cloudness /app/cloudness
+COPY --from=cert-image /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+EXPOSE 8000
+ENTRYPOINT [ "/app/cloudness", "server" ]

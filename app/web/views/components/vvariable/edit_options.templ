@@ -1,0 +1,36 @@
+package vvariable
+
+import (
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+)
+
+func getProjectMenuDropdownProps() []*shared.MenuDropDownProps {
+	props := []*shared.MenuDropDownProps{}
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Edit",
+		IconClass: icons.EditIcon,
+		Attrs:     templ.Attributes{"x-on:click": "edit=true"},
+	})
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Generate",
+		IconClass: icons.FunctionIcon,
+		Attrs:     templ.Attributes{"x-on:click": "generate=true"},
+	})
+	props = append(props, &shared.MenuDropDownProps{
+		Name:      "Delete",
+		IconClass: icons.DeleteIcon,
+		Class:     "text-error",
+		Attrs:     templ.Attributes{"x-on:click": "deleteModel=true"},
+	})
+
+	return props
+}
+
+templ editOptions(canEdit bool) {
+	<div class="cursor-pointer">
+		if canEdit {
+			@shared.MenuDropDown(getProjectMenuDropdownProps())
+		}
+	</div>
+}

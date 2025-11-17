@@ -1,0 +1,22 @@
+CREATE TABLE github_apps (
+    github_app_id SERIAL PRIMARY KEY,
+    github_app_uid INTEGER NOT NULL,
+    github_app_tenant_id INTEGER REFERENCES tenants (tenant_id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    github_app_project_id INTEGER,
+    github_app_private_key_id INTEGER,
+    github_app_is_tenant_wide BOOLEAN,
+    github_app_name TEXT NOT NULL,
+    github_app_organization TEXT,
+    github_app_api_url TEXT NOT NULL,
+    github_app_html_url TEXT NOT NULL,
+    github_app_custom_user TEXT NOT NULL,
+    github_app_custom_port INTEGER NOT NULL,
+    github_app_app_id INTEGER,
+    github_app_installation_id INTEGER,
+    github_app_client_id TEXT,
+    github_app_client_secret TEXT,
+    github_app_webhook_secret TEXT,
+    github_app_created_by INTEGER NOT NULL,
+    github_app_created BIGINT NOT NULL,
+    github_app_updated BIGINT NOT NULL
+);

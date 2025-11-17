@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudness
+  namespace: cloudness
+  labels:
+    app: cloudness
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudness
+  template:
+    metadata:
+      labels:
+        app: cloudness
+    spec:
+      serviceAccountName: cloudness-app-account
+      containers:
+        - name: cloudness
+          image: cloudnessio/app-platform:sha-2b92568
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            # Add or adjust env vars as needed; placeholders below
+            - name: APP_ENV
+              value: "prod"
+            - name: LOG_LEVEL
+              value: "info"
+            # Database driver
+            - name: CLOUDNESS_DATABASE_DRIVER
+              value: "postgres"
+            - name: CLOUDNESS_DATABASE_DATASOURCE
+              value: ""
+            - name: CLOUDNESS_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pg-cluster-postgresql-account-postgres
+                  key: username
+            - name: CLOUDNESS_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-cluster-postgresql-account-postgres
+                  key: password
+            # Database connection details for app to build the DSN
+            - name: CLOUDNESS_DATABASE_HOST
+              value: "pg-cluster-postgresql-postgresql.cloudness.svc.cluster.local"
+            - name: CLOUDNESS_DATABASE_PORT
+              value: "6432"
+            - name: CLOUDNESS_DATABASE_NAME
+              value: "cloudness"
+            - name: CLOUDNESS_DATABASE_SSL_MODE
+              value: "disable"
+            # Pub/Sub provider
+            - name: CLOUDNESS_PUBSUB_PROVIDER
+              value: "redis"
+            - name: CLOUDNESS_REDIS_ENDPOINT
+              value: "redis-cluster-redis-redis.cloudness.svc.cluster.local:6379"
+            - name: CLOUDNESS_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-cluster-redis-account-default
+                  key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudness
+  namespace: cloudness
+  labels:
+    app: cloudness
+spec:
+  type: ClusterIP
+  selector:
+    app: cloudness
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http

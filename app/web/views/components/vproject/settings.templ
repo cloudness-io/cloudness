@@ -1,0 +1,51 @@
+package vproject
+
+import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ ProjectGeneral(project *types.Project) {
+	@projectHeader(project)
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: ProjectNavSettings,
+		Content:    projectGeneralSettings(project),
+		Options:    getProjectPageNav(ctx),
+	})
+}
+
+type projectGeneralForm struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+templ projectGeneralSettings(project *types.Project) {
+	<div class="flex items-center gap-1">
+		<i class={ icons.SettingsIcon, "icon-2xl" }></i>
+		<h3>Settings</h3>
+	</div>
+	<form
+		class="flex flex-col place-items-baseline mt-2 gap-2"
+		x-data={ xdata.ToFormData(&projectGeneralForm{project.Name, project.Description}) }
+		x-clock
+	>
+		@shared.Input(&shared.InputProps{
+			Name:  "name",
+			Label: "Name",
+			Attrs: templ.Attributes{
+				"x-model": "form.name",
+			},
+		})
+		@shared.Textarea(&shared.TextareaProps{
+			Name:  "description",
+			Label: "Description",
+			Attrs: templ.Attributes{
+				"x-model": "form.description",
+			},
+		})
+		@shared.UpdateDiv(routes.ProjectSettings)
+	</form>
+}

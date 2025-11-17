@@ -1,0 +1,67 @@
+package shared
+
+import "fmt"
+
+type CheckBoxProps struct {
+	Name              string
+	Label             string
+	Checked           bool
+	Tooltip           string
+	Description       string
+	Disclaimer        string
+	LabelWrapperClass string
+	WrapperClass      string
+	WrapperAttrs      templ.Attributes
+	Attrs             templ.Attributes
+	Error             string
+	Disabled          bool
+}
+
+templ CheckBox(props *CheckBoxProps) {
+	<div
+		class={ "flex flex-row gap-1 justify-center items-center max-w-sm sm:max-w-md md:max-w-lg w-full", props.WrapperClass }
+		{ props.WrapperAttrs... }
+	>
+		@Label(&FormLabelProps{Name: props.Name, Label: props.Label, Tooltip: props.Tooltip, Description: props.Description, Disabled: props.Disabled})
+		<div class="flex flex-col w-full">
+			<div class="flex flex-row space-x-2 items-center">
+				@CheckBoxWithoutWrapper(props)
+			</div>
+			<p id={ fmt.Sprintf("%s_error", props.Name) } class="text-xs text-error">
+				if props.Error != "" {
+					{ props.Error }
+				}
+			</p>
+		</div>
+	</div>
+	if props.Disclaimer != "" {
+		<p class="text-tx-secondary text-xs">
+			@templ.Raw(props.Disclaimer)
+		</p>
+	}
+}
+
+templ CheckBoxWithoutWrapper(props *CheckBoxProps) {
+	<label class="flex items-center cursor-pointer relative">
+		<input
+			id={ props.Name }
+			name={ props.Name }
+			type="checkbox"
+			class={ `peer h-5 w-5 cursor-pointer transition-all appearance-none rounded-sm shadow hover:shadow-md
+						border checked:bg-brand checked:border-brand`, templ.KV("disabled", props.Disabled) }
+			{ props.Attrs... }
+			x-cloak
+			if props.Disabled {
+				Disabled
+			}
+			if props.Checked {
+				checked
+			}
+		/>
+		<span class="absolute opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+				<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+			</svg>
+		</span>
+	</label>
+}

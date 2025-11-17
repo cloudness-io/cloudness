@@ -1,0 +1,85 @@
+{
+  "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/postgresql.svg",
+  "name": "Postgres",
+  "readme": "PostgreSQL is an object-relational database known for its robustness, advanced features, and strong standards compliance.",
+  "tags": ["database"],
+  "services": [
+    {
+      "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/postgresql.svg",
+      "name": "Postgres",
+      "build": {
+        "source": {
+          "registry": {
+            "image": "postgres:latest"
+          }
+        }
+      },
+      "deploy": {},
+      "networking": {
+        "containerPorts": [5432],
+        "tcpProxies": {
+          "tcpPort": 5432
+        }
+      },
+      "volumes": [
+        {
+          "name": "PGData",
+          "mountPath": "/var/lib/postgresql/data"
+        }
+      ],
+      "variables": [
+        {
+          "key": "PGDATA",
+          "value": "/var/lib/postgresql/data/pgdata",
+          "type": "run"
+        },
+        {
+          "key": "PGHOST",
+          "value": "${{CLOUDNESS_PRIVATE_DOMAIN}}",
+          "type": "run"
+        },
+        {
+          "key": "PGPORT",
+          "value": "5432",
+          "type": "run"
+        },
+        {
+          "key": "POSTGRES_USER",
+          "value": "cloudness",
+          "type": "run"
+        },
+        {
+          "key": "PGUSER",
+          "value": "${{POSTGRES_USER}}",
+          "type": "run"
+        },
+        {
+          "key": "PGDATABASE",
+          "value": "${{POSTGRES_DB}}",
+          "type": "run"
+        },
+        {
+          "key": "PGPASSWORD",
+          "value": "${{POSTGRES_PASSWORD}}",
+          "type": "run"
+        },
+        {
+          "key": "POSTGRES_DB",
+          "value": "cloudness",
+          "type": "run"
+        },
+        {
+          "key": "POSTGRES_PRIVATE_URL",
+          "value": "postgresql://${{PGUSER}}:${{POSTGRES_PASSWORD}}@${{CLOUDNESS_PRIVATE_DOMAIN}}:5432/${{PGDATABASE}}?sslmode=disable",
+          "type": "run"
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "value": "${{secret(32)}}",
+          "type": "run"
+        }
+      ]
+    }
+  ]
+}
+

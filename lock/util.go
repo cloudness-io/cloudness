@@ -1,0 +1,17 @@
+package lock
+
+import "strings"
+
+func formatKey(app, ns, key string) string {
+	return app + ":" + ns + ":" + key
+}
+
+func SplitKey(uniqKey string) (namespace, key string) {
+	parts := strings.Split(uniqKey, ":")
+	key = uniqKey
+	if len(parts) > 2 {
+		namespace = parts[1]
+		key = parts[2]
+	}
+	return
+}

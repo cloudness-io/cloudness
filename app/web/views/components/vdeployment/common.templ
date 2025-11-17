@@ -1,0 +1,18 @@
+package vdeployment
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/components/vsource"
+
+templ description(app *types.Application, deployment *types.Deployment, info *types.DeploymentInfo) {
+	<div class="flex items-center gap-4 min-w-full">
+		@DeploymentStatus(deployment)
+		<div class="flex flex-col gap-1 min-w-full">
+			<span
+				class="hover:text-brand min-w-full truncate text-ellipsis overflow-hidden"
+			>{ info.Title }</span>
+			<span>
+				@vsource.Info(app, deployment.Spec)
+			</span>
+		</div>
+	</div>
+}

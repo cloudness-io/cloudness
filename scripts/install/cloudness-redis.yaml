@@ -1,0 +1,43 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: redis-cluster
+  namespace: cloudness
+spec:
+  terminationPolicy: Delete
+  clusterDef: redis
+  topology: replication
+  componentSpecs:
+    - name: redis
+      serviceVersion: "8.2.1"
+      disableExporter: false
+      replicas: 1
+      resources:
+        requests:
+          cpu: '0.1'
+          memory: 0.1Gi
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: ""
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+    - name: redis-sentinel
+      serviceVersion: "8.2.1"
+      replicas: 1
+      resources:
+        requests:
+          cpu: '0.1'
+          memory: 0.1Gi
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: ""
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi

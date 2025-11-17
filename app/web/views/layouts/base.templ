@@ -1,0 +1,149 @@
+package layouts
+
+import (
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/web/views"
+	"github.com/cloudness-io/cloudness/app/web/views/components/common"
+	"github.com/cloudness-io/cloudness/app/web/views/components/navigations"
+	"github.com/cloudness-io/cloudness/app/web/views/dto"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+)
+
+templ BaseLayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
+	@baseLayout() {
+		@LayoutWithNav(dto, contents)
+	}
+}
+
+templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
+	@shared.Title()
+	@shared.BaseUrl()
+	<div class="sticky top-0 z-50">
+		<div id="toast" class="toast-wrapper"></div>
+	</div>
+	<div class="sticky top-0 z-10">
+		@navigations.MainNav(dto.Nav)
+	</div>
+	<div class="relative">
+		<div class="progress-indicator mx-auto">
+			<div
+				class="indeterminate bg-brand"
+			></div>
+		</div>
+		@common.RenderSSEStreamer()
+		<div class="main" id="main">
+			@shared.BreadCrumb(false)
+			@contents
+		</div>
+	</div>
+}
+
+templ LayoutWithoutNav(contents templ.Component) {
+	@shared.Title()
+	@shared.BaseUrl()
+	<div class="flex flex-col flex-1 px-4 pt-2 min-h-[calc(100vh-20rem)] main" id="main">
+		<div class="sticky top-0 z-50">
+			<div id="toast" class="toast-wrapper"></div>
+		</div>
+		<div class="progress-indicator mx-auto">
+			<div
+				class="indeterminate bg-brand"
+			></div>
+		</div>
+		@contents
+	</div>
+}
+
+templ BaseLayoutWithoutNav(contents templ.Component) {
+	@baseLayout() {
+		@LayoutWithoutNav(contents)
+	}
+}
+
+templ baseLayout() {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<link rel="icon" href={ views.Asset("logo.svg") } hx-preserve="true"/>
+			<meta charset="UTF-8" hx-preserve="true"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" hx-preserve="true"/>
+			<link rel="stylesheet" href={ views.Asset("styles.css") } hx-preserve="true"/>
+			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" hx-preserve="true"/>
+			<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;700&display=swap" rel="stylesheet" hx-preserve="true"/>
+			<script defer src={ views.Asset("index.js") } hx-preserve="true"></script>
+			<!-- ICONS -->
+			@phosphorLinks()
+			<!-- Alpine Plugins -->
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" hx-preserve="true"></script>
+			<!-- Tooltip -->
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/balloon-css/balloon.min.css" hx-preserve="true"/>
+			<!-- HTMX -->
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.js" hx-preserve="true"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/htmx-ext-remove-me@2.0.0/remove-me.js" hx-preserve="true"></script>
+			<script defer src="https://cdn.jsdelivr.net/gh/Emtyloc/json-enc-custom@v0.1.0/json-enc-custom.js" hx-preserve="true"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/htmx-ext-head-support@2.0.2" hx-preserve="true"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.2/sse.js" hx-preserve="true"></script>
+			<!-- JS -->
+			<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js" hx-preserve="true"></script>
+			<script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.32.1/humanize-duration.min.js" hx-preserve="true"></script>
+			@shared.ExternalScripts(request.InstanceSettingsFrom(ctx))
+		</head>
+		<body
+			x-data="{theme: 'dark'}"
+			:class="theme"
+			class="dark"
+			lang="en"
+			class="bg-primary"
+			hx-ext="json-enc-custom"
+			hx-boost="true"
+		>
+			<div
+				id="root"
+				class="flex flex-col mx-auto min-h-screen text-sm"
+				hx-indicator=".progress-indicator"
+			>
+				{ children... }
+			</div>
+		</body>
+	</html>
+}
+
+templ phosphorLinks() {
+	<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1" hx-preserve="true"></script>
+	<link
+		rel="stylesheet"
+		type="text/css"
+		href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+		hx-preserve="true"
+	/>
+	<link
+		rel="stylesheet"
+		type="text/css"
+		href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/thin/style.css"
+		hx-preserve="true"
+	/>
+	<link
+		rel="stylesheet"
+		type="text/css"
+		href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/light/style.css"
+		hx-preserve="true"
+	/>
+	<link
+		rel="stylesheet"
+		type="text/css"
+		href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"
+		hx-preserve="true"
+	/>
+	<link
+		rel="stylesheet"
+		type="text/css"
+		href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+		hx-preserve="true"
+	/>
+	<link
+		rel="stylesheet"
+		type="text/css"
+		href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css"
+		hx-preserve="true"
+	/>
+}

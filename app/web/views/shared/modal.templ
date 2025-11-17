@@ -1,0 +1,43 @@
+package shared
+
+import "fmt"
+
+// use modalOpen attribute in parent to hide show modal
+// sample x-data="{ modelOpen: false  }"
+templ Modal(modelOpenPropName string, content templ.Component) {
+	<div
+		x-show={ modelOpenPropName }
+		class="fixed inset-0 z-40 overflow-y-auto flex items-center justify-center"
+		aria-labelledby="modal-title"
+		role="dialog"
+		aria-modal="true"
+	>
+		<div
+			x-cloak
+			@click={ fmt.Sprintf("%s=false", modelOpenPropName) }
+			x-show={ modelOpenPropName }
+			x-transition:enter="transition ease-out duration-300 transform"
+			x-transition:enter-start="opacity-0"
+			x-transition:enter-end="opacity-100"
+			x-transition:leave="transition ease-in duration-200 transform"
+			x-transition:leave-start="opacity-100"
+			x-transition:leave-end="opacity-0"
+			class="fixed inset-0 transition-opacity backdrop-blur-md"
+			aria-hidden="true"
+		></div>
+		<div
+			x-cloak
+			x-show={ modelOpenPropName }
+			x-transition:enter="transition ease-out duration-300 transform"
+			x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+			x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+			x-transition:leave="transition ease-in duration-200 transform"
+			x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+			x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+			class="inline-block w-sm sm:w-md p-6 overflow-hidden text-left transition-all transform shadow-xl bg-secondary rounded-xs z-50"
+			id="model"
+		>
+			@content
+		</div>
+	</div>
+}

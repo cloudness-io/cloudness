@@ -1,0 +1,65 @@
+{
+    "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/mysql.svg",
+    "name": "MySQL",
+    "readme": "MySQL is a widely used, open-source relational database management system (RDBMS).",
+    "tags": [
+        "database"
+    ],
+    "services": [
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/mysql.svg",
+            "name": "MySQL",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "mysql"
+                    }
+                }
+            },
+            "deploy": {
+                "startCommand": "docker-entrypoint.sh mysqld --innodb-use-native-aio=0 --disable-log-bin --performance_schema=0"
+            },
+            "networking": {
+                "containerPorts": [
+                    3306
+                ],
+                "tcpProxies": {
+                    "tcpPort": 3306
+                }
+            },
+            "volumes": [
+                {
+                    "name": "MySQLData",
+                    "mountPath": "/var/lib/mysql"
+                }
+            ],
+            "variables": [
+                {
+                    "key": "MYSQLPORT",
+                    "value": "${{CLOUDNESS_TCP_APPLICATION_PORT}}",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQLUSER",
+                    "value": "root",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQL_PRIVATE_URL",
+                    "value": "mysql://${{MYSQLUSER}}:${{MYSQL_ROOT_PASSWORD}}@${{CLOUDNESS_PRIVATE_DOMAIN}}:${{MYSQLPORT}}/${{MYSQL_DATABASE}}",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQL_DATABASE",
+                    "value": "cloudness",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQL_ROOT_PASSWORD",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                }
+            ]
+        }
+    ]
+}

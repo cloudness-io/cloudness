@@ -1,0 +1,349 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --success: rgba(85, 163, 98, 1);
+    --error: rgb(212, 55, 50);
+    --warning: rgb(192, 144, 2);
+    --pending: rgba(0, 120, 212, 1);
+
+    --background-primary: #151515;
+    --background-secondary: #242423;
+    --background-secondary-hover: #4d4c4c;
+    --background-dropdown: #1a1a1a;
+    --text-primary: #cfcfcf;
+    --text-secondary: #989694;
+    --brand: #2899f5;
+    --link: #2899f5;
+    --link-hover: #82c7ff;
+    --link-disabled: #797775;
+    --disabled: #797775;
+    --border: #414141;
+    --border-mutted: #323130;
+  }
+}
+
+@theme {
+  --color-primary: var(--background-primary);
+  --color-secondary: var(--background-secondary);
+  --color-secondary: var(--background-secondary);
+  --color-secondary-hover: var(--background-secondary-hover);
+  --color-dropdown: var(--background-dropdown);
+
+  /* text */
+  --color-tx-primary: var(--text-primary);
+  --color-tx-secondary: var(--text-secondary);
+  --color-brand: var(--brand);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --color-link-disabled: var(--link-disabled);
+  --color-disabled: var(--disabled);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-pending: var(--pending);
+
+  /* controls, border */
+  --color-border: var(--border);
+  --color-border-mutted: var(--border-mutted);
+
+  /* size */
+  --text-sm: 0.813rem;
+  --text-sm--line-height: calc(1 / 0.813);
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: calc(1 / 0.625);
+
+  /* box shadow */
+  --inset-shadow-sidebar: inset 3px 0 var(--link);
+  --inset-shadow-tabbar: inset 0 -3px var(--link);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    @apply divide-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    font-family:
+      "Segoe UI", system-ui, "Open Sans", "Helvetica Neue", sans-serif;
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    -webkit-tap-highlight-color: transparent;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+
+    @apply bg-primary text-tx-primary;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  ::-webkit-scrollbar {
+    height: 8px;
+    width: 1.5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-mutted);
+    border-radius: 20px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /*autofill*/
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    border: 1px solid #434346;
+    -webkit-text-fill-color: #f1f1f1;
+    -webkit-box-shadow: 0 0 0px 1000px #1b1b1c inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  h3 {
+    @apply text-lg flex items-center font-semibold;
+  }
+
+  h4 {
+    @apply text-base flex items-center font-semibold;
+  }
+
+  h5 {
+    @apply text-base flex items-center font-medium;
+  }
+}
+
+/* progress indicator starts */
+
+.progress-indicator {
+  position: fixed;
+  z-index: 1000;
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  background-clip: padding-box;
+  overflow: hidden;
+  display: none;
+}
+
+.progress-indicator .indeterminate:before {
+  content: "";
+  position: absolute;
+  background-color: inherit;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  will-change: left, right;
+  animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+}
+
+.progress-indicator .indeterminate:after {
+  content: "";
+  position: absolute;
+  background-color: inherit;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  will-change: left, right;
+  animation: indeterminate-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1)
+    infinite;
+  animation-delay: 1.15s;
+}
+
+.htmx-request.progress-indicator {
+  display: inline;
+}
+
+/* Spinner */
+.spinner {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  border-radius: 50%;
+  background:
+    linear-gradient(
+        0deg,
+        rgb(40 153 245/50%) 30%,
+        #0000 0 70%,
+        rgb(40 153 245/100%) 0
+      )
+      50%/8% 100%,
+    linear-gradient(
+        90deg,
+        rgb(40 153 245/25%) 30%,
+        #0000 0 70%,
+        rgb(40 153 245/75%) 0
+      )
+      50%/100% 8%;
+  background-repeat: no-repeat;
+  animation: l23 1s infinite steps(12);
+}
+
+.spinner::before,
+.spinner::after {
+  content: "";
+  grid-area: 1/1;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.915;
+  transform: rotate(30deg);
+}
+
+.spinner::after {
+  opacity: 0.83;
+  transform: rotate(60deg);
+}
+
+@keyframes l23 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+@utility button {
+  @apply flex justify-center items-center gap-1 px-6 py-1 opacity-90 cursor-pointer hover:opacity-100 transform transition-transform active:scale-95 focus:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:transition-none disabled:transform-none rounded-xs hover:no-underline font-medium text-white;
+}
+
+@utility link {
+  @apply text-link hover:text-link-hover cursor-pointer disabled:text-link-disabled hover:underline disabled:hover:no-underline;
+}
+
+.button-link {
+  @apply flex justify-center items-center gap-1 text-link hover:text-link-hover cursor-pointer disabled:text-link-disabled disabled:hover:no-underline px-1 py-1 transform transition-transform active:scale-95 focus:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:transition-none disabled:transform-none rounded-xs hover:no-underline;
+}
+
+.button-primary {
+  @apply button bg-brand border border-brand;
+}
+
+.button-inert {
+  @apply button bg-transparent border border-brand/80 text-brand/80 px-2;
+}
+
+.button-neutral {
+  @apply button bg-transparent border;
+}
+
+.button-danger {
+  @apply button bg-error border border-error;
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.button-success {
+  border-color: var(--success);
+}
+
+.button-error {
+  border-color: var(--error);
+}
+
+.disabled {
+  pointer-events: none; /* Disable clicks & hover */
+  opacity: 0.5; /* Make it look inactive */
+  cursor: not-allowed; /* Show disabled cursor */
+  filter: grayscale(50%); /* Optional: Slightly gray it out */
+}
+
+@keyframes indeterminate {
+  0% {
+    left: -35%;
+    right: 100%;
+  }
+
+  60% {
+    left: 100%;
+    right: -90%;
+  }
+
+  100% {
+    left: 100%;
+    right: -90%;
+  }
+}
+
+@keyframes indeterminate-short {
+  0% {
+    left: -200%;
+    right: 100%;
+  }
+
+  60% {
+    left: 107%;
+    right: -8%;
+  }
+
+  100% {
+    left: 107%;
+    right: -8%;
+  }
+}
+
+/* progress indicator ends */
+
+/* icons overrides */
+.icon-sm::before {
+  font-size: var(--text-sm) !important;
+}
+
+.icon-base::before {
+  font-size: var(--text-base) !important;
+}
+
+.icon-lg::before {
+  font-size: var(--text-lg) !important;
+}
+
+.icon-xl::before {
+  font-size: var(--text-xl) !important;
+}
+
+.icon-2xl::before {
+  font-size: var(--text-2xl) !important;
+}
+
+.icon-3xl::before {
+  font-size: var(--text-3xl) !important;
+}
+
+.icon-4xl::before {
+  font-size: var(--text-4xl) !important;
+}
+
+.icon-plain {
+  color: var(--text-secondary) !important;
+}
+
+/* htmx defaults */
+.htmx-indicator {
+  display: none;
+}
+.htmx-request .htmx-indicator {
+  display: inline-block;
+  transition: opacity 200ms ease-in;
+}
+.htmx-request.htmx-indicator {
+  display: inline-block;
+  transition: opacity 200ms ease-in;
+}

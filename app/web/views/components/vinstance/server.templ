@@ -1,0 +1,17 @@
+package vinstance
+
+import (
+	"github.com/cloudness-io/cloudness/app/web/views/components/vserver"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Server(server *types.Server) {
+	@header()
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: InstanceNavServer,
+		Options:    getInstanceNav(),
+	}) {
+		@vserver.Settings(server)
+	}
+}

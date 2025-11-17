@@ -1,0 +1,52 @@
+package vdeployment
+
+import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/common"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/types"
+	"time"
+)
+
+templ List(app *types.Application, deployments []*types.Deployment) {
+	<div class="flex flex-col gap-3">
+		@header()
+		if len(deployments) == 0 {
+			@shared.NoData("No deployment found", nil)
+		} else {
+			<div class="overflow-hidden w-full overflow-x-auto">
+				<table class="bg-primary text-left min-w-xl w-full">
+					<tbody class="divide-y overflow-y-visible">
+						for _, deployment := range deployments {
+							<tr
+								class="hover:bg-secondary group cursor-pointer truncate overflow-hidden text-ellipsis grid
+								grid-cols-10 gap-2 items-center"
+								hx-push-url="true"
+								hx-get={ routes.Deployment(deployment.UID) }
+							>
+								<td class="col-span-6 whitespace-nowrap px-2 sm:px-4 py-1 sm:py-2">
+									@description(app, deployment, deployment.GetInfo())
+								</td>
+								<td class="col-span-2 whitespace-nowrap px-2 sm:px-4 py-1 sm:py-2 max-w-32 sm:max-w-full truncate overflow-hidden text-ellipsis">
+									{ deployment.Triggerer } | { string(deployment.Action) }
+								</td>
+								<td class="col-span-2 whitespace-nowrap px-2 sm:px-4 py-1 sm:py-2 text-right">
+									<div class="flex flex-col items-end">
+										@common.DateTime(deployment.Created)
+										if deployment.Started > 0 {
+											if deployment.Stopped > 0 {
+												@common.TimeDiff(deployment.Started, deployment.Stopped)
+											} else {
+												@common.TimeDiff(deployment.Started, time.Now().UTC().UnixMilli())
+											}
+										}
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+}
