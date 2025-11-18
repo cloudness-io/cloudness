@@ -18,7 +18,7 @@ spec:
       serviceAccountName: cloudness-app-account
       containers:
         - name: cloudness
-          image: cloudnessio/app-platform:sha-2b92568
+          image: cloudnessio/cloudness:sha-46244b7
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

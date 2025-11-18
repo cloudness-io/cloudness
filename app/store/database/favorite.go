@@ -101,7 +101,8 @@ func (s *FavoriteStore) List(ctx context.Context, userID, tenantID int64) ([]*ty
 		InnerJoin("project_memberships ON project_memberships.project_membership_project_id = projects.project_id").
 		Where("favorite_user_id = ?", userID).
 		Where("applications.application_tenant_id = ?", tenantID).
-		Where("applications.application_deleted IS NULL")
+		Where("applications.application_deleted IS NULL").
+		Distinct()
 
 	query, args, err := stmt.ToSql()
 	if err != nil {
