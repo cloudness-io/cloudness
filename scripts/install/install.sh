@@ -25,7 +25,7 @@ TRAEFIK_VERSION="${TRAEFIK_VERSION:-37.1.1}"
 VERBOSE="${VERBOSE:-false}"
 
 # Installation URLs and paths
-BASE_URL="https://cdn.cloudness.io/cloudness-io"
+BASE_URL="https://get.cloudness.in"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Detect if running from curl (no local files available)
