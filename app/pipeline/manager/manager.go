@@ -115,7 +115,7 @@ func (m *runnerManager) Config(ctx context.Context, serverUID int64) (*types.Run
 		EnableRunner:    server.BuildEnabled,
 		Hostname:        server.Name,
 		ParallelWorkers: server.MaxConcurrentBuilds,
-		PollingInterval: 3,
+		PollingInterval: 1,
 		MaxCPU:          server.MaxCPUPerBuild,
 		MaxMemory:       server.MaxMemoryPerBuild,
 		UpdatedAt:       server.Updated,
