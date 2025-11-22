@@ -78,3 +78,4 @@ jobs:
           r2-secret-access-key: ${{ secrets.SCRIPTS_BUCKET_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.SCRIPTS_BUCKET_NAME }}
           source-dir: ./scripts/install
+          destination-dir: ./
