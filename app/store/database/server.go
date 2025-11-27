@@ -40,8 +40,8 @@ const serverColumns = `
 	,server_ipv4
 	,server_ipv6
 	,server_wildcard_domain
-	,server_dns_proxy
-	,server_proxy_auth_key
+	,server_dns_provider
+	,server_dns_provider_auth
 	,server_user 
 	,server_port
 	,server_volume_supports_online_expansion
@@ -64,8 +64,8 @@ INSERT INTO servers (
 	,server_ipv4
 	,server_ipv6
 	,server_wildcard_domain
-	,server_dns_proxy
-	,server_proxy_auth_key
+	,server_dns_provider
+	,server_dns_provider_auth
 	,server_user
 	,server_port
 	,server_volume_supports_online_expansion
@@ -85,8 +85,8 @@ INSERT INTO servers (
 	,:server_ipv4
 	,:server_ipv6
 	,:server_wildcard_domain
-	,:server_dns_proxy
-	,:server_proxy_auth_key
+	,:server_dns_provider
+	,:server_dns_provider_auth
 	,:server_user
 	,:server_port
 	,:server_volume_supports_online_expansion
@@ -107,8 +107,8 @@ const serverUpdateStmt = `UPDATE servers
 		,server_ipv4 = :server_ipv4
 		,server_ipv6 = :server_ipv6
 		,server_wildcard_domain = :server_wildcard_domain
-		,server_dns_proxy = :server_dns_proxy
-		,server_proxy_auth_key = :server_proxy_auth_key
+		,server_dns_provider = :server_dns_provider
+		,server_dns_provider_auth = :server_dns_provider_auth
 		,server_user = :server_user
 		,server_port = :server_port
 		,server_volume_supports_online_expansion = :server_volume_supports_online_expansion

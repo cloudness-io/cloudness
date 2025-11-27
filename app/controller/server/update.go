@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/cloudness-io/cloudness/app/usererror"
+	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/check"
 	"github.com/cloudness-io/cloudness/types/enum"
@@ -17,10 +18,10 @@ type ServerGeneralUpdateModel struct {
 }
 
 type ServerNetworkUpdateModel struct {
-	WildCardDomain string           `json:"wildcard_domain"`
-	IPV4           string           `json:"ipv4"`
-	DNSProxy       enum.ServerProxy `json:"dns_proxy"`
-	ProxyAuth      string           `json:"proxy_auth"`
+	WildCardDomain  string           `json:"wildcard_domain"`
+	IPV4            string           `json:"ipv4"`
+	DNSProvider     enum.DNSProvider `json:"dns_provider"`
+	DNSProviderAuth string           `json:"dns_provider_auth"`
 }
 
 type ServerBuilderUpdateModel struct {
@@ -67,11 +68,11 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 
 	server.WildCardDomain = in.WildCardDomain
 	server.IPV4 = in.IPV4
-	server.DNSProxy = in.DNSProxy
-	if server.DNSProxy != enum.ServerProxyNone {
-		server.ProxyAuthKey = in.ProxyAuth
+	server.DNSProvider = in.DNSProvider
+	if server.DNSProvider != enum.DNSProviderNone {
+		server.DNSProviderAuth = in.DNSProviderAuth
 	} else {
-		server.ProxyAuthKey = ""
+		server.DNSProviderAuth = ""
 	}
 
 	if in.WildCardDomain != "" {
@@ -82,14 +83,15 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 
 		if instance.DNSValidationEnabled {
 			wildcardHost := "*." + wildcardDoamin.Hostname()
-			err = c.dnsSvc.ValidateHost(ctx, wildcardHost, server.IPV4, instance.DNSServers, in.DNSProxy)
+			err = c.dnsSvc.ValidateHost(ctx, wildcardHost, server.IPV4, instance.DNSServers, in.DNSProvider)
 			if err != nil {
 				return nil, err
 			}
 		}
 
 		if wildcardDoamin.Scheme == "https" {
-			if err := c.proxySvc.ValidateToken(ctx, in.DNSProxy, in.ProxyAuth, wildcardDoamin.Hostname()); err != nil {
+			_, _, hostname := helpers.ParseFQDN(in.WildCardDomain)
+			if err := c.proxySvc.ValidateToken(ctx, in.DNSProvider, in.DNSProviderAuth, hostname); err != nil {
 				return nil, err
 			}
 		}
@@ -183,16 +185,19 @@ func (c *Controller) sanitizeNetworkUpdateModel(in *ServerNetworkUpdateModel) er
 	}
 
 	if in.WildCardDomain != "" {
-		if proxyService := enum.ServerProxyFromString(string(in.DNSProxy)); proxyService != "" {
-			in.DNSProxy = proxyService
+		if dnsProvider := enum.DNSProviderFromString(string(in.DNSProvider)); dnsProvider != "" {
+			in.DNSProvider = dnsProvider
 		} else {
-			errors.AddValidationError("proxy_service", usererror.BadRequest("proxy service is not supported"))
+			errors.AddValidationError("dns_provider", usererror.BadRequest("DNS Provider is not supported"))
 		}
-	}
 
-	if in.WildCardDomain != "" {
-		if in.DNSProxy != enum.ServerProxyNone && strings.HasPrefix(in.WildCardDomain, "https") && in.ProxyAuth == "" {
-			errors.AddValidationError("proxy_auth", usererror.BadRequest("Proxy API key is required for https domain behind proxy"))
+		if strings.HasPrefix(in.WildCardDomain, "https") {
+			if in.DNSProvider == enum.DNSProviderNone {
+				errors.AddValidationError("dns_provider", usererror.BadRequest("DNS Provider is required to provision SSL certificate for wildcard domains"))
+			}
+			if in.DNSProviderAuth == "" {
+				errors.AddValidationError("dns_provider_auth", usererror.BadRequest("DNS Auth is required for https domain"))
+			}
 		}
 	}
 

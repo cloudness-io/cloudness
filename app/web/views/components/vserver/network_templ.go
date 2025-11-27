@@ -53,10 +53,10 @@ func networkSetting(server *types.Server) templ.Component {
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(xdata.ToFormData(&serverCtrl.ServerNetworkUpdateModel{
-			WildCardDomain: server.WildCardDomain,
-			IPV4:           server.IPV4,
-			DNSProxy:       server.DNSProxy,
-			ProxyAuth:      server.ProxyAuthKey,
+			WildCardDomain:  server.WildCardDomain,
+			IPV4:            server.IPV4,
+			DNSProvider:     server.DNSProvider,
+			DNSProviderAuth: server.DNSProviderAuth,
 		}))
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/web/views/components/vserver/network.templ`, Line: 25, Col: 8}
@@ -109,13 +109,13 @@ func networkSetting(server *types.Server) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = shared.Dropdown(&shared.DropdownProps{
-			Name:          "dns_proxy",
-			Label:         "DNS Proxy",
-			Tooltip:       "If your domain in behind a DNS proxy",
-			Options:       enum.ServerProxysStr,
+			Name:          "dns_provider",
+			Label:         "DNS Provider",
+			Tooltip:       "If your domain in behind a DNS Provider",
+			Options:       enum.DNSProvidersStr,
 			DropdownClass: "capitalize",
 			Attrs: templ.Attributes{
-				"x-model":   "form.dns_proxy",
+				"x-model":   "form.dns_provider",
 				":disabled": "form.wildcard_domain === ''",
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -123,15 +123,15 @@ func networkSetting(server *types.Server) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = shared.Input(&shared.InputProps{
-			Name:  "proxy_auth",
-			Label: "Proxy API Key",
-			Tooltip: `Proxy API token for the proxy service, This is used to generate/renew SSL certificate thorugh
+			Name:  "dns_provider_auth",
+			Label: "DNS Auth",
+			Tooltip: `DNS API token for the dns service, This is used to generate/renew SSL certificate thorugh
 			DNS challenge, API token should have access to Zone DNS Edit`,
 			Disclaimer: `<span>How to create API token? Please refer to <a class="link"
 			href="https://developers.cloudflare.com/fundamentals/api/get-started/create-token" target="_blank">Cloudflare API Tokens</a></span>`,
 			Password: true,
 			Attrs: templ.Attributes{
-				"x-model":   "form.proxy_auth",
+				"x-model":   "form.dns_provider_auth",
 				":disabled": "form.wildcard_domain === ''",
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)

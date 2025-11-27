@@ -29,7 +29,15 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:
-          - name: cert-wildcard-certificate # Cert-Manager will populate this Secret
+          - name: dummy-cert    # dummy cert to satisfy Gateway spec
       allowedRoutes:
         namespaces:
           from: All
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: TLSStore
+metadata:
+  name: default
+  namespace: tarefik
+spec: {}

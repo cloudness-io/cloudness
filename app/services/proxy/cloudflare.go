@@ -24,7 +24,7 @@ func (p *cloudflareProxy) ValidateAPIKeyForDNS01(ctx context.Context, apitoken s
 
 	zoneID, err := api.ZoneIDByName(zone)
 	if err != nil {
-		log.Ctx(ctx).Error().Err(err).Msg("Proxy: get zone id call failed")
+		log.Ctx(ctx).Error().Err(err).Any("zone", zone).Msg("Proxy: get zone id call failed")
 		return usererror.Forbidden("Zone:Read permission missing or zone not found")
 	}
 

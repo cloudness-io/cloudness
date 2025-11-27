@@ -29,7 +29,6 @@ templ updateDiv(buttonAttr templ.Attributes) {
 			<button
 				type="submit"
 				class="button-primary"
-				:disabled="JSON.stringify(form) == JSON.stringify(initial)"
 				hx-swap="none"
 				{ buttonAttr... }
 			>

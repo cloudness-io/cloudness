@@ -34,7 +34,7 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 			return nil, err
 		}
 
-		err = c.dnsSvc.ValidateHost(ctx, fqdnURL.Hostname(), server.IPV4, in.DNSServers, server.DNSProxy)
+		err = c.dnsSvc.ValidateHost(ctx, fqdnURL.Hostname(), server.IPV4, in.DNSServers, server.DNSProvider)
 		if err != nil {
 			return nil, err
 		}

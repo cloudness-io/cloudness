@@ -20,8 +20,8 @@ templ networkSetting(server *types.Server) {
 		x-data={ xdata.ToFormData(&serverCtrl.ServerNetworkUpdateModel{ 
 						WildCardDomain: server.WildCardDomain,
 						            IPV4: server.IPV4,
-										DNSProxy: server.DNSProxy,
-										ProxyAuth: server.ProxyAuthKey,
+										DNSProvider: server.DNSProvider,
+										DNSProviderAuth: server.DNSProviderAuth,
 						}) }
 		x-clock
 		hx-push-url="false"
@@ -54,26 +54,26 @@ templ networkSetting(server *types.Server) {
 			},
 		})
 		@shared.Dropdown(&shared.DropdownProps{
-			Name:          "dns_proxy",
-			Label:         "DNS Proxy",
-			Tooltip:       "If your domain in behind a DNS proxy",
-			Options:       enum.ServerProxysStr,
+			Name:          "dns_provider",
+			Label:         "DNS Provider",
+			Tooltip:       "If your domain in behind a DNS Provider",
+			Options:       enum.DNSProvidersStr,
 			DropdownClass: "capitalize",
 			Attrs: templ.Attributes{
-				"x-model":   "form.dns_proxy",
+				"x-model":   "form.dns_provider",
 				":disabled": "form.wildcard_domain === ''",
 			},
 		})
 		@shared.Input(&shared.InputProps{
-			Name:  "proxy_auth",
-			Label: "Proxy API Key",
-			Tooltip: `Proxy API token for the proxy service, This is used to generate/renew SSL certificate thorugh
+			Name:  "dns_provider_auth",
+			Label: "DNS Auth",
+			Tooltip: `DNS API token for the dns service, This is used to generate/renew SSL certificate thorugh
 			DNS challenge, API token should have access to Zone DNS Edit`,
 			Disclaimer: `<span>How to create API token? Please refer to <a class="link"
 			href="https://developers.cloudflare.com/fundamentals/api/get-started/create-token" target="_blank">Cloudflare API Tokens</a></span>`,
 			Password: true,
 			Attrs: templ.Attributes{
-				"x-model":   "form.proxy_auth",
+				"x-model":   "form.dns_provider_auth",
 				":disabled": "form.wildcard_domain === ''",
 			},
 		})

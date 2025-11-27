@@ -362,6 +362,7 @@ if [ "$INSTALL_TRAEFIK" = "true" ]; then
         --namespace traefik \
         --version "${TRAEFIK_VERSION}" \
         --set providers.kubernetesGateway.enabled=true \
+        --set providers.kubernetesCRD.allowCrossNamespace=true \
         --set gateway.enabled=false \
         --set ports.web.port=8000 \
         --set ports.web.exposedPort=80 \

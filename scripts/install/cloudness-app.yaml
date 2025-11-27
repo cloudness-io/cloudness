@@ -26,8 +26,10 @@ spec:
             # Add or adjust env vars as needed; placeholders below
             - name: APP_ENV
               value: "prod"
-            - name: LOG_LEVEL
-              value: "info"
+            - name: CLOUDNESS_DEBUG
+              value: "false"
+            - name: CLOUDNESS_TRACE
+              value: "false"
             # Database driver
             - name: CLOUDNESS_DATABASE_DRIVER
               value: "postgres"

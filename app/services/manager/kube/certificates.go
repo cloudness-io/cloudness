@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/cloudness-io/cloudness/types"
@@ -17,9 +16,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/util/retry"
+	gwapi "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-func (m *K8sManager) AddWildcardDomainWithSSL(ctx context.Context, server *types.Server) error {
+func (m *K8sManager) RemoveWildcardSSL(ctx context.Context, server *types.Server) error {
 	client, err := m.getInterface(ctx, server)
 	if err != nil {
 		return err
@@ -30,44 +30,48 @@ func (m *K8sManager) AddWildcardDomainWithSSL(ctx context.Context, server *types
 	}
 
 	//remove cert resources
-	if server.WildCardDomain == "" || !strings.HasPrefix(server.WildCardDomain, "https") {
-		if err := client.CoreV1().Secrets(defaultK8sGatewayNamespace).Delete(ctx, defaultProxyAPIKeySecretName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
-			return err
-		}
-		if err := cmclient.CertmanagerV1().Issuers(defaultK8sGatewayNamespace).Delete(ctx, defaultClusterIssuerName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
-			return err
-		}
-		if err := cmclient.CertmanagerV1().Certificates(defaultK8sGatewayNamespace).Delete(ctx, defaultWidlcardCertificateName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
-			return err
-		}
-
-		return nil
+	if err := client.CoreV1().Secrets(defaultK8sGatewayNamespace).Delete(ctx, defaultProxyAPIKeySecretName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+		return err
+	}
+	if err := cmclient.CertmanagerV1().Issuers(defaultK8sGatewayNamespace).Delete(ctx, defaultClusterIssuerName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+		return err
+	}
+	if err := cmclient.CertmanagerV1().Certificates(defaultK8sGatewayNamespace).Delete(ctx, defaultWidlcardCertificateName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+		return err
 	}
 
-	isProxied := server.DNSProxy != enum.ServerProxyNone && server.ProxyAuthKey != ""
-	wUrl, err := url.Parse(server.WildCardDomain)
+	return nil
+}
+
+func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server, namespace, dns, certKey string, dnsProvider enum.DNSProvider, dnsAuthKey string) error {
+	client, err := m.getInterface(ctx, server)
 	if err != nil {
-		return nil
+		return err
+	}
+	cmclient, err := m.getACMEClient(ctx, server)
+	if err != nil {
+		return err
 	}
 
+	isProxied := dnsProvider != enum.DNSProviderNone && dnsAuthKey != ""
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		if wUrl.Scheme == "https" && isProxied {
+		if isProxied {
 			var err error
-			// 1. Create secret for proxy
+			// 1. Create secret for dns provider auth
 			secret := &v1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      defaultProxyAPIKeySecretName,
-					Namespace: defaultK8sGatewayNamespace,
+					Name:      certKey,
+					Namespace: namespace,
 				},
 				StringData: map[string]string{
-					defaultProxyAPIKeySecretKey: server.ProxyAuthKey,
+					defaultProxyAPIKeySecretKey: server.DNSProviderAuth,
 				},
 				Type: v1.SecretTypeOpaque,
 			}
 
-			if _, err = client.CoreV1().Secrets(defaultK8sGatewayNamespace).Create(ctx, secret, metav1.CreateOptions{}); err != nil {
+			if _, err = client.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{}); err != nil {
 				if errors.IsAlreadyExists(err) {
-					if _, err = client.CoreV1().Secrets(defaultK8sGatewayNamespace).Update(ctx, secret, metav1.UpdateOptions{}); err != nil {
+					if _, err = client.CoreV1().Secrets(namespace).Update(ctx, secret, metav1.UpdateOptions{}); err != nil {
 						return err
 					}
 				} else {
@@ -79,27 +83,26 @@ func (m *K8sManager) AddWildcardDomainWithSSL(ctx context.Context, server *types
 		}
 
 		// 2. Create ClusterIssuer
-		if err := m.checkIssuer(ctx, server); err != nil {
+		if err := m.createOrUpdateIssuer(ctx, server, namespace, dns, certKey, dnsProvider, dnsAuthKey); err != nil {
 			return err
 		}
 
 		// 3. Create certificate
-		exisitingCert, err := cmclient.CertmanagerV1().Certificates(defaultK8sGatewayNamespace).Get(ctx, defaultWidlcardCertificateName, metav1.GetOptions{})
+		exisitingCert, err := cmclient.CertmanagerV1().Certificates(namespace).Get(ctx, certKey, metav1.GetOptions{})
 		if err != nil && !errors.IsNotFound(err) {
 			return err
 		}
 		cert := &cmv1.Certificate{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      defaultWidlcardCertificateName,
-				Namespace: defaultK8sGatewayNamespace,
+				Name:      certKey,
+				Namespace: namespace,
+				Labels:    defaultCertificateLabel,
 			},
 			Spec: cmv1.CertificateSpec{
-				DNSNames: []string{
-					fmt.Sprintf("*.%s", wUrl.Hostname()),
-				},
+				DNSNames:   []string{dns},
 				SecretName: defaultWidlcardCertificateName,
 				IssuerRef: cmmeta.ObjectReference{
-					Name: defaultClusterIssuerName,
+					Name: certKey,
 					Kind: "Issuer",
 				},
 			},
@@ -122,17 +125,31 @@ func (m *K8sManager) AddWildcardDomainWithSSL(ctx context.Context, server *types
 	})
 }
 
-func (m *K8sManager) checkIssuer(ctx context.Context, server *types.Server) error {
+func (m *K8sManager) AddWildcardDomainWithSSL(ctx context.Context, server *types.Server) error {
+	wUrl, err := url.Parse(server.WildCardDomain)
+	if err != nil {
+		return nil
+	}
+
+	if wUrl.Scheme == "https" {
+		return m.AddSSLCertificate(ctx, server, defaultK8sGatewayNamespace, fmt.Sprintf("*.%s", wUrl.Hostname()), defaultWidlcardCertificateName, server.DNSProvider, server.DNSProviderAuth)
+	}
+
+	return nil
+}
+
+func (m *K8sManager) createOrUpdateIssuer(ctx context.Context, server *types.Server, namespace, dns, certKey string, dnsProvider enum.DNSProvider, dnsAuth string) error {
 	issuerExisits := true
 	var issuer *cmv1.Issuer
 	var err error
+	var gatewayNamespace = defaultK8sGatewayNamespace
 
 	cmclient, err := m.getACMEClient(ctx, server)
 	if err != nil {
 		return err
 	}
 
-	issuer, err = cmclient.CertmanagerV1().Issuers(defaultK8sGatewayNamespace).Get(ctx, defaultClusterIssuerName, metav1.GetOptions{})
+	issuer, err = cmclient.CertmanagerV1().Issuers(namespace).Get(ctx, certKey, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			issuerExisits = false
@@ -144,8 +161,8 @@ func (m *K8sManager) checkIssuer(ctx context.Context, server *types.Server) erro
 	if !issuerExisits {
 		issuer = &cmv1.Issuer{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      defaultClusterIssuerName,
-				Namespace: defaultK8sGatewayNamespace,
+				Name:      certKey,
+				Namespace: namespace,
 			},
 			Spec: cmv1.IssuerSpec{
 				IssuerConfig: cmv1.IssuerConfig{
@@ -164,8 +181,8 @@ func (m *K8sManager) checkIssuer(ctx context.Context, server *types.Server) erro
 		}
 	}
 
-	switch server.DNSProxy {
-	case enum.ServerProxyCloudflare:
+	switch server.DNSProvider {
+	case enum.DNSProviderCloudflare:
 		issuer.Spec.IssuerConfig.ACME.Solvers = []cmacme.ACMEChallengeSolver{
 			{
 				DNS01: &cmacme.ACMEChallengeSolverDNS01{
@@ -173,7 +190,7 @@ func (m *K8sManager) checkIssuer(ctx context.Context, server *types.Server) erro
 						Email: "selfhost@cloudness.io",
 						APIToken: &cmmeta.SecretKeySelector{
 							LocalObjectReference: cmmeta.LocalObjectReference{
-								Name: defaultProxyAPIKeySecretName,
+								Name: certKey,
 							},
 							Key: defaultProxyAPIKeySecretKey,
 						},
@@ -182,15 +199,28 @@ func (m *K8sManager) checkIssuer(ctx context.Context, server *types.Server) erro
 			},
 		}
 	default:
-		issuer.Spec.IssuerConfig.ACME.Solvers = []cmacme.ACMEChallengeSolver{}
+		issuer.Spec.IssuerConfig.ACME.Solvers = []cmacme.ACMEChallengeSolver{
+			{
+				HTTP01: &cmacme.ACMEChallengeSolverHTTP01{
+					GatewayHTTPRoute: &cmacme.ACMEChallengeSolverHTTP01GatewayHTTPRoute{
+						ParentRefs: []gwapi.ParentReference{
+							{
+								Name:      defaultK8sGatewayService,
+								Namespace: (*gwapi.Namespace)(&gatewayNamespace),
+							},
+						},
+					},
+				},
+			},
+		}
 	}
 
 	if !issuerExisits {
-		if _, err := cmclient.CertmanagerV1().Issuers(defaultK8sGatewayNamespace).Create(ctx, issuer, metav1.CreateOptions{}); err != nil {
+		if _, err := cmclient.CertmanagerV1().Issuers(namespace).Create(ctx, issuer, metav1.CreateOptions{}); err != nil {
 			return err
 		}
 	} else {
-		if _, err = cmclient.CertmanagerV1().Issuers(defaultK8sGatewayNamespace).Update(ctx, issuer, metav1.UpdateOptions{}); err != nil {
+		if _, err = cmclient.CertmanagerV1().Issuers(namespace).Update(ctx, issuer, metav1.UpdateOptions{}); err != nil {
 			return err
 		}
 	}

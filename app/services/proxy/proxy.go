@@ -6,19 +6,19 @@ import (
 )
 
 type Service struct {
-	proxies map[enum.ServerProxy]proxy
+	proxies map[enum.DNSProvider]proxy
 }
 
 func New() *Service {
 	cloudflareProxy := newCloudflareProxy()
 	return &Service{
-		proxies: map[enum.ServerProxy]proxy{
-			enum.ServerProxyCloudflare: cloudflareProxy,
+		proxies: map[enum.DNSProvider]proxy{
+			enum.DNSProviderCloudflare: cloudflareProxy,
 		},
 	}
 }
 
-func (s *Service) Resolve(proxy enum.ServerProxy) (proxy, error) {
+func (s *Service) Resolve(proxy enum.DNSProvider) (proxy, error) {
 	if proxy, ok := s.proxies[proxy]; !ok {
 		return nil, usererror.BadRequest("Invalid proxy")
 	} else {

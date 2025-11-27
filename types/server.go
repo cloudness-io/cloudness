@@ -17,8 +17,8 @@ type Server struct {
 	IPV4                          string           `db:"server_ipv4"                                 json:"ipv4"`
 	IPV6                          string           `db:"server_ipv6"                                 json:"ipv6"`
 	WildCardDomain                string           `db:"server_wildcard_domain"                      json:"wildcard_domain"`
-	DNSProxy                      enum.ServerProxy `db:"server_dns_proxy"                            json:"dns_proxy"`
-	ProxyAuthKey                  string           `db:"server_proxy_auth_key"                       json:"-"`
+	DNSProvider                   enum.DNSProvider `db:"server_dns_provider"                         json:"dns_provider"`
+	DNSProviderAuth               string           `db:"server_dns_provider_auth"                    json:"-"`
 	User                          string           `db:"server_user"                                 json:"user"`
 	Port                          int64            `db:"server_port"                                 json:"port"`
 	VolumeSupportsOnlineExpansion bool             `db:"server_volume_supports_online_expansion"     json:"volume_supports_online_expansion"`

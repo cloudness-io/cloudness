@@ -10,8 +10,12 @@ const (
 
 	//certificates
 	defaultProxyAPIKeySecretName   = "cert-proxy-api-key"
-	defaultProxyAPIKeySecretKey    = "proxy-api-key"
+	defaultProxyAPIKeySecretKey    = "token"
 	defaultClusterIssuerName       = "wildcard-issuer"
-	defaultLetsEncryptServerURL    = "https://acme-v02.api.letsencrypt.org/directory"
+	defaultLetsEncryptServerURL    = "https://acme-staging-v02.api.letsencrypt.org/directory"
 	defaultWidlcardCertificateName = "cert-wildcard-certificate"
 )
+
+var defaultCertificateLabel = map[string]string{
+	"traefik.ingress.kubernetes.io/tls.cert": "true",
+}
