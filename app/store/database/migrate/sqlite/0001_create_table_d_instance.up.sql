@@ -8,6 +8,8 @@ CREATE TABLE instances (
 ,instance_update_check_frequency        TEXT
 ,instance_dns_validation_enabled        BOOLEAN
 ,instance_dns_servers                   TEXT
+,instance_dns_provider						 TEXT
+,instance_dns_provider_auth				 TEXT
 ,instance_user_signup_enabled 			 BOOLEAN
 ,instance_demo_user_enabled				 BOOLEAN
 ,instance_registry_enabled					 BOOLEAN

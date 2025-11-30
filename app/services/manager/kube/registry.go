@@ -44,13 +44,13 @@ func (m *K8sManager) RemoveRegistry(ctx context.Context, server *types.Server, n
 	}
 
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		if err := m.deleteStatefulset(ctx, client, defaultK8sCloudnessNamespace, name); err != nil {
+		if err := m.deleteStatefulset(ctx, client, DefaultK8sCloudnessNamespace, name); err != nil {
 			return err
 		}
-		if err := m.deleteService(ctx, client, defaultK8sCloudnessNamespace, name); err != nil {
+		if err := m.deleteService(ctx, client, DefaultK8sCloudnessNamespace, name); err != nil {
 			return err
 		}
-		if err := m.deletePVC(ctx, client, defaultK8sCloudnessNamespace, fmt.Sprintf("data-%s-0", name)); err != nil {
+		if err := m.deletePVC(ctx, client, DefaultK8sCloudnessNamespace, fmt.Sprintf("data-%s-0", name)); err != nil {
 			return err
 		}
 		return nil
@@ -73,7 +73,7 @@ func (m *K8sManager) getRegistryStatefulSet(name string, size int64) *appsapplyv
 		v1.ResourceStorage: resource.MustParse(fmt.Sprintf("%dGi", size)),
 	}
 
-	sst := appsapplyv1.StatefulSet(name, defaultK8sCloudnessNamespace).
+	sst := appsapplyv1.StatefulSet(name, DefaultK8sCloudnessNamespace).
 		WithLabels(label).
 		WithSpec(
 			appsapplyv1.StatefulSetSpec().
@@ -102,7 +102,7 @@ func (m *K8sManager) getRegistryStatefulSet(name string, size int64) *appsapplyv
 						),
 				).
 				WithVolumeClaimTemplates(
-					coreapplyv1.PersistentVolumeClaim(name, defaultK8sCloudnessNamespace).
+					coreapplyv1.PersistentVolumeClaim(name, DefaultK8sCloudnessNamespace).
 						WithName("data").
 						WithSpec(
 							coreapplyv1.PersistentVolumeClaimSpec().
@@ -119,7 +119,7 @@ func (m *K8sManager) getRegistryServiceConfig(name string, nodePort int32) *core
 		"app": name,
 	}
 
-	svc := coreapplyv1.Service(name, defaultK8sCloudnessNamespace).
+	svc := coreapplyv1.Service(name, DefaultK8sCloudnessNamespace).
 		WithLabels(label).
 		WithSpec(
 			coreapplyv1.ServiceSpec().

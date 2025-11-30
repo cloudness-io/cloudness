@@ -6,6 +6,7 @@ import (
 
 	"github.com/cloudness-io/cloudness/app/services/dns"
 	"github.com/cloudness-io/cloudness/app/services/manager"
+	"github.com/cloudness-io/cloudness/app/services/proxy"
 	"github.com/cloudness-io/cloudness/app/store"
 	dbStore "github.com/cloudness-io/cloudness/store"
 	"github.com/cloudness-io/cloudness/store/database/dbtx"
@@ -20,6 +21,7 @@ type Controller struct {
 	serverStore    store.ServerStore
 	principalStore store.PrincipalStore
 	dnsSvc         *dns.Service
+	proxySvc       *proxy.Service
 	factory        manager.ManagerFactory
 }
 
@@ -29,6 +31,7 @@ func NewController(
 	serverStore store.ServerStore,
 	principalStore store.PrincipalStore,
 	dnsSvc *dns.Service,
+	proxySvc *proxy.Service,
 	factory manager.ManagerFactory,
 ) *Controller {
 	return &Controller{
@@ -37,6 +40,7 @@ func NewController(
 		serverStore:    serverStore,
 		principalStore: principalStore,
 		dnsSvc:         dnsSvc,
+		proxySvc:       proxySvc,
 		factory:        factory,
 	}
 }

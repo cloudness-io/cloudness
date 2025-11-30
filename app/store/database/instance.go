@@ -41,6 +41,8 @@ const instanceColumns = `
 	,instance_update_check_frequency
 	,instance_dns_validation_enabled
 	,instance_dns_servers
+	,instance_dns_provider
+	,instance_dns_provider_auth
 	,instance_user_signup_enabled
 	,instance_demo_user_enabled
 	,instance_registry_enabled
@@ -60,6 +62,8 @@ INSERT INTO instances (
 	,instance_update_check_frequency
 	,instance_dns_validation_enabled
 	,instance_dns_servers
+	,instance_dns_provider
+	,instance_dns_provider_auth
 	,instance_user_signup_enabled
 	,instance_demo_user_enabled
 	,instance_registry_enabled
@@ -77,6 +81,8 @@ INSERT INTO instances (
 	,:instance_update_check_frequency
 	,:instance_dns_validation_enabled
 	,:instance_dns_servers
+	,:instance_dns_provider
+	,:instance_dns_provider_auth
 	,:instance_user_signup_enabled
 	,:instance_demo_user_enabled
 	,:instance_registry_enabled
@@ -140,6 +146,8 @@ func (s *InstanceStore) Update(ctx context.Context, instance *types.Instance) (*
 		,instance_update_check_frequency = :instance_update_check_frequency
 		,instance_dns_validation_enabled = :instance_dns_validation_enabled
 		,instance_dns_servers = :instance_dns_servers
+		,instance_dns_provider = :instance_dns_provider
+		,instance_dns_provider_auth = :instance_dns_provider_auth 
 		,instance_user_signup_enabled = :instance_user_signup_enabled
 		,instance_demo_user_enabled = :instance_demo_user_enabled
 		,instance_registry_enabled = :instance_registry_enabled

@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	gatewayclientset "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 )
 
 // TODO: get server creds from server object
@@ -40,6 +41,14 @@ func (m *K8sManager) getACMEClient(ctx context.Context, server *types.Server) (*
 		return nil, err
 	}
 	return cmclientset.NewForConfig(config)
+}
+
+func (m *K8sManager) getGatewayClient(ctx context.Context, server *types.Server) (*gatewayclientset.Clientset, error) {
+	config, err := m.getClientConfig(ctx, server)
+	if err != nil {
+		return nil, err
+	}
+	return gatewayclientset.NewForConfig(config)
 }
 
 func (m *K8sManager) getClientConfig(ctx context.Context, server *types.Server) (*rest.Config, error) {

@@ -20,6 +20,10 @@ import (
 )
 
 func (m *K8sManager) RemoveWildcardSSL(ctx context.Context, server *types.Server) error {
+	return m.RemoveSSLCertificate(ctx, server, defaultK8sGatewayName, defaultWidlcardCertificateName)
+}
+
+func (m *K8sManager) RemoveSSLCertificate(ctx context.Context, server *types.Server, namespace, certKey string) error {
 	client, err := m.getInterface(ctx, server)
 	if err != nil {
 		return err
@@ -30,17 +34,18 @@ func (m *K8sManager) RemoveWildcardSSL(ctx context.Context, server *types.Server
 	}
 
 	//remove cert resources
-	if err := client.CoreV1().Secrets(defaultK8sGatewayNamespace).Delete(ctx, defaultProxyAPIKeySecretName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+	if err := client.CoreV1().Secrets(namespace).Delete(ctx, certKey, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
 		return err
 	}
-	if err := cmclient.CertmanagerV1().Issuers(defaultK8sGatewayNamespace).Delete(ctx, defaultClusterIssuerName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+	if err := cmclient.CertmanagerV1().Issuers(namespace).Delete(ctx, certKey, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
 		return err
 	}
-	if err := cmclient.CertmanagerV1().Certificates(defaultK8sGatewayNamespace).Delete(ctx, defaultWidlcardCertificateName, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+	if err := cmclient.CertmanagerV1().Certificates(namespace).Delete(ctx, certKey, metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
 		return err
 	}
 
 	return nil
+
 }
 
 func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server, namespace, dns, certKey string, dnsProvider enum.DNSProvider, dnsAuthKey string) error {
@@ -64,7 +69,7 @@ func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server
 					Namespace: namespace,
 				},
 				StringData: map[string]string{
-					defaultProxyAPIKeySecretKey: server.DNSProviderAuth,
+					defaultProxyAPIKeySecretKey: dnsAuthKey,
 				},
 				Type: v1.SecretTypeOpaque,
 			}
@@ -79,7 +84,7 @@ func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server
 				}
 			}
 		} else {
-			client.CoreV1().Secrets(defaultK8sGatewayNamespace).Delete(ctx, defaultProxyAPIKeySecretName, metav1.DeleteOptions{})
+			client.CoreV1().Secrets(defaultK8sGatewayNamespace).Delete(ctx, certKey, metav1.DeleteOptions{})
 		}
 
 		// 2. Create ClusterIssuer
@@ -100,7 +105,7 @@ func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server
 			},
 			Spec: cmv1.CertificateSpec{
 				DNSNames:   []string{dns},
-				SecretName: defaultWidlcardCertificateName,
+				SecretName: certKey,
 				IssuerRef: cmmeta.ObjectReference{
 					Name: certKey,
 					Kind: "Issuer",
@@ -108,7 +113,7 @@ func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server
 			},
 		}
 		if errors.IsNotFound(err) {
-			if _, err = cmclient.CertmanagerV1().Certificates(defaultK8sGatewayNamespace).Create(ctx, cert, metav1.CreateOptions{}); err != nil {
+			if _, err = cmclient.CertmanagerV1().Certificates(namespace).Create(ctx, cert, metav1.CreateOptions{}); err != nil {
 				return err
 			}
 		} else {
@@ -117,7 +122,7 @@ func (m *K8sManager) AddSSLCertificate(ctx context.Context, server *types.Server
 				cert.Annotations = make(map[string]string)
 			}
 			cert.Annotations["cert-manager.io/force-renewal"] = time.Now().Format(time.RFC3339)
-			if _, err = cmclient.CertmanagerV1().Certificates(defaultK8sGatewayNamespace).Update(ctx, cert, metav1.UpdateOptions{}); err != nil {
+			if _, err = cmclient.CertmanagerV1().Certificates(namespace).Update(ctx, cert, metav1.UpdateOptions{}); err != nil {
 				return err
 			}
 		}
@@ -171,7 +176,7 @@ func (m *K8sManager) createOrUpdateIssuer(ctx context.Context, server *types.Ser
 						Server: defaultLetsEncryptServerURL,
 						PrivateKey: cmmeta.SecretKeySelector{
 							LocalObjectReference: cmmeta.LocalObjectReference{
-								Name: "cert-wildcard-certificate-key",
+								Name: certKey + "-tls",
 							},
 						},
 						Solvers: []cmacme.ACMEChallengeSolver{},
@@ -181,7 +186,7 @@ func (m *K8sManager) createOrUpdateIssuer(ctx context.Context, server *types.Ser
 		}
 	}
 
-	switch server.DNSProvider {
+	switch dnsProvider {
 	case enum.DNSProviderCloudflare:
 		issuer.Spec.IssuerConfig.ACME.Solvers = []cmacme.ACMEChallengeSolver{
 			{

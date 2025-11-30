@@ -6,7 +6,7 @@ tmp_dir = "tmp"
 args_bin = ["server", ".local.env"]
 bin = "./tmp/app-platform"
 cmd = "go build -o ./tmp/app-platform ./cmd/app"
-delay = 1000
+delay = 1000 
 exclude_dir = [
     "assets",
     "tmp",
@@ -24,7 +24,7 @@ full_bin = ""
 include_dir = []
 include_ext = ["go", "tpl", "tmpl", "html", "json", "yaml", "yml", "sh"]
 include_file = ["web/dist.go"]
-kill_delay = "0s"
+kill_delay = "1s"
 log = "build-errors.log"
 poll = false
 poll_interval = 0

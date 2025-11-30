@@ -56,6 +56,10 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 	if err := c.sanitizeNetworkUpdateModel(in); err != nil {
 		return nil, err
 	}
+
+	//flags
+	doProvisionSSL := false
+
 	server, err := c.Get(ctx)
 	if err != nil {
 		return nil, err
@@ -90,6 +94,7 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 		}
 
 		if wildcardDoamin.Scheme == "https" {
+			doProvisionSSL = true
 			_, _, hostname := helpers.ParseFQDN(in.WildCardDomain)
 			if err := c.proxySvc.ValidateToken(ctx, in.DNSProvider, in.DNSProviderAuth, hostname); err != nil {
 				return nil, err
@@ -98,16 +103,18 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 	}
 
 	err = c.tx.WithTx(ctx, func(ctx context.Context) error {
-		server, err = c.serverStore.Update(ctx, server)
-		if err != nil {
-			return err
+		if doProvisionSSL {
+			manager, err := c.factory.GetServerManager(server)
+			if err != nil {
+				return err
+			}
+			if err := manager.AddWildcardDomainWithSSL(ctx, server); err != nil {
+				return err
+			}
 		}
 
-		manager, err := c.factory.GetServerManager(server)
+		server, err = c.serverStore.Update(ctx, server)
 		if err != nil {
-			return err
-		}
-		if err := manager.AddWildcardDomainWithSSL(ctx, server); err != nil {
 			return err
 		}
 		return nil
@@ -115,11 +122,6 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 	if err != nil {
 		return nil, err
 	}
-
-	/* _, err = c.instanceCtrl.UpdateWithServer(ctx, server)
-	if err != nil {
-		return nil, err
-	} */
 
 	return server, nil
 }
