@@ -404,7 +404,11 @@ if [ "$INSTALL_KUBEBLOCKS" = "true" ]; then
         print_error "Failed to apply KubeBlocks CRDs. Please check your network connection."
         exit 1
     fi
-    
+    if ! run_command kubectl apply --server-side=true --validate=false -f "https://github.com/apecloud/kubeblocks/releases/download/${KUBEBLOCKS_VERSION}/snapshot.storage.k8s.yaml"; then
+        print_error "Failed to apply KubeBlocks Snapshot storage. Please check your network connection."
+        exit 1
+    fi
+
     # Add KubeBlocks Helm repository
     print_info "Adding KubeBlocks Helm repository..."
     add_helm_repo "kubeblocks" "https://apecloud.github.io/helm-charts"
