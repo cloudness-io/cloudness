@@ -13,15 +13,20 @@ import (
 	v1 "sigs.k8s.io/gateway-api/applyconfiguration/apis/v1"
 )
 
-func (m *K8sManager) AddHttpRoute(ctx context.Context, server *types.Server, namespace, name, service string, port int32, host string) error {
+func (m *K8sManager) AddHttpRoute(ctx context.Context, server *types.Server, namespace, name, service string, port int32, host string, httpScheme string) error {
 	gatewayClientset, err := m.getGatewayClient(ctx, server)
 	if err != nil {
 		return err
 	}
 
+	gatewaySection := "websecure"
+	if httpScheme == "http" {
+		gatewaySection = "web"
+	}
+
 	httpRouteApply := v1.HTTPRoute(name, namespace).WithSpec(
 		v1.HTTPRouteSpec().
-			WithParentRefs(v1.ParentReference().WithNamespace(gatewayv1.Namespace(defaultK8sGatewayNamespace)).WithName(defaultK8sGatewayName)).
+			WithParentRefs(v1.ParentReference().WithNamespace(gatewayv1.Namespace(defaultK8sGatewayNamespace)).WithName(defaultK8sGatewayName).WithSectionName(gatewayv1.SectionName(gatewaySection))).
 			WithHostnames(gatewayv1.Hostname(host)).
 			WithRules(
 				v1.HTTPRouteRule().

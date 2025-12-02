@@ -19,17 +19,19 @@ spec:
   listeners:
     - name: web
       protocol: HTTP
-      port: 8000
+      port: 80
       allowedRoutes:
         namespaces:
           from: All
-    - name: websecure 
+    - name: websecure
       protocol: HTTPS
-      port: 8443
+      port: 443
       tls:
         mode: Terminate
         certificateRefs:
-          - name: cert-wildcard-certificate # Cert-Manager will populate this Secret
+          - kind: Secret
+            name: default-tls-cert
+            namespace: traefik
       allowedRoutes:
         namespaces:
           from: All

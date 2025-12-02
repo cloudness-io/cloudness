@@ -331,6 +331,7 @@ if [ "$INSTALL_CERT_MANAGER" = "true" ]; then
         --namespace cert-manager \
         --version "${CERT_MANAGER_VERSION}" \
         --set crds.keep=true \
+        --set "extraArgs={--enable-gateway-api}" \
         --wait \
         --timeout 5m; then
         print_error "Cert-Manager installation failed. Please check your Kubernetes cluster and run the script again."
@@ -362,11 +363,12 @@ if [ "$INSTALL_TRAEFIK" = "true" ]; then
         --namespace traefik \
         --version "${TRAEFIK_VERSION}" \
         --set providers.kubernetesGateway.enabled=true \
+        --set providers.kubernetesCRD.enabled=true \
         --set providers.kubernetesCRD.allowCrossNamespace=true \
         --set gateway.enabled=false \
-        --set ports.web.port=8000 \
+        --set ports.web.port=80 \
         --set ports.web.exposedPort=80 \
-        --set ports.websecure.port=8443 \
+        --set ports.websecure.port=443 \
         --set ports.websecure.exposedPort=443 \
         --set ports.websecure.tls.enabled=true \
         --set service.type=LoadBalancer \
@@ -382,6 +384,8 @@ if [ "$INSTALL_TRAEFIK" = "true" ]; then
     fi
     
     print_status "Traefik installed"
+
+    apply_yaml "traefik-gateway-default-cert.yaml" "Traefik Gateway default certificate"
     
     # Apply Traefik Gateway configuration
     apply_yaml "traefik-gateway.yaml" "Traefik Gateway and GatewayClass configuration"

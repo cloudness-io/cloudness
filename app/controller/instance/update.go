@@ -105,17 +105,17 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 			return err
 		}
 		if doProvisionSSL {
-			if err := manager.AddSSLCertificate(ctx, server, kube.DefaultK8sCloudnessNamespace, fqdnURL.Hostname(), "cloudness-app-certificate", instance.DNSProvider, instance.DNSProviderAuth); err != nil {
+			if err := manager.AddSSLCertificate(ctx, server, fqdnURL.Hostname(), "cloudness-app-certificate", instance.DNSProvider, instance.DNSProviderAuth); err != nil {
 				return err
 			}
 		} else {
-			if err := manager.RemoveSSLCertificate(ctx, server, kube.DefaultK8sCloudnessNamespace, "cloudness-app-certificate"); err != nil {
+			if err := manager.RemoveSSLCertificate(ctx, server, "cloudness-app-certificate"); err != nil {
 				return err
 			}
 		}
 
 		if doAddRoute {
-			if err := manager.AddHttpRoute(ctx, server, kube.DefaultK8sCloudnessNamespace, "cloudness-custom-http", kube.DefaultK8sCloudnessService, kube.DefaultK8sCloudnessPort, fqdnURL.Hostname()); err != nil {
+			if err := manager.AddHttpRoute(ctx, server, kube.DefaultK8sCloudnessNamespace, "cloudness-custom-http", kube.DefaultK8sCloudnessService, kube.DefaultK8sCloudnessPort, fqdnURL.Hostname(), fqdnURL.Scheme); err != nil {
 				return err
 			}
 		} else {

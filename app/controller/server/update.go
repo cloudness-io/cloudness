@@ -10,6 +10,8 @@ import (
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/check"
 	"github.com/cloudness-io/cloudness/types/enum"
+
+	"github.com/rs/zerolog/log"
 )
 
 type ServerGeneralUpdateModel struct {
@@ -103,13 +105,17 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 	}
 
 	err = c.tx.WithTx(ctx, func(ctx context.Context) error {
+		manager, err := c.factory.GetServerManager(server)
 		if doProvisionSSL {
-			manager, err := c.factory.GetServerManager(server)
 			if err != nil {
 				return err
 			}
 			if err := manager.AddWildcardDomainWithSSL(ctx, server); err != nil {
 				return err
+			}
+		} else {
+			if err := manager.RemoveWildcardSSL(ctx, server); err != nil {
+				log.Ctx(ctx).Error().Err(err).Msg("Error removing wildcard certificate")
 			}
 		}
 

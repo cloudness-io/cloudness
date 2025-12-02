@@ -18,11 +18,11 @@ type ServerManager interface {
 	//certificate related
 	AddWildcardDomainWithSSL(ctx context.Context, server *types.Server) error
 	RemoveWildcardSSL(ctx context.Context, server *types.Server) error
-	AddSSLCertificate(ctx context.Context, server *types.Server, namespace, dns, certKey string, dnsProvider enum.DNSProvider, dnsAuthKey string) error
-	RemoveSSLCertificate(ctx context.Context, server *types.Server, namespace, certKey string) error
+	AddSSLCertificate(ctx context.Context, server *types.Server, dns, certKey string, dnsProvider enum.DNSProvider, dnsAuthKey string) error
+	RemoveSSLCertificate(ctx context.Context, server *types.Server, certKey string) error
 	ListCertificates(ctx context.Context, server *types.Server) ([]*types.Certificate, error)
 
-	AddHttpRoute(ctx context.Context, server *types.Server, namespace, name, service string, port int32, host string) error
+	AddHttpRoute(ctx context.Context, server *types.Server, namespace, name, service string, port int32, host string, httpScheme string) error
 	RemoveHttpRoute(ctx context.Context, server *types.Server, namespace, name string) error
 
 	//Registry endpoints
