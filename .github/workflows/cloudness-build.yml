@@ -10,7 +10,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-app:
+  build-cloudness-app:
+    name: Cloudness App
     permissions:
       contents: read
       packages: write

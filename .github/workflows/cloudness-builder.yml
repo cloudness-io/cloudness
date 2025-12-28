@@ -15,7 +15,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-builder:
+  build-cloudness-builder:
+    name: Builder Plugin
     permissions:
       contents: read
       packages: write
