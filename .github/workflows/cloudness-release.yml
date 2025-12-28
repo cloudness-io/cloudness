@@ -12,7 +12,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-app:
+  build-cloudness-app:
+    name: Cloudness App
     permissions:
       contents: read
       packages: write
@@ -23,7 +24,8 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  build-and-push-builder:
+  build-cloudness-builder:
+    name: Builder Plugin
     permissions:
       contents: read
       packages: write
@@ -35,35 +37,13 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   upload-scripts:
-    runs-on: ubuntu-latest
-    needs: [build-and-push-app, build-and-push-builder]
+    name: Upload Scripts
+    needs: [build-cloudness-app, build-cloudness-builder]
     permissions:
       contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Extract version from tag
-        id: version
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
-          else
-            VERSION="latest"
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Replace version placeholder in YAML files
-        run: |
-          sed -i "s|{{.App.Version}}|${{ steps.version.outputs.version }}|g" ./scripts/install/cloudness-app.yaml
-
-      - name: Upload Script files
-        uses: ryand56/r2-upload-action@latest
-        with:
-          r2-account-id: ${{ secrets.SCRIPTS_BUCKET_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.SCRIPTS_BUCKET_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.SCRIPTS_BUCKET_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.SCRIPTS_BUCKET_NAME }}
-          source-dir: ./scripts/install
-          destination-dir: ./
+    uses: ./.github/workflows/_upload-scripts.yml
+    secrets:
+      SCRIPTS_BUCKET_ACCOUNT_ID: ${{ secrets.SCRIPTS_BUCKET_ACCOUNT_ID }}
+      SCRIPTS_BUCKET_ACCESS_KEY_ID: ${{ secrets.SCRIPTS_BUCKET_ACCESS_KEY_ID }}
+      SCRIPTS_BUCKET_SECRET_ACCESS_KEY: ${{ secrets.SCRIPTS_BUCKET_SECRET_ACCESS_KEY }}
+      SCRIPTS_BUCKET_NAME: ${{ secrets.SCRIPTS_BUCKET_NAME }}

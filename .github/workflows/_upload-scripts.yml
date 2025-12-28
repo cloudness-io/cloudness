@@ -1,0 +1,47 @@
+name: Upload Scripts (Reusable)
+
+on:
+    workflow_call:
+        secrets:
+            SCRIPTS_BUCKET_ACCOUNT_ID:
+                required: true
+            SCRIPTS_BUCKET_ACCESS_KEY_ID:
+                required: true
+            SCRIPTS_BUCKET_SECRET_ACCESS_KEY:
+                required: true
+            SCRIPTS_BUCKET_NAME:
+                required: true
+
+jobs:
+    upload:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Extract version from tag
+              id: version
+              run: |
+                  if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+                    VERSION=${GITHUB_REF#refs/tags/}
+                  else
+                    VERSION="latest"
+                  fi
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Replace version placeholder in YAML files
+              run: |
+                  sed -i "s|{{.App.Version}}|${{ steps.version.outputs.version }}|g" ./scripts/install/cloudness-app.yaml
+
+            - name: Upload Script files
+              uses: ryand56/r2-upload-action@latest
+              with:
+                  r2-account-id: ${{ secrets.SCRIPTS_BUCKET_ACCOUNT_ID }}
+                  r2-access-key-id: ${{ secrets.SCRIPTS_BUCKET_ACCESS_KEY_ID }}
+                  r2-secret-access-key: ${{ secrets.SCRIPTS_BUCKET_SECRET_ACCESS_KEY }}
+                  r2-bucket: ${{ secrets.SCRIPTS_BUCKET_NAME }}
+                  source-dir: ./scripts/install
+                  destination-dir: ./
