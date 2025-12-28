@@ -1,0 +1,33 @@
+name: PR Validation
+
+on:
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    validate-app:
+        name: Validate App
+        permissions:
+            contents: read
+            packages: read
+        uses: ./.github/workflows/_build-app.yml
+        with:
+            enable-cache: true
+            push-images: false
+        secrets:
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+            DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    validate-builder:
+        name: Validate Builder
+        permissions:
+            contents: read
+            packages: read
+        uses: ./.github/workflows/_build-builder.yml
+        with:
+            enable-cache: true
+            push-images: false
+        secrets:
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+            DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
