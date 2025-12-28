@@ -6,12 +6,12 @@ import (
 	"strings"
 
 	"github.com/cloudness-io/cloudness/app/usererror"
-	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/check"
 	"github.com/cloudness-io/cloudness/types/enum"
 
 	"github.com/rs/zerolog/log"
+	"golang.org/x/net/publicsuffix"
 )
 
 type ServerGeneralUpdateModel struct {
@@ -29,6 +29,7 @@ type ServerNetworkUpdateModel struct {
 type ServerBuilderUpdateModel struct {
 	Enabled             bool    `json:"enabled,string"`
 	IsBuildServer       bool    `json:"is_build_server,string"`
+	PollingInterval     int64   `json:"polling_interval,string"`
 	MaxConcurrentBuilds int64   `json:"max_concurrent_builds,string"`
 	MaxCPUPerBuild      float64 `json:"max_cpu_per_build,string"`
 	MaxMemoryPerBuild   float64 `json:"max_memory_per_build,string"`
@@ -97,7 +98,11 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 
 		if wildcardDoamin.Scheme == "https" {
 			doProvisionSSL = true
-			_, _, hostname := helpers.ParseFQDN(in.WildCardDomain)
+			hostname, err := publicsuffix.EffectiveTLDPlusOne(in.WildCardDomain)
+			if err != nil {
+				return nil, err
+			}
+
 			if err := c.proxySvc.ValidateToken(ctx, in.DNSProvider, in.DNSProviderAuth, hostname); err != nil {
 				return nil, err
 			}
@@ -106,10 +111,10 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 
 	err = c.tx.WithTx(ctx, func(ctx context.Context) error {
 		manager, err := c.factory.GetServerManager(server)
+		if err != nil {
+			return err
+		}
 		if doProvisionSSL {
-			if err != nil {
-				return err
-			}
 			if err := manager.AddWildcardDomainWithSSL(ctx, server); err != nil {
 				return err
 			}
@@ -120,10 +125,7 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 		}
 
 		server, err = c.serverStore.Update(ctx, server)
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	})
 	if err != nil {
 		return nil, err
@@ -139,8 +141,12 @@ func (c *Controller) UpdateBuilder(ctx context.Context, in *ServerBuilderUpdateM
 	}
 
 	if in.Enabled {
+		if err := c.sanitizeBuilderUpdateModel(in); err != nil {
+			return nil, err
+		}
 		server.BuildEnabled = in.Enabled
 		server.IsBuildServer = in.IsBuildServer
+		server.PollingInterval = in.PollingInterval
 		server.MaxConcurrentBuilds = in.MaxConcurrentBuilds
 		server.MaxCPUPerBuild = in.MaxCPUPerBuild
 		server.MaxMemoryPerBuild = in.MaxMemoryPerBuild
@@ -209,6 +215,26 @@ func (c *Controller) sanitizeNetworkUpdateModel(in *ServerNetworkUpdateModel) er
 		}
 	}
 
+	if errors.HasError() {
+		return errors
+	}
+	return nil
+}
+
+func (c *Controller) sanitizeBuilderUpdateModel(in *ServerBuilderUpdateModel) error {
+	errors := check.NewValidationErrors()
+	if in.PollingInterval <= 0 {
+		errors.AddValidationError("polling_interval", usererror.BadRequest("Polling interval must be greater than 0"))
+	}
+	if in.MaxConcurrentBuilds <= 0 {
+		errors.AddValidationError("max_concurrent_builds", usererror.BadRequest("Max concurrent builds must be greater than 0"))
+	}
+	if in.MaxCPUPerBuild <= 0 {
+		errors.AddValidationError("max_cpu_per_build", usererror.BadRequest("Max CPU per build must be greater than 0"))
+	}
+	if in.MaxMemoryPerBuild <= 0 {
+		errors.AddValidationError("max_memory_per_build", usererror.BadRequest("Max memory per build must be greater than 0"))
+	}
 	if errors.HasError() {
 		return errors
 	}

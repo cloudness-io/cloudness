@@ -25,6 +25,7 @@ type Server struct {
 	VolumeMinSize                 int64            `db:"server_volume_min_size"                      json:"volume_min_size"`
 	BuildEnabled                  bool             `db:"server_builder_is_enabled"                   json:"build_enabled"`
 	IsBuildServer                 bool             `db:"server_builder_is_build_server"              json:"is_build_server"`
+	PollingInterval               int64            `db:"server_builder_polling_interval"             json:"polling_interval"`
 	MaxConcurrentBuilds           int64            `db:"server_builder_max_concurrent_builds"        json:"max_concurrent_builds"`
 	MaxCPUPerBuild                float64          `db:"server_builder_max_cpu"                      json:"max_cpu_per_build"`
 	MaxMemoryPerBuild             float64          `db:"server_builder_max_memory"                   json:"max_memory_per_build"`

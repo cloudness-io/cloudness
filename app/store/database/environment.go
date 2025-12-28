@@ -186,7 +186,7 @@ func (s *EnvironmentStore) Update(ctx context.Context, environment *types.Enviro
 
 	request, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, database.ProcessSQLErrorf(ctx, err, "Update project query failed")
+		return nil, database.ProcessSQLErrorf(ctx, err, "Update environment query failed")
 	}
 
 	count, err := request.RowsAffected()

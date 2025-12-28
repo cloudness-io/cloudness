@@ -1,0 +1,117 @@
+package lock
+
+import (
+	"context"
+
+	"github.com/cloudness-io/cloudness/errors"
+
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/redis/go-redis/v9"
+)
+
+// Redis wrapper for redsync
+type Redis struct {
+	config Config
+	rs     *redsync.Redsync
+}
+
+// NewRedis create an instance of redisync to be used to obtain a mutual exclusion
+// lock.
+func NewRedis(config Config, client redis.UniversalClient) *Redis {
+	pool := goredis.NewPool(client)
+	return &Redis{
+		config: config,
+		rs:     redsync.New(pool),
+	}
+}
+
+// Acquire new lock.
+func (r *Redis) NewMutex(key string, options ...Option) (Mutex, error) {
+	// copy default values
+	config := r.config
+	// customize config
+	for _, opt := range options {
+		opt.Apply(&config)
+	}
+
+	// convert to redis helper functions
+	args := make([]redsync.Option, 0, 8)
+	args = append(args,
+		redsync.WithExpiry(config.Expiry),
+		redsync.WithTimeoutFactor(config.TimeoutFactor),
+		redsync.WithTries(config.Tries),
+		redsync.WithRetryDelay(config.RetryDelay),
+		redsync.WithDriftFactor(config.DriftFactor),
+	)
+
+	if config.DelayFunc != nil {
+		args = append(args, redsync.WithRetryDelayFunc(redsync.DelayFunc(config.DelayFunc)))
+	}
+
+	if config.GenValueFunc != nil {
+		args = append(args, redsync.WithGenValueFunc(config.GenValueFunc))
+	}
+
+	uniqKey := formatKey(config.App, config.Namespace, key)
+	mutex := r.rs.NewMutex(uniqKey, args...)
+
+	return &RedisMutex{
+		mutex: mutex,
+	}, nil
+}
+
+type RedisMutex struct {
+	mutex *redsync.Mutex
+}
+
+// Key returns the key to be locked.
+func (l *RedisMutex) Key() string {
+	return l.mutex.Name()
+}
+
+// Lock acquires the lock. It fails with error if the lock is already held.
+func (l *RedisMutex) Lock(ctx context.Context) error {
+	err := l.mutex.LockContext(ctx)
+	if err != nil {
+		return translateRedisErr(err, l.Key())
+	}
+	return nil
+}
+
+// Unlock releases the lock. It fails with error if the lock is not currently held.
+func (l *RedisMutex) Unlock(ctx context.Context) error {
+	_, err := l.mutex.UnlockContext(ctx)
+	if err != nil {
+		return translateRedisErr(err, l.Key())
+	}
+	return nil
+}
+
+// IsHeld returns true if the lock is currently held.
+func (l *RedisMutex) IsHeld(ctx context.Context) bool {
+	err := l.mutex.TryLockContext(ctx)
+	if err != nil {
+		tErr := translateRedisErr(err, l.Key())
+		if ErrorKind(tErr.Error()) == ErrorKindLockHeld {
+			return true
+		}
+		return false
+	}
+
+	defer l.mutex.Unlock()
+	return false
+}
+
+func translateRedisErr(err error, key string) error {
+	var kind ErrorKind
+	switch {
+	case errors.Is(err, redsync.ErrFailed):
+		kind = ErrorKindCannotLock
+	case errors.Is(err, redsync.ErrExtendFailed), errors.IsType[*redsync.RedisError](err):
+		kind = ErrorKindProviderError
+	case errors.IsType[*redsync.ErrTaken](err), errors.IsType[*redsync.ErrNodeTaken](err):
+		kind = ErrorKindLockHeld
+	}
+	return NewError(kind, key, err)
+}

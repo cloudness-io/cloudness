@@ -23,9 +23,6 @@ spec:
           ports:
             - containerPort: 8000
           env:
-            # Add or adjust env vars as needed; placeholders below
-            - name: APP_ENV
-              value: "prod"
             - name: CLOUDNESS_DEBUG
               value: "false"
             - name: CLOUDNESS_TRACE

@@ -14,6 +14,7 @@ CREATE TABLE servers (
 ,server_volume_supports_online_expansion     BOOLEAN
 ,server_builder_is_enabled					BOOLEAN
 ,server_builder_is_build_server			    BOOLEAN
+,server_builder_polling_interval			INTEGER
 ,server_builder_max_concurrent_builds	    INTEGER
 ,server_builder_max_cpu						REAL	
 ,server_builder_max_memory					REAL	

@@ -47,6 +47,7 @@ const serverColumns = `
 	,server_volume_supports_online_expansion
 	,server_builder_is_enabled
 	,server_builder_is_build_server
+	,server_builder_polling_interval
 	,server_builder_max_concurrent_builds
 	,server_builder_max_cpu
 	,server_builder_max_memory
@@ -71,6 +72,7 @@ INSERT INTO servers (
 	,server_volume_supports_online_expansion
 	,server_builder_is_enabled
 	,server_builder_is_build_server
+	,server_builder_polling_interval
 	,server_builder_max_concurrent_builds
 	,server_builder_max_cpu
 	,server_builder_max_memory
@@ -92,6 +94,7 @@ INSERT INTO servers (
 	,:server_volume_supports_online_expansion
 	,:server_builder_is_enabled
 	,:server_builder_is_build_server
+	,:server_builder_polling_interval
 	,:server_builder_max_concurrent_builds
 	,:server_builder_max_cpu
 	,:server_builder_max_memory
@@ -114,6 +117,7 @@ const serverUpdateStmt = `UPDATE servers
 		,server_volume_supports_online_expansion = :server_volume_supports_online_expansion
 		,server_builder_is_enabled = :server_builder_is_enabled
 		,server_builder_is_build_server = :server_builder_is_build_server
+		,server_builder_polling_interval = :server_builder_polling_interval
 		,server_builder_max_concurrent_builds = :server_builder_max_concurrent_builds
 		,server_builder_max_cpu = :server_builder_max_cpu
 		,server_builder_max_memory = :server_builder_max_memory

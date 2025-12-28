@@ -41,17 +41,21 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 	}
 
 	//flags
+	hadFQDN := false
 	doAddRoute := false
 	doProvisionSSL := false
 
 	fqdnURL, err := url.Parse(in.FQDN)
-	// if instance.FQDN != in.FQDN && in.FQDN != "" {
-	if in.FQDN != "" {
-		doAddRoute = true
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
 
+	if in.FQDN == "" && instance.FQDN != "" {
+		hadFQDN = true
+	}
+
+	if in.FQDN != "" && instance.FQDN != in.FQDN {
+		doAddRoute = true
 		isServerSubdomain := false
 		instanceSchema, _, instanceDomain := helpers.ParseFQDN(in.FQDN)
 		if server.WildCardDomain != "" {
@@ -86,7 +90,7 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 		}
 	}
 
-	log.Ctx(ctx).Debug().Str("Hostname", fqdnURL.Hostname()).Bool("doProvisionSSL", doProvisionSSL).Bool("doAddRoute", doAddRoute).Msg("Control flags for domain")
+	log.Ctx(ctx).Debug().Str("Hostname", fqdnURL.Hostname()).Bool("doProvisionSSL", doProvisionSSL).Bool("doAddRoute", doAddRoute).Bool("hadFQDN", hadFQDN).Msg("Control flags for domain")
 
 	instance.FQDN = in.FQDN
 	if instance.FQDN == "" {
@@ -99,27 +103,31 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 	instance.DNSValidationEnabled = in.DNSValidationEnabled
 	instance.DNSServers = in.DNSServers
 	instance.ExternalScripts = in.ExternalScripts
+
 	err = c.tx.WithTx(ctx, func(ctx context.Context) error {
 		manager, err := c.factory.GetServerManager(server)
 		if err != nil {
 			return err
 		}
+		certKey := "cloudness-app-route"
 		if doProvisionSSL {
-			if err := manager.AddSSLCertificate(ctx, server, fqdnURL.Hostname(), "cloudness-app-certificate", instance.DNSProvider, instance.DNSProviderAuth); err != nil {
+			if err := manager.AddSSLCertificate(ctx, server, kube.DefaultK8sCloudnessName, fqdnURL.Hostname(), certKey, instance.DNSProvider, instance.DNSProviderAuth); err != nil {
 				return err
 			}
 		} else {
-			if err := manager.RemoveSSLCertificate(ctx, server, "cloudness-app-certificate"); err != nil {
+			if err := manager.RemoveSSLCertificate(ctx, server, kube.DefaultK8sCloudnessName, certKey); err != nil {
 				return err
 			}
 		}
 
 		if doAddRoute {
-			if err := manager.AddHttpRoute(ctx, server, kube.DefaultK8sCloudnessNamespace, "cloudness-custom-http", kube.DefaultK8sCloudnessService, kube.DefaultK8sCloudnessPort, fqdnURL.Hostname(), fqdnURL.Scheme); err != nil {
+			err := manager.AddHttpRoute(ctx, server, kube.DefaultK8sCloudnessNamespace, certKey, kube.DefaultK8sCloudnessService, kube.DefaultK8sCloudnessPort, fqdnURL.Hostname(), fqdnURL.Scheme)
+			if err != nil {
 				return err
 			}
-		} else {
-			if err := manager.RemoveHttpRoute(ctx, server, kube.DefaultK8sCloudnessNamespace, "cloudness-custom-http"); err != nil {
+		} else if hadFQDN {
+			log.Ctx(ctx).Debug().Msg("removing http route")
+			if err := manager.RemoveHttpRoute(ctx, server, kube.DefaultK8sCloudnessNamespace, certKey); err != nil {
 				return err
 			}
 		}

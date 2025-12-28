@@ -8,16 +8,12 @@ const (
 
 	defaultRegistryImage = "registry:2.8.3"
 
-	defaultK8sGatewayNamespace = "traefik"
-	defaultK8sGatewayName      = "traefik"
-	defaultK8sGatewayService   = "traefik"
+	DefaultK8sGatewayNamespace = "kgateway-system"
+	DefaultK8sGatewayName      = "cloudness-gateway"
+	DefaultK8sGatewayService   = "cloudness-gateway"
 
 	//certificates
-	defaultProxyAPIKeySecretKey    = "token"
-	defaultLetsEncryptServerURL    = "https://acme-staging-v02.api.letsencrypt.org/directory"
-	defaultWidlcardCertificateName = "cert-wildcard-certificate"
+	defaultProxyAPIKeySecretKey   = "token"
+	defaultLetsEncryptServerURL   = "https://acme-staging-v02.api.letsencrypt.org/directory"
+	DefaultWidlcardCertificateKey = "cloudness-wildcard"
 )
-
-var defaultCertificateLabel = map[string]string{
-	"traefik.ingress.kubernetes.io/tls.cert": "true",
-}

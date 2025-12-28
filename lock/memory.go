@@ -203,6 +203,12 @@ func (m *inMemMutex) Unlock(_ context.Context) error {
 	return nil
 }
 
+func (m *inMemMutex) IsHeld(_ context.Context) bool {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	return m.isHeld
+}
+
 func randstr(size int) (string, error) {
 	buffer := make([]byte, size)
 	if _, err := rand.Read(buffer); err != nil {

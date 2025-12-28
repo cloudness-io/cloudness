@@ -1,0 +1,27 @@
+# ---
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: GatewayClass
+# metadata:
+#   name: kgateway
+# spec:
+#   controllerName: kgateway.dev/kgateway
+#   description: Standard class for managing Gateway API ingress traffic.
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: cloudness-gateway
+  namespace: kgateway-system
+spec:
+  gatewayClassName: kgateway
+  allowedListeners:
+    namespaces:
+      from: All
+  listeners:
+    - name: web
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All

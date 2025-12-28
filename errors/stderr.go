@@ -13,3 +13,9 @@ func Is(err error, target error) bool {
 func As(err error, target any) bool {
 	return errors.As(err, target)
 }
+
+// IsType returns true if err is of type T.
+func IsType[T error](err error) bool {
+	var target T
+	return errors.As(err, &target)
+}

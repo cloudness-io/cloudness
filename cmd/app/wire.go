@@ -34,6 +34,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/router"
 	"github.com/cloudness-io/cloudness/app/server"
 	"github.com/cloudness-io/cloudness/app/services"
+	backgroundSvc "github.com/cloudness-io/cloudness/app/services/background"
 	"github.com/cloudness-io/cloudness/app/services/cleanup"
 	configSvc "github.com/cloudness-io/cloudness/app/services/config"
 	dnsSvc "github.com/cloudness-io/cloudness/app/services/dns"
@@ -100,6 +101,7 @@ func initSystem(ctx context.Context, config *types.Config) (*cliserver.System, e
 		specSvc.WireSet,
 		dnsSvc.WireSet,
 		proxySvc.WireSet,
+		backgroundSvc.WireSet,
 		cleanup.WireSet,
 
 		//pipelinerm

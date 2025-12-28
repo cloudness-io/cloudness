@@ -15,13 +15,13 @@ NC='\033[0m' # No Color
 # Configuration
 INSTALL_GATEWAY_API="${INSTALL_GATEWAY_API:-true}"
 INSTALL_CERT_MANAGER="${INSTALL_CERT_MANAGER:-true}"
-INSTALL_TRAEFIK="${INSTALL_TRAEFIK:-true}"
+INSTALL_KGATEWAY="${INSTALL_KGATEWAY:-true}"
 INSTALL_KUBEBLOCKS="${INSTALL_KUBEBLOCKS:-true}"
 INSTALL_HTTP_ROUTE="${INSTALL_HTTP_ROUTE:-true}"
 CERT_MANAGER_VERSION="${CERT_MANAGER_VERSION:-v1.18.2}"
-GATEWAY_API_VERSION="${GATEWAY_API_VERSION:-v1.3.0}"
+GATEWAY_API_VERSION="${GATEWAY_API_VERSION:-v1.4.0}"
 KUBEBLOCKS_VERSION="${KUBEBLOCKS_VERSION:-v1.0.1}"
-TRAEFIK_VERSION="${TRAEFIK_VERSION:-37.1.1}"
+KGATEWAY_VERSION="${KGATEWAY_VERSION:-2.2.0}"
 VERBOSE="${VERBOSE:-false}"
 
 # Installation URLs and paths
@@ -30,7 +30,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Detect if running from curl (no local files available)
 CURL_INSTALL=false
-if [ ! -f "${SCRIPT_DIR}/cloudness-namespace.yaml" ] || [ ! -f "${SCRIPT_DIR}/cloudness-rbac.yaml" ] || [ ! -f "${SCRIPT_DIR}/traefik-gateway.yaml" ]; then
+if [ ! -f "${SCRIPT_DIR}/cloudness-app.yaml" ] || [ ! -f "${SCRIPT_DIR}/gateway.yaml" ]; then
     CURL_INSTALL=true
 fi
 
@@ -49,13 +49,13 @@ while [[ $# -gt 0 ]]; do
             echo "INFRASTRUCTURE COMPONENTS:"
             echo "• Gateway API CRDs (v${GATEWAY_API_VERSION}) - Traffic routing and management"
             echo "• cert-manager (v${CERT_MANAGER_VERSION}) - Automated TLS certificate management"
-            echo "• Traefik Gateway (v${TRAEFIK_VERSION}) - Ingress controller and load balancer"
+            echo "• Kgateway Gateway (v${KGATEWAY_VERSION}) - Ingress controller and load balancer"
             echo "• KubeBlocks (v${KUBEBLOCKS_VERSION}) - Database and application management platform"
             echo ""
             echo "PLATFORM COMPONENTS:"
             echo "• Cloudness namespace - Application deployment namespace"
             echo "• Cloudness RBAC - Service account and cluster role for platform operations"
-            echo "• Traefik Gateway - Gateway API Gateway and GatewayClass configuration"
+            echo "• Kgateway Gateway - Gateway API Gateway and GatewayClass configuration"
             echo ""
             echo "INSTALLATION METHODS:"
             echo ""
@@ -73,13 +73,13 @@ while [[ $# -gt 0 ]]; do
             echo "Environment variables:"
             echo "  INSTALL_GATEWAY_API     Install Gateway API CRDs (default: true)"
             echo "  INSTALL_CERT_MANAGER    Install Cert-Manager (default: true)"
-            echo "  INSTALL_TRAEFIK         Install Traefik (default: true)"
+            echo "  INSTALL_KGATEWAY        Install Kgateway (default: true)"
             echo "  INSTALL_KUBEBLOCKS      Install KubeBlocks (default: true)"
             echo "  INSTALL_HTTP_ROUTE      Install Http Route (default: true)"
             echo "  CERT_MANAGER_VERSION    Cert-Manager version (default: ${CERT_MANAGER_VERSION})"
             echo "  GATEWAY_API_VERSION     Gateway API version (default: ${GATEWAY_API_VERSION})"
             echo "  KUBEBLOCKS_VERSION      KubeBlocks version (default: ${KUBEBLOCKS_VERSION})"
-            echo "  TRAEFIK_VERSION         Traefik version (default: ${TRAEFIK_VERSION})"
+            echo "  KGATEWAY_VERSION         Kgateway version (default: ${KGATEWAY_VERSION})"
             echo "  VERBOSE                 Show full output (default: false)"
             echo ""
             echo "Examples:"
@@ -88,7 +88,7 @@ while [[ $# -gt 0 ]]; do
             echo "  VERBOSE=true $0         # Install with full output (env var)"
             echo ""
             echo "NETWORK ACCESS:"
-            echo "  After installation, Traefik will be available on:"
+            echo "  After installation, Kgateway will be available on:"
             echo "  • HTTP: Port 30080 (NodePort)"
             echo "  • HTTPS: Port 30443 (NodePort)"
             exit 0
@@ -259,13 +259,13 @@ if ! kubectl auth can-i create namespaces >/dev/null 2>&1; then
     exit 1
 fi
 
-# Test if we can create resources in system namespaces (required for cert-manager and traefik)
+# Test if we can create resources in system namespaces (required for cert-manager and Kgateway)
 if ! kubectl auth can-i create deployments --namespace=cert-manager >/dev/null 2>&1; then
     print_warning "Limited permissions detected for cert-manager namespace. Installation may require elevated privileges."
 fi
 
-if ! kubectl auth can-i create deployments --namespace=traefik >/dev/null 2>&1; then
-    print_warning "Limited permissions detected for traefik namespace. Installation may require elevated privileges."
+if ! kubectl auth can-i create deployments --namespace=kgateway-system >/dev/null 2>&1; then
+    print_warning "Limited permissions detected for kgateway-system namespace. Installation may require elevated privileges."
 fi
 
 print_status "Prerequisites check passed"
@@ -278,15 +278,15 @@ else
 fi
 
 echo ""
-print_info "Starting Cloudness Platform Prerequisites Installation..."
-print_info "This will install Gateway API, cert-manager, Traefik, and Cloudness platform resources"
+print_info "Starting Cloudness Platform Installation..."
+print_info "This will install Gateway API, cert-manager, kgateway, Kubeblocks and Cloudness platform resources"
 echo ""
 
 # Install Gateway API CRDs
 if [ "$INSTALL_GATEWAY_API" = "true" ]; then
     print_info "Installing Gateway API CRDs ${GATEWAY_API_VERSION}..."
     
-    if ! run_command kubectl apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml"; then
+    if ! run_command kubectl apply --server-side -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/experimental-install.yaml"; then
         print_error "Failed to apply Gateway API CRDs. Please check your network connection and kubectl configuration."
         exit 1
     fi
@@ -343,55 +343,36 @@ else
     print_warning "Skipping Cert-Manager installation"
 fi
 
-# Install Traefik
-if [ "$INSTALL_TRAEFIK" = "true" ]; then
-    print_info "Installing Traefik ${TRAEFIK_VERSION}..."
+# Install kgateway-system
+if [ "$INSTALL_KGATEWAY" = "true" ]; then
+    print_info "Installing kgateway-system ${KGATEWAY_VERSION}..."
     
-    # Add Traefik Helm repository
-    print_info "Adding Traefik Helm repository..."
-    add_helm_repo "traefik" "https://traefik.github.io/charts"
+    # Add kgateway Helm repository
+    print_info "Adding kgateway Helm repository..."
+    add_helm_repo "kgateway" "oci://cr.kgateway.dev/kgateway-dev/charts/kgateway"
     
-    # Create traefik namespace
-    if ! kubectl create namespace traefik --dry-run=client -o yaml | run_command kubectl apply -f -; then
-        print_error "Failed to create traefik namespace."
-        exit 1
-    fi
-    
-    # Install Traefik with Gateway API support
-    print_info "Deploying Traefik with Gateway API support (this may take a few minutes)..."
-    if ! run_command helm upgrade --install traefik traefik/traefik \
-        --namespace traefik \
-        --version "${TRAEFIK_VERSION}" \
-        --set providers.kubernetesGateway.enabled=true \
-        --set providers.kubernetesCRD.enabled=true \
-        --set providers.kubernetesCRD.allowCrossNamespace=true \
-        --set gateway.enabled=false \
-        --set ports.web.port=80 \
-        --set ports.web.exposedPort=80 \
-        --set ports.websecure.port=443 \
-        --set ports.websecure.exposedPort=443 \
-        --set ports.websecure.tls.enabled=true \
+    # Install kgateway with Gateway API support
+    print_info "Deploying kgateway with Gateway API support (this may take a few minutes)..."
+    if ! run_command helm upgrade -i kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
+        --namespace kgateway-system \
+        --create-namespace \
+        --version v${KGATEWAY_VERSION}-main \
+        --set controller.image.pullPolicy=Always \
+        --set controller.extraEnv.KGW_ENABLE_GATEWAY_API_EXPERIMENTAL_FEATURES=true \
         --set service.type=LoadBalancer \
-        --set securityContext.capabilities.drop="{ALL}" \
-        --set securityContext.readOnlyRootFilesystem=true \
-        --set securityContext.runAsGroup=65532 \
-        --set securityContext.runAsNonRoot=true \
-        --set securityContext.runAsUser=65532 \
         --wait \
         --timeout 5m; then
-        print_error "Traefik installation failed. Please check your Kubernetes cluster and run the script again."
+        print_error "Kgateway installation failed. Please check your Kubernetes cluster and run the script again."
         exit 1
     fi
     
-    print_status "Traefik installed"
+    print_status "Kgateway installed"
 
-    apply_yaml "traefik-gateway-default-cert.yaml" "Traefik Gateway default certificate"
-    
-    # Apply Traefik Gateway configuration
-    apply_yaml "traefik-gateway.yaml" "Traefik Gateway and GatewayClass configuration"
+    # Apply Gateway configuration
+    apply_yaml "gateway.yaml" "Gateway and GatewayClass configuration"
     
 else
-    print_warning "Skipping Traefik installation"
+    print_warning "Skipping Kgateway installation"
 fi
 
 # Install KubeBlocks
@@ -456,12 +437,12 @@ if [ "$INSTALL_CERT_MANAGER" = "true" ]; then
     fi
 fi
 
-if [ "$INSTALL_TRAEFIK" = "true" ]; then
-    print_info "Waiting for traefik pods to be ready..."
-    if run_command kubectl wait --for=condition=ready pod --all -n traefik --timeout=60s >/dev/null 2>&1; then
-        print_status "Traefik is running"
+if [ "$INSTALL_KGATEWAY" = "true" ]; then
+    print_info "Waiting for kgateway pods to be ready..."
+    if run_command kubectl wait --for=condition=ready pod --all -n kgateway-system --timeout=60s >/dev/null 2>&1; then
+        print_status "Kgateway is running"
     else
-        print_warning "Traefik pods may not be fully ready yet. Check with: kubectl get pods -n traefik"
+        print_warning "Kgateway pods may not be fully ready yet. Check with: kubectl get pods -n kgateway-system"
     fi
 fi
 
@@ -589,18 +570,18 @@ install_cloudness_resources() {
         print_warning "Cloudness Application pods may not be fully available yet. Check with: kubectl get pods -n cloudness"
     fi
 
-    # Get the ip address from traefik service
-    TRAEFIK_IP=$(kubectl get svc traefik -n traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-    if [ -z "$TRAEFIK_IP" ]; then
-        print_warning "Could not determine Traefik IP address. Check with: kubectl get svc traefik -n traefik"
+    # Get the ip address from kgateway-system service
+    GATEWAY_IP=$(kubectl get svc cloudness-gateway -n kgateway-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    if [ -z "$GATEWAY_IP" ]; then
+        print_warning "Could not determine Gateway IP address. Check with: kubectl get svc cloudness-gateway -n kgateway-system"
     else
-        print_status "Traefik IP address: $TRAEFIK_IP"
+        print_status "Gateway IP address: $GATEWAY_IP"
     fi
 
     if [ "$INSTALL_HTTP_ROUTE" = "true" ]; then
-        # Apply Cloudness HTTPRoute with { { .ServiceDomain.Domain } } as cloudness.${TRAEFIK_IP}.sslip.io
+        # Apply Cloudness HTTPRoute with { { .ServiceDomain.Domain } } as cloudness.${GATEWAY_IP}.sslip.io
         print_info "Applying Cloudness HTTPRoute configuration..."
-        CLOUDNESS_DOMAIN="cloudness.${TRAEFIK_IP}.sslip.io"
+        CLOUDNESS_DOMAIN="cloudness.${GATEWAY_IP}.sslip.io"
         CLOUDNESS_HTTP_ROUTE_YAML=$(get_yaml_content "cloudness-http-route.yaml" | sed "s/{{ .ServiceDomain.Domain }}/${CLOUDNESS_DOMAIN}/g")
         echo "$CLOUDNESS_HTTP_ROUTE_YAML" | kubectl apply -f -
         if [ $? -ne 0 ]; then
@@ -624,10 +605,10 @@ echo "2. Run the main installation: ./install-platform.sh"
 echo ""
 print_info "To check the status of services:"
 echo "• Gateway API: kubectl get gatewayclasses"
-echo "• Traefik Gateway: kubectl get gateway -n traefik"
+echo "• Gateway: kubectl get gateway -n kgateway-system"
 echo "• Cert-Manager: kubectl get pods -n cert-manager"
-echo "• Traefik: kubectl get pods -n traefik"
-echo "• Traefik Service: kubectl get svc -n traefik"
+echo "• Gateway: kubectl get pods -n kgateway-system"
+echo "• Gateway Service: kubectl get svc -n kgateway-system"
 echo "• KubeBlocks: kubectl get pods -n kubeblocks-system"
 echo "• Cloudness Namespace: kubectl get namespace cloudness"
 echo "• Cloudness RBAC: kubectl get clusterrole cloudness-runner-role"

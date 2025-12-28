@@ -39,5 +39,5 @@ func (s *Service) ValidateHost(ctx context.Context, hostname string, ipV4 string
 		log.Ctx(ctx).Error().Str("host", hostname).Any("dns", dnsServers).Str("ipv4", ipV4).Any("proxy", proxy).Any("ips", ips).Msg("Error validating DNS")
 	}
 
-	return usererror.BadRequest("DNS validation failed, no DNS entry found for host pointing to server IP")
+	return usererror.BadRequest("DNS validation failed, no DNS entry found for host pointing to server IP, DNS propogation can take up to 72 hours")
 }

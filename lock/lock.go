@@ -58,4 +58,7 @@ type Mutex interface {
 
 	// Unlock releases the lock. It fails with error if the lock is not currently held.
 	Unlock(ctx context.Context) error
+
+	// IsHeld returns true if the lock is currently held.
+	IsHeld(ctx context.Context) bool
 }

@@ -7,10 +7,11 @@ metadata:
     identifier: cloudness-http
 spec:
   parentRefs:
-    - name: traefik
-      namespace: traefik
-      sectionName: web
-      kind: Gateway
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: cloudness-gateway
+    namespace: kgateway-system
+    sectionName: web
 
   hostnames:
     - {{ .ServiceDomain.Domain }}
@@ -23,5 +24,4 @@ spec:
 
       backendRefs:
         - name: cloudness
-          namespace: cloudness
           port: 8000

@@ -19,4 +19,4 @@ Below command saves the local image and uploads
 
 #### All in one
 
-`export IMAGE_TAG="" && docker build . -t cloudnessio/cloudness-dev:"${IMAGE_TAG}" && sudo docker save cloudnessio/cloudness-dev:${IMAGE_TAG} | sudo ctr -a /run/k3s/containerd/containerd.sock -n=k8s.io images import -`
+`export IMAGE_TAG="1.0.40" && docker build . -t cloudnessio/cloudness-dev:"${IMAGE_TAG}" && sudo docker save cloudnessio/cloudness-dev:${IMAGE_TAG} | sudo ctr -a /run/k3s/containerd/containerd.sock -n=k8s.io images import -`

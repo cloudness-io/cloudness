@@ -15,7 +15,7 @@ func (m *K8sManager) GetIP(ctx context.Context, server *types.Server) (string, e
 		return "", err
 	}
 
-	svc, err := client.CoreV1().Services(defaultK8sGatewayNamespace).Get(ctx, defaultK8sGatewayService, metav1.GetOptions{})
+	svc, err := client.CoreV1().Services(DefaultK8sGatewayNamespace).Get(ctx, DefaultK8sGatewayService, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

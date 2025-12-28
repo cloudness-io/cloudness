@@ -31,10 +31,18 @@ metadata:
     identifier: {{ .Identifier }}
 spec:
   parentRefs:
-    - name: traefik
-      namespace: traefik
-      sectionName: {{ if .ServiceDomain.Websecure }} websecure {{ else }} web {{ end }}
-      kind: Gateway
+  {{ if .ServiceDomain.Websecure }}
+    - group: gateway.networking.x-k8s.io
+      kind: XListenerSet
+      name: cloudness-wildcard-listener
+      namespace: kgateway-system
+      sectionName: cloudness-wildcard-listener-section
+  {{ else }}
+    - kind: Gateway
+      name: cloudness-gateway
+      namespace: kgateway-system
+      sectionName: web
+  {{ end }}
 
   hostnames:
     - {{ .ServiceDomain.Domain }}

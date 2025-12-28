@@ -72,6 +72,7 @@ func (c *Controller) Init(ctx context.Context) (*types.Server, error) {
 		VolumeSupportsOnlineExpansion: defaults.DefaultVolumeSupportsOnlineExpansion,
 		BuildEnabled:                  true,
 		IsBuildServer:                 false,
+		PollingInterval:               1,
 		MaxConcurrentBuilds:           3,
 		MaxCPUPerBuild:                1,
 		MaxMemoryPerBuild:             2,

@@ -76,23 +76,19 @@ func (c *command) run(*kingpin.ParseContext) error {
 		return system.services.JobScheduler.Run(gCtx)
 	})
 
+	// start background tasks
+	g.Go(func() error {
+		return system.background.Start(gCtx)
+	})
+
 	// start server
 	gHTTP, shutdownHTTP := system.server.ListenAndServe()
 	g.Go(gHTTP.Wait)
+
 	//start runner agent for CI deployments
 	g.Go(func() error {
 		return system.agent.Start(gCtx)
 	})
-	// if c.enableCI {
-	// 	// start poller for CI build executions.
-	// 	// g.Go(func() error {
-	// 	// 	system.poller.Poll(
-	// 	// 		logger.WithWrappedZerolog(ctx),
-	// 	// 		config.CI.ParallelWorkers,
-	// 	// 	)
-	// 	// 	return nil
-	// 	// })
-	// }
 
 	log.Info().
 		Int("port", config.Server.HTTP.Port).

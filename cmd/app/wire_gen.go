@@ -36,6 +36,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/router"
 	server3 "github.com/cloudness-io/cloudness/app/server"
 	"github.com/cloudness-io/cloudness/app/services"
+	"github.com/cloudness-io/cloudness/app/services/background"
 	"github.com/cloudness-io/cloudness/app/services/cleanup"
 	"github.com/cloudness-io/cloudness/app/services/config"
 	"github.com/cloudness-io/cloudness/app/services/dns"
@@ -97,16 +98,16 @@ func initSystem(ctx context.Context, config2 *types.Config) (*server.System, err
 	volumeController := volume.ProvideController(configService, volumeStore)
 	deploymentStore := database.ProvideDeploymentStore(db)
 	lockConfig := server.ProvideLockConfig(config2)
-	mutexManager := lock.ProvideMutexManager(lockConfig)
+	universalClient, err := server.ProvideRedis(config2)
+	if err != nil {
+		return nil, err
+	}
+	mutexManager := lock.ProvideMutexManager(lockConfig, universalClient)
 	schedulerScheduler, err := scheduler.ProvideScheduler(deploymentStore, mutexManager)
 	if err != nil {
 		return nil, err
 	}
 	pubsubConfig := server.ProvidePubSubConfig(config2)
-	universalClient, err := server.ProvideRedis(config2)
-	if err != nil {
-		return nil, err
-	}
 	pubSub := pubsub.ProvidePubSub(pubsubConfig, universalClient)
 	streamer := sse.ProvideEventStreamer(pubSub)
 	cancelerCanceler := canceler.ProvideCanceler(deploymentStore, streamer, schedulerScheduler)
@@ -146,6 +147,7 @@ func initSystem(ctx context.Context, config2 *types.Config) (*server.System, err
 	}
 	cleanupService := cleanup.ProvideService(jobScheduler, executor, serverStore, tenantStore, projectStore, environmentStore, applicationStore, volumeStore, managerFactory)
 	servicesServices := services.ProvideServices(jobScheduler, cleanupService)
-	system := server.NewSystem(bootstrapBootstrap, serverServer, agentAgent, servicesServices)
+	backgroundService := background.ProvideService(mutexManager)
+	system := server.NewSystem(bootstrapBootstrap, serverServer, agentAgent, servicesServices, backgroundService)
 	return system, nil
 }
