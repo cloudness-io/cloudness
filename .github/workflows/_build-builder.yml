@@ -15,7 +15,7 @@ on:
                 required: true
 
 jobs:
-    build-and-push-builder:
+    build:
         runs-on: ubuntu-latest
         permissions:
             contents: read

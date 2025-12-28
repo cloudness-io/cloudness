@@ -13,7 +13,7 @@ on:
                 required: true
 
 jobs:
-    upload-scripts:
+    upload:
         runs-on: ubuntu-latest
         permissions:
             contents: read
