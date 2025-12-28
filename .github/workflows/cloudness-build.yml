@@ -1,11 +1,6 @@
 name: Cloudness Build
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*.*.*"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -69,13 +64,3 @@ jobs:
             CLOUDNESS_VERSION_MAJOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.major || '0' }}
             CLOUDNESS_VERSION_MINOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.minor || '0' }}
             CLOUDNESS_VERSION_PATCH=${{ steps.meta.outputs.version && steps.meta.outputs.version.patch || '0' }}
-
-      - name: Upload Script files
-        uses: ryand56/r2-upload-action@latest
-        with:
-          r2-account-id: ${{ secrets.SCRIPTS_BUCKET_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.SCRIPTS_BUCKET_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.SCRIPTS_BUCKET_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.SCRIPTS_BUCKET_NAME }}
-          source-dir: ./scripts/install
-          destination-dir: ./
