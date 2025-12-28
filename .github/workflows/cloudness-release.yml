@@ -1,0 +1,158 @@
+name: Cloudness Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-app:
+    runs-on: ubuntu-latest
+    # Sets the permissions for the GITHUB_TOKEN for security
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+          tags: |
+            # on git tag push, create a tag with the version number (e.g., v1.2.3)
+            type=ref,event=tag
+            # on push to main, create the 'latest' tag
+            type=raw,value=latest,enable={{is_default_branch}}
+            # create a tag with the git sha for every push
+            type=sha
+
+      - name: Build and push Cloudness App
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Pass build arguments for versioning
+          # Extracts version from git tag e.g., v1.2.3 -> 1, 2, 3
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            CLOUDNESS_VERSION_MAJOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.major || '0' }}
+            CLOUDNESS_VERSION_MINOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.minor || '0' }}
+            CLOUDNESS_VERSION_PATCH=${{ steps.meta.outputs.version && steps.meta.outputs.version.patch || '0' }}
+
+  build-and-push-builder:
+    runs-on: ubuntu-latest
+    # Sets the permissions for the GITHUB_TOKEN for security
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Builder
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}/builder
+            ${{ secrets.DOCKERHUB_USERNAME }}/builder
+          tags: |
+            # on git tag push, create a tag with the version number (e.g., v1.2.3)
+            type=ref,event=tag
+            # on push to main, create the 'latest' tag
+            type=raw,value=latest,enable={{is_default_branch}}
+            # create a tag with the git sha for every push
+            type=sha
+
+      - name: Build and push Builder Plugin
+        uses: docker/build-push-action@v5
+        with:
+          context: ./plugins/builder
+          file: ./plugins/builder/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Pass build arguments for versioning
+          # Extracts version from git tag e.g., v1.2.3 -> 1, 2, 3
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            CLOUDNESS_VERSION_MAJOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.major || '0' }}
+            CLOUDNESS_VERSION_MINOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.minor || '0' }}
+            CLOUDNESS_VERSION_PATCH=${{ steps.meta.outputs.version && steps.meta.outputs.version.patch || '0' }}
+
+  upload-scripts:
+    runs-on: ubuntu-latest
+    needs: [build-and-push-app, build-and-push-builder]
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION="latest"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Replace version placeholder in YAML files
+        run: |
+          sed -i "s|{{.App.Version}}|${{ steps.version.outputs.version }}|g" ./scripts/install/cloudness-app.yaml
+
+      - name: Upload Script files
+        uses: ryand56/r2-upload-action@latest
+        with:
+          r2-account-id: ${{ secrets.SCRIPTS_BUCKET_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.SCRIPTS_BUCKET_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.SCRIPTS_BUCKET_SECRET_ACCESS_KEY }}
+          r2-bucket: ${{ secrets.SCRIPTS_BUCKET_NAME }}
+          source-dir: ./scripts/install
+          destination-dir: ./
