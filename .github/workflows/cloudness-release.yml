@@ -13,6 +13,9 @@ env:
 
 jobs:
   build-and-push-app:
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/_build-app.yml
     with:
       enable-cache: true
@@ -21,6 +24,9 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build-and-push-builder:
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/_build-builder.yml
     with:
       enable-cache: true
