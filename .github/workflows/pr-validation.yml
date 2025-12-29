@@ -6,6 +6,33 @@ on:
             - main
 
 jobs:
+    lint-and-test:
+        name: Lint and Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version-file: go.mod
+                  cache: true
+
+            - name: Download dependencies
+              run: go mod download
+
+            - name: Run go vet
+              run: go vet ./...
+
+            - name: Run tests
+              run: go test -race -coverprofile=coverage.out ./...
+
+            - name: Check go mod tidy
+              run: |
+                  go mod tidy
+                  git diff --exit-code go.mod go.sum
+
     validate-app:
         name: Validate App
         permissions:
