@@ -10,7 +10,7 @@ jobs:
         name: Validate App
         permissions:
             contents: read
-            packages: read
+            packages: write
         uses: ./.github/workflows/_build-app.yml
         with:
             enable-cache: true
@@ -23,7 +23,7 @@ jobs:
         name: Validate Builder
         permissions:
             contents: read
-            packages: read
+            packages: write
         uses: ./.github/workflows/_build-builder.yml
         with:
             enable-cache: true
