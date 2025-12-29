@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://docs.cloudness.io
+    about: Check the documentation for answers to common questions
+  - name: 💬 Discussions
+    url: https://github.com/cloudness-io/cloudness/discussions
+    about: Ask questions and discuss with the community
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/cloudness-io/cloudness/security/advisories/new
+    about: Report security vulnerabilities privately (do not use public issues)
