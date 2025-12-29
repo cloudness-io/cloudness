@@ -94,7 +94,7 @@ This project includes command line tools for development and running the service
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `CLOUDNESS_DATABASE_DRIVER` | Database driver (postgres/mysql) | `postgres` |
+| `CLOUDNESS_DATABASE_DRIVER` | Database driver (postgres/sqlite) | `postgres` |
 | `CLOUDNESS_DATABASE_HOST` | Database host | `localhost` |
 | `CLOUDNESS_DATABASE_PORT` | Database port | `5432` |
 | `CLOUDNESS_DATABASE_NAME` | Database name | `cloudness` |
