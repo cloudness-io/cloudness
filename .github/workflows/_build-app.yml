@@ -61,6 +61,37 @@ jobs:
                       # create a tag with the git sha for every push
                       type=sha
 
+            - name: Extract version from tag
+              id: version
+              run: |
+                  # Get the tag name (e.g., v1.2.3-alpha.1)
+                  TAG="${GITHUB_REF#refs/tags/}"
+                  echo "TAG: $TAG"
+
+                  # Remove 'v' prefix and prerelease suffix for parsing
+                  VERSION="${TAG#v}"
+                  VERSION="${VERSION%%-*}"  # Remove -alpha.1, -beta.2, etc.
+
+                  # Extract major.minor.patch
+                  MAJOR=$(echo "$VERSION" | cut -d. -f1)
+                  MINOR=$(echo "$VERSION" | cut -d. -f2)
+                  PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+                  # Default to 0 if not set
+                  MAJOR="${MAJOR:-0}"
+                  MINOR="${MINOR:-0}"
+                  PATCH="${PATCH:-0}"
+
+                  echo "GIT_COMMIT=${{ github.sha }}"
+                  echo "CLOUDNESS_VERSION_MAJOR=$MAJOR"
+                  echo "CLOUDNESS_VERSION_MINOR=$MINOR"
+                  echo "CLOUDNESS_VERSION_PATCH=$PATCH"
+
+                  # Set outputs
+                  echo "major=$MAJOR" >> $GITHUB_OUTPUT
+                  echo "minor=$MINOR" >> $GITHUB_OUTPUT
+                  echo "patch=$PATCH" >> $GITHUB_OUTPUT
+
             - name: Build and push Cloudness App
               uses: docker/build-push-action@v5
               with:
