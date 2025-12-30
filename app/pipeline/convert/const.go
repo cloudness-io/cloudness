@@ -27,5 +27,6 @@ func getBuilderImage() string {
 	if ver.Major == 0 && ver.Minor == 0 && ver.Patch == 0 {
 		return "cloudnessio/builder:latest"
 	}
-	return fmt.Sprintf("cloudnessio/builder:v%d.%d.%d", ver.Major, ver.Minor, ver.Patch)
+	// Use semver String() which includes prerelease (e.g., "0.1.0-alpha.1")
+	return fmt.Sprintf("cloudnessio/builder:v%s", ver.String())
 }
