@@ -5,9 +5,10 @@ FROM node:24 AS web
 
 WORKDIR /app
 
-COPY package.json ./
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
 
-RUN npm i
+RUN npm ci --prefer-offline || npm i
 
 # Copy full web assets for tailwind to parse templ files
 COPY ./app/web ./app/web
@@ -30,21 +31,23 @@ FROM golang:1.25-trixie AS builder
 
 # Setup workig dir
 WORKDIR /app
-# Get dependencies - will also be cached if we won't change mod/sum
-COPY go.mod .
-COPY go.sum .
+
+# Get dependencies first - cached if go.mod/go.sum unchanged
+COPY go.mod go.sum ./
 
 ENV CGO_CFLAGS="-D_LARGEFILE64_SOURCE"
 RUN go install tool
 RUN go mod download
 
-# COPY the source code
-COPY . .
+# Copy templ files first for templ generate caching
+COPY ./app/web ./app/web
 COPY --from=web /app/dist ./app/web/public/assets
 
-
-# Generate the template code
+# Generate the template code (cached if templ files unchanged)
 RUN go tool templ generate
+
+# Copy remaining source code
+COPY . .
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
