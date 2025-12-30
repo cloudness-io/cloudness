@@ -29,6 +29,13 @@ RUN apk --update add ca-certificates
 # ---------------------------------------------------------#
 FROM golang:1.25-trixie AS builder
 
+# Build arguments for versioning
+ARG GIT_COMMIT
+ARG CLOUDNESS_VERSION_MAJOR=0
+ARG CLOUDNESS_VERSION_MINOR=0
+ARG CLOUDNESS_VERSION_PATCH=0
+ARG CLOUDNESS_VERSION_PRE
+
 # Setup workig dir
 WORKDIR /app
 
@@ -51,7 +58,7 @@ COPY . .
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
-    LDFLAGS="-X github.com/cloudness-io/cloudness/version.GitCommit=${GIT_COMMIT} -X github.com/cloudness-io/cloudness/version.major=${CLOUDNESS_VERSION_MAJOR} -X github.com/cloudness-io/cloudness/version.minor=${CLOUDNESS_VERSION_MINOR} -X github.com/cloudness-io/cloudness/version.patch=${CLOUDNESS_VERSION_PATCH} -extldflags '-static'" && \
+    LDFLAGS="-X github.com/cloudness-io/cloudness/version.GitCommit=${GIT_COMMIT} -X github.com/cloudness-io/cloudness/version.major=${CLOUDNESS_VERSION_MAJOR} -X github.com/cloudness-io/cloudness/version.minor=${CLOUDNESS_VERSION_MINOR} -X github.com/cloudness-io/cloudness/version.patch=${CLOUDNESS_VERSION_PATCH} -X github.com/cloudness-io/cloudness/version.pre=${CLOUDNESS_VERSION_PRE} -extldflags '-static'" && \
     CGO_ENABLED=1 \
     CC=$CC go build -ldflags="$LDFLAGS" -o ./cloudness ./cmd/app
 

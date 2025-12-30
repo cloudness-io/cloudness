@@ -4,6 +4,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
+	"github.com/cloudness-io/cloudness/version"
 )
 
 templ MainNav(dto *dto.NavBarOption) {
@@ -18,6 +19,7 @@ templ MainNav(dto *dto.NavBarOption) {
 		>
 			<img src={ views.Asset("logo.svg") } class="h-5 w-auto" alt="logo"/>
 			<span class="font-semibold text-md">{ views.AppName }</span>
+			<span class="text-sm text-muted-foreground font-mono">v{ version.GetVersion() }</span>
 		</a>
 		<div class="flex items-center ml-auto space-x-8 hover:bg-secondary-hover">
 			@ProfileDropdown(dto)

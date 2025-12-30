@@ -68,9 +68,16 @@ jobs:
                   TAG="${GITHUB_REF#refs/tags/}"
                   echo "TAG: $TAG"
 
-                  # Remove 'v' prefix and prerelease suffix for parsing
+                  # Remove 'v' prefix
                   VERSION="${TAG#v}"
-                  VERSION="${VERSION%%-*}"  # Remove -alpha.1, -beta.2, etc.
+
+                  # Extract prerelease (everything after first hyphen)
+                  if [[ "$VERSION" == *-* ]]; then
+                      PRERELEASE="${VERSION#*-}"
+                      VERSION="${VERSION%%-*}"
+                  else
+                      PRERELEASE=""
+                  fi
 
                   # Extract major.minor.patch
                   MAJOR=$(echo "$VERSION" | cut -d. -f1)
@@ -86,11 +93,13 @@ jobs:
                   echo "CLOUDNESS_VERSION_MAJOR=$MAJOR"
                   echo "CLOUDNESS_VERSION_MINOR=$MINOR"
                   echo "CLOUDNESS_VERSION_PATCH=$PATCH"
+                  echo "CLOUDNESS_VERSION_PRE=$PRERELEASE"
 
                   # Set outputs
                   echo "major=$MAJOR" >> $GITHUB_OUTPUT
                   echo "minor=$MINOR" >> $GITHUB_OUTPUT
                   echo "patch=$PATCH" >> $GITHUB_OUTPUT
+                  echo "pre=$PRERELEASE" >> $GITHUB_OUTPUT
 
             - name: Build and push Cloudness App
               uses: docker/build-push-action@v5
@@ -103,9 +112,9 @@ jobs:
                   cache-from: ${{ inputs.enable-cache && 'type=gha' || '' }}
                   cache-to: ${{ inputs.enable-cache && 'type=gha,mode=max' || '' }}
                   # Pass build arguments for versioning
-                  # Extracts version from git tag e.g., v1.2.3 -> 1, 2, 3
                   build-args: |
                       GIT_COMMIT=${{ github.sha }}
-                      CLOUDNESS_VERSION_MAJOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.major || '0' }}
-                      CLOUDNESS_VERSION_MINOR=${{ steps.meta.outputs.version && steps.meta.outputs.version.minor || '0' }}
-                      CLOUDNESS_VERSION_PATCH=${{ steps.meta.outputs.version && steps.meta.outputs.version.patch || '0' }}
+                      CLOUDNESS_VERSION_MAJOR=${{ steps.version.outputs.major }}
+                      CLOUDNESS_VERSION_MINOR=${{ steps.version.outputs.minor }}
+                      CLOUDNESS_VERSION_PATCH=${{ steps.version.outputs.patch }}
+                      CLOUDNESS_VERSION_PRE=${{ steps.version.outputs.pre }}
