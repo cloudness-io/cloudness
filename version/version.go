@@ -45,3 +45,8 @@ func parseVersionNumber(versionNum string) int64 {
 	}
 	return i
 }
+
+// GetVersion returns the current version as string
+func GetVersion() string {
+	return Version.String()
+}
