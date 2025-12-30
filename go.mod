@@ -34,7 +34,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/qri-io/jsonschema v0.2.1
 	github.com/redis/go-redis/v9 v9.17.2
-	github.com/robert-nix/ansihtml v1.0.1
 	github.com/rs/xid v1.6.0
 	github.com/rs/zerolog v1.34.0
 	golang.org/x/crypto v0.46.0
@@ -61,8 +60,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bep/godartsass v1.2.0 // indirect
-	github.com/bep/godartsass/v2 v2.1.0 // indirect
+	github.com/bep/godartsass/v2 v2.3.2 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.8.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -96,7 +94,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gohugoio/hugo v0.134.3 // indirect
+	github.com/gohugoio/hugo v0.139.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -111,6 +109,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
@@ -130,6 +129,7 @@ require (
 	github.com/prometheus/common v0.65.0 // indirect
 	github.com/prometheus/procfs v0.17.0 // indirect
 	github.com/qri-io/jsonpointer v0.1.1 // indirect
+	github.com/robert-nix/ansihtml v1.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
