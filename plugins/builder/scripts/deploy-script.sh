@@ -282,7 +282,6 @@ kube_wait_pvc_resize() {
 # ==============================================================================
 
 deploy_common_artifacts() {
-    print_section "Setting up prerequisite artifacts"
 
     if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_COMMON"; then
         log_error "Failed to set up prerequisite artifacts"
@@ -297,8 +296,6 @@ deploy_volume() {
     if [ "$CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME" -ne 1 ]; then
         return 0
     fi
-
-    print_section "Provisioning volumes"
 
     # Handle remount for volume resize
     if [ "$CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT" -eq 1 ]; then
@@ -338,8 +335,6 @@ deploy_volume() {
 }
 
 deploy_application() {
-    print_section "Deploying application"
-
     if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_APP"; then
         log_error "Failed to deploy application"
         return 1
@@ -357,8 +352,6 @@ deploy_routes() {
     if [ "$CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE" -ne 1 ]; then
         return 0
     fi
-
-    print_section "Configuring HTTP routes"
 
     if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_ROUTE"; then
         log_error "Failed to configure HTTP routes"
@@ -403,6 +396,8 @@ on_exit() {
 main() {
     # Set up exit trap
     trap on_exit EXIT
+    
+    print_section "Deploying application"
 
     # Validate prerequisites
     if ! validate_dependencies; then

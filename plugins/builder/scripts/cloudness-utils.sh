@@ -16,23 +16,23 @@ readonly CLOUDNESS_NC='\033[0m'
 # ==============================================================================
 
 log_error() {
-    printf "${CLOUDNESS_RED}[ERROR]${CLOUDNESS_NC} %s\n" "$*" >&2
+    printf "%b\n" "${CLOUDNESS_RED}❌ $*${CLOUDNESS_NC}" >&2
 }
 
 log_warn() {
-    printf "${CLOUDNESS_YELLOW}[WARN]${CLOUDNESS_NC} %s\n" "$*"
+    printf "%b\n" "${CLOUDNESS_YELLOW}⚠️  $*${CLOUDNESS_NC}"
 }
 
 log_info() {
-    printf "%s\n" "$*"
+    printf "%b\n" "$*"
 }
 
 log_success() {
-    printf "${CLOUDNESS_GREEN}[SUCCESS]${CLOUDNESS_NC} %s\n" "$*"
+    printf "%b\n" "${CLOUDNESS_GREEN}✅ $*${CLOUDNESS_NC}"
 }
 
 log_step() {
-    printf "%s ${CLOUDNESS_GREEN}✔${CLOUDNESS_NC}\n" "$*"
+    printf "%b\n" "${CLOUDNESS_GREEN}✔ $*${CLOUDNESS_NC}"
 }
 
 log_debug() {

@@ -81,7 +81,6 @@ clone_repository() {
         fi
     fi
 
-    log_step "Repository cloned successfully"
     return 0
 }
 
@@ -99,6 +98,9 @@ main() {
     if ! clone_repository; then
         exit 1
     fi
+
+    echo ""
+    log_success "Repository cloned successfully!"
 }
 
 main "$@"

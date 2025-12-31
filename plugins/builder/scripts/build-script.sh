@@ -70,6 +70,7 @@ validate_inputs() {
 
 setup_buildkit_config() {
 
+    printf "\n"
     BUILDKITD_CONFIG_PATH="$HOME/.config/buildkit/buildkitd.toml"
     mkdir -p "$(dirname "$BUILDKITD_CONFIG_PATH")"
     > "$BUILDKITD_CONFIG_PATH"
@@ -99,7 +100,6 @@ EOF
 EOF
     fi
 
-    printf "\n"
     log_step "BuildKit configured"
 }
 
@@ -141,7 +141,6 @@ build_with_dockerfile() {
         return 1
     fi
 
-    log_step "Image built and pushed successfully"
     return 0
 }
 
@@ -229,6 +228,7 @@ main() {
             ;;
     esac
 
+    echo ""
     log_success "Build completed successfully!"
 }
 
