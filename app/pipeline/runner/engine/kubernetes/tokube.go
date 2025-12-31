@@ -52,6 +52,20 @@ func toSecret(p *pipeline.RunnerContext) *v1.Secret {
 	}
 }
 
+func toConfigMap(p *pipeline.RunnerContext) *v1.ConfigMap {
+	stringData := make(map[string]string)
+	for _, s := range p.Variables {
+		stringData[s.Name] = s.Value
+	}
+
+	return &v1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: p.RunnerName,
+		},
+		Data: stringData,
+	}
+}
+
 func toPod(nameSpace string, p *pipeline.RunnerContext) *v1.Pod {
 	resource := toResources(p)
 	return &v1.Pod{
@@ -153,6 +167,20 @@ func toEnv(s *pipeline.Step, p *pipeline.RunnerContext) []v1.EnvVar {
 						Name: p.RunnerName,
 					},
 					Key: secretEnv.Key,
+				},
+			},
+		})
+	}
+
+	for _, varEnv := range s.Variables {
+		envs = append(envs, v1.EnvVar{
+			Name: varEnv.Key,
+			ValueFrom: &v1.EnvVarSource{
+				ConfigMapKeyRef: &v1.ConfigMapKeySelector{
+					LocalObjectReference: v1.LocalObjectReference{
+						Name: p.RunnerName,
+					},
+					Key: varEnv.Key,
 				},
 			},
 		})

@@ -107,6 +107,11 @@ func (e *kube) Setup(rCtx context.Context, pCtx *pipeline.RunnerContext) error {
 		return err
 	}
 
+	_, err = e.client.CoreV1().ConfigMaps(e.nameSpace).Create(rCtx, toConfigMap(pCtx), metav1.CreateOptions{})
+	if err != nil {
+		return err
+	}
+
 	_, err = e.client.CoreV1().Pods(e.nameSpace).Create(rCtx, toPod(e.nameSpace, pCtx), metav1.CreateOptions{})
 	if err != nil {
 		return err
@@ -297,6 +302,12 @@ func (e *kube) Destroy(ctx context.Context, pCtx *pipeline.RunnerContext) error 
 
 	// delete secret
 	err := e.client.CoreV1().Secrets(e.nameSpace).Delete(ctx, pCtx.RunnerName, metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+
+	// delete configmap
+	err = e.client.CoreV1().ConfigMaps(e.nameSpace).Delete(ctx, pCtx.RunnerName, metav1.DeleteOptions{})
 	if err != nil {
 		return err
 	}

@@ -37,6 +37,7 @@ type (
 		Steps          []*Step
 		InitSteps      []*Step
 		Secrets        []*Secret
+		Variables      []*Variable
 		ResourcesLimit *ResourcesLimit
 	}
 
@@ -50,6 +51,7 @@ type (
 		Envs           map[string]string
 		VolumeMounts   []*VolumeMount
 		Secrets        []*SecretEnv
+		Variables      []*VariableEnv
 		Privileged     bool
 		RestartPolicy  RestartPolicy
 
@@ -63,7 +65,16 @@ type (
 		Mask bool
 	}
 
+	Variable struct {
+		Name  string
+		Value string
+	}
+
 	SecretEnv struct {
+		Key string
+	}
+
+	VariableEnv struct {
 		Key string
 	}
 

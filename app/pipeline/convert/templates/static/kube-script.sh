@@ -1,220 +1,478 @@
+# Cloudness Kubernetes Deployment Script
+# This script deploys applications to Kubernetes with proper resource management
+
+# ==============================================================================
+# Configuration & Constants
+# ==============================================================================
+
+# Colors for output
+readonly RED='\033[1;31m'
+readonly GREEN='\033[1;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m'
+
+# Timeout configurations (can be overridden via environment)
+readonly ROLLOUT_TIMEOUT_STATELESS="${ROLLOUT_TIMEOUT_STATELESS:-60s}"
+readonly ROLLOUT_TIMEOUT_STATEFUL="${ROLLOUT_TIMEOUT_STATEFUL:-120s}"
+readonly PVC_RESIZE_TIMEOUT="${PVC_RESIZE_TIMEOUT:-300}"
+readonly PVC_RESIZE_POLL_INTERVAL="${PVC_RESIZE_POLL_INTERVAL:-5}"
+
+# Required environment variables with defaults
 : "${CLOUDNESS_DEPLOY_APP_IDENTIFIER:=}"
 : "${CLOUDNESS_DEPLOY_APP_NAMESPACE:=}"
-
-# Deployment flags
 : "${CLOUDNESS_DEPLOY_FLAG_APP_TYPE:=}"
 : "${CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME:=0}"
 : "${CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT:=0}"
 : "${CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE:=0}"
-
-# Deployment yaml files
 : "${CLOUDNESS_DEPLOY_YAML_COMMON:=}"
 : "${CLOUDNESS_DEPLOY_YAML_VOLUME:=}"
 : "${CLOUDNESS_DEPLOY_YAML_APP:=}"
 : "${CLOUDNESS_DEPLOY_YAML_ROUTE:=}"
+: "${VERBOSE:=false}"
 
-# Define color variables
-RED='\033[1;31m'    # Bold Red
-YELLOW='\033[1;33m' # Bold Yellow
-GREEN='\033[1;32m'  # Bold Green
-RESET='\033[0m'     # Resets color
-CHECK_MARK='\u2714' # Unicode for Heavy Check Mark (✔)
+# Track cleanup state
+CLEANUP_DONE=false
 
-# Helper function for logging
-error() { echo -e "${RED}[ERROR]${RESET}  $*"; }
-warn() { echo -e "${YELLOW}[WARN]${RESET}  $*"; }
-info() { echo -e "$*"; }
-success() { echo -e "${GREEN}[SUCCESS]${RESET}  $*"; }
-success_info() { echo -e "$* ${GREEN}✔${RESET}"; }
+# ==============================================================================
+# Logging Functions
+# ==============================================================================
 
-apply_kube_config_from_string() {
-	local KUBE_YAML_STRING="$1"
-	local ERROR_MESSAGE=""
-
-	# Check if the YAML string is empty
-	if [ -z "$KUBE_YAML_STRING" ]; then
-		return 0
-	fi
-
-	# echo "Attempting to apply Kubernetes configuration..."
-	# echo -e "$KUBE_YAML_STRING" | sed 's/\t/  /g'
-
-	# Apply the YAML using kubectl, capturing stderr into ERROR_MESSAGE
-	# And redirecting stdout to /dev/null to suppress success messages
-	if ! ERROR_MESSAGE=$(echo -e "$KUBE_YAML_STRING" | sed 's/\t/  /g' | kubectl apply -f - 2>&1 >/dev/null); then
-		error "Error applying Kubernetes configuration:"
-		error "$ERROR_MESSAGE"
-		return 1 # Indicate failure
-	else
-		return 0 # Indicate success
-	fi
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $*" >&2
 }
 
-rollout_status() {
-	local ROLLOUT_ERROR=""
-
-	if [ "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" = "Stateless" ]; then
-		if ! ROLLOUT_ERROR=$(kubectl rollout status deployment/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" --timeout=20s >&1 >/dev/null); then
-			error "$ROLLOUT_ERROR"
-			error "Error rolling out deployment, reverting..."
-			kubectl rollout undo deployment/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE"
-			return 1
-		fi
-	else
-		if ! ROLLOUT_ERROR=$(kubectl rollout status statefulset/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" --timeout=2m >&1 >/dev/null); then
-			error "$ROLLOUT_ERROR"
-			error "Error rolling out deployment, reverting..."
-			kubectl rollout undo statefulset/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE"
-			return 1
-		fi
-	fi
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $*"
 }
+
+log_info() {
+    echo -e "$*"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $*"
+}
+
+log_step() {
+    echo -e "$* ${GREEN}✔${NC}"
+}
+
+print_section() {
+    text="$1"
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  ${text}${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+# ==============================================================================
+# Validation Functions
+# ==============================================================================
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+validate_dependencies() {
+    missing=""
+
+    if ! command_exists kubectl; then
+        missing="$missing kubectl"
+    fi
+
+    if ! command_exists yq; then
+        missing="$missing yq"
+    fi
+
+    if [ -n "$missing" ]; then
+        log_error "Missing required dependencies:$missing"
+        log_error "Please install them before running this script."
+        return 1
+    fi
+
+    return 0
+}
+
+validate_environment() {
+    has_errors=0
+
+    if [ -z "$CLOUDNESS_DEPLOY_APP_IDENTIFIER" ]; then
+        log_error "  - CLOUDNESS_DEPLOY_APP_IDENTIFIER is required"
+        has_errors=1
+    fi
+
+    if [ -z "$CLOUDNESS_DEPLOY_APP_NAMESPACE" ]; then
+        log_error "  - CLOUDNESS_DEPLOY_APP_NAMESPACE is required"
+        has_errors=1
+    fi
+
+    if [ -z "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" ]; then
+        log_error "  - CLOUDNESS_DEPLOY_FLAG_APP_TYPE is required"
+        has_errors=1
+    elif [ "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" != "Stateless" ] && [ "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" != "Stateful" ]; then
+        log_error "  - CLOUDNESS_DEPLOY_FLAG_APP_TYPE must be 'Stateless' or 'Stateful'"
+        has_errors=1
+    fi
+
+    if [ "$has_errors" -eq 1 ]; then
+        log_error "Environment validation failed"
+        return 1
+    fi
+
+    return 0
+}
+
+# ==============================================================================
+# Helper functions
+# ==============================================================================
+
+# Function to run commands with optional output
+run_command() {
+    if [ "$VERBOSE" = "true" ]; then
+        "$@"
+    else
+        "$@" > /dev/null 2>&1
+    fi
+}
+
+# ==============================================================================
+# Kubernetes Operations
+# ==============================================================================
+
+# Returns the resource type based on app type
+get_resource_type() {
+    if [ "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" = "Stateless" ]; then
+        echo "deployment"
+    else
+        echo "statefulset"
+    fi
+}
+
+# Returns the opposite resource type (for cleanup)
+get_opposite_resource_type() {
+    if [ "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" = "Stateless" ]; then
+        echo "statefulset"
+    else
+        echo "deployment"
+    fi
+}
+
+# Apply Kubernetes configuration from YAML string
+kube_apply() {
+    yaml_string="$1"
+    error_output=""
+
+    # Skip if empty
+    if [ -z "$yaml_string" ]; then
+        return 0
+    fi
+
+    # Apply the YAML
+    if [ "$VERBOSE" = "true" ]; then
+        if ! printf '%s' "$yaml_string" | sed 's/\t/  /g' | kubectl apply -f -; then
+            log_error "Failed to apply Kubernetes configuration"
+            return 1
+        fi
+    else
+        if ! error_output=$(printf '%s' "$yaml_string" | sed 's/\t/  /g' | kubectl apply -f - 2>&1 >/dev/null); then
+            log_error "Failed to apply Kubernetes configuration:"
+            log_error "$error_output"
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Delete a Kubernetes resource
+kube_delete() {
+    resource_type="$1"
+    resource_name="$2"
+    namespace="$3"
+    error_output=""
+
+    if [ "$VERBOSE" = "true" ]; then
+        if ! kubectl delete "$resource_type/$resource_name" -n "$namespace" --ignore-not-found=true; then
+            log_warn "Failed to delete $resource_type/$resource_name"
+            return 1
+        fi
+    else
+        if ! error_output=$(kubectl delete "$resource_type/$resource_name" -n "$namespace" --ignore-not-found=true 2>&1 >/dev/null); then
+            log_warn "Failed to delete $resource_type/$resource_name: $error_output"
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Wait for rollout to complete
+kube_rollout_status() {
+    resource_type=""
+    timeout=""
+    error_output=""
+
+    resource_type=$(get_resource_type)
+
+    if [ "$resource_type" = "deployment" ]; then
+        timeout="$ROLLOUT_TIMEOUT_STATELESS"
+    else
+        timeout="$ROLLOUT_TIMEOUT_STATEFUL"
+    fi
+
+    if [ "$VERBOSE" = "true" ]; then
+        if ! kubectl rollout status "$resource_type/$CLOUDNESS_DEPLOY_APP_IDENTIFIER" \
+            -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" \
+            --timeout="$timeout"; then
+            log_error "Rollout failed, reverting..."
+            kubectl rollout undo "$resource_type/$CLOUDNESS_DEPLOY_APP_IDENTIFIER" \
+                -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" || true
+            return 1
+        fi
+    else
+        if ! error_output=$(kubectl rollout status "$resource_type/$CLOUDNESS_DEPLOY_APP_IDENTIFIER" \
+            -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" \
+            --timeout="$timeout" 2>&1); then
+            log_error "$error_output"
+            log_error "Rollout failed, reverting..."
+            kubectl rollout undo "$resource_type/$CLOUDNESS_DEPLOY_APP_IDENTIFIER" \
+                -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" 2>/dev/null || true
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Parse storage size to numeric GiB value
+parse_size_to_gib() {
+    size_str="$1"
+    echo "$size_str" | sed 's/Gi//'
+}
+
+# Wait for PVC to resize
+kube_wait_pvc_resize() {
+    pvc_name="$1"
+    new_size="$2"
+    namespace="$CLOUDNESS_DEPLOY_APP_NAMESPACE"
+    deadline=""
+    current_time=""
+
+    current_time=$(date +%s)
+    deadline=$((current_time + PVC_RESIZE_TIMEOUT))
+
+    while true; do
+        # Check PVC status
+        pvc_status=""
+        pvc_status=$(kubectl get pvc "$pvc_name" -n "$namespace" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+
+        if [ "$VERBOSE" = "true" ]; then
+            log_info "PVC '$pvc_name' status: $pvc_status"
+        fi
+
+        # Handle WaitForFirstConsumer
+        if [ "$pvc_status" = "Pending" ]; then
+            pvc_event=""
+            pvc_event=$(kubectl get events -n "$namespace" \
+                --field-selector "involvedObject.kind=PersistentVolumeClaim,involvedObject.name=$pvc_name" \
+                --sort-by=.lastTimestamp \
+                -o jsonpath='{.items[-1:].reason}' 2>/dev/null || echo "")
+            if [ "$pvc_event" = "WaitForFirstConsumer" ]; then
+                return 0
+            fi
+        fi
+
+        # Check if resize completed
+        current_size=""
+        current_size=$(kubectl get pvc "$pvc_name" -n "$namespace" -o jsonpath='{.status.capacity.storage}' 2>/dev/null || echo "0Gi")
+
+        if [ "$VERBOSE" = "true" ]; then
+            log_info "PVC '$pvc_name' current size: $current_size, target: $new_size"
+        fi
+        if [ "$(parse_size_to_gib "$current_size")" -ge "$(parse_size_to_gib "$new_size")" ]; then
+            return 0
+        fi
+
+        # Check for FileSystemResizePending condition
+        resize_pending=""
+        resize_pending=$(kubectl get pvc "$pvc_name" -n "$namespace" \
+            -o jsonpath='{.status.conditions[?(@.type=="FileSystemResizePending")].status}' 2>/dev/null || echo "")
+        if [ "$resize_pending" = "True" ]; then
+            log_info "Volume resized. Remounting application to finalize."
+            return 0
+        fi
+
+        # Check timeout
+        current_time=$(date +%s)
+        if [ "$current_time" -ge "$deadline" ]; then
+            log_error "Timed out after ${PVC_RESIZE_TIMEOUT}s waiting for PVC '$pvc_name' to reach $new_size"
+            return 1
+        fi
+
+        log_info "Waiting for volume '$pvc_name'..."
+        sleep "$PVC_RESIZE_POLL_INTERVAL"
+    done
+}
+
+# ==============================================================================
+# Deployment Functions
+# ==============================================================================
+
+deploy_common_artifacts() {
+    print_section "Setting up prerequisite artifacts"
+
+    if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_COMMON"; then
+        log_error "Failed to set up prerequisite artifacts"
+        return 1
+    fi
+
+    log_step "Prerequisite artifacts configured"
+    return 0
+}
+
+deploy_volume() {
+    if [ "$CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME" -ne 1 ]; then
+        return 0
+    fi
+
+    print_section "Provisioning volumes"
+
+    # Handle remount for volume resize
+    if [ "$CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT" -eq 1 ]; then
+        log_info "Volume resize detected, removing statefulset for remount..."
+        if ! kube_delete "statefulset" "$CLOUDNESS_DEPLOY_APP_IDENTIFIER" "$CLOUDNESS_DEPLOY_APP_NAMESPACE"; then
+            log_error "Failed to remove statefulset for remount"
+            return 1
+        fi
+    fi
+
+    # Apply volume configuration
+    if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_VOLUME"; then
+        log_error "Failed to apply volume configuration"
+        return 1
+    fi
+
+    # Wait for each PVC to be ready
+    pvc_data=""
+    pvc_data=$(printf '%s' "$CLOUDNESS_DEPLOY_YAML_VOLUME" | sed 's/\t/  /g' | \
+        yq -r 'select(.kind == "PersistentVolumeClaim") | .metadata.name + " " + .spec.resources.requests.storage' - 2>/dev/null || echo "")
+
+    echo "$pvc_data" | while read -r pvc_name new_size; do
+        # Skip empty lines
+        pvc_name=$(echo "$pvc_name" | xargs)
+        new_size=$(echo "$new_size" | xargs)
+        if [ -z "$pvc_name" ] || [ -z "$new_size" ] || [ "$pvc_name" = "---" ]; then
+            continue
+        fi
+
+        if ! kube_wait_pvc_resize "$pvc_name" "$new_size"; then
+            log_error "Failed to provision PVC '$pvc_name'"
+            return 1
+        fi
+    done
+
+    log_step "Volumes provisioned"
+    return 0
+}
+
+deploy_application() {
+    print_section "Deploying application"
+
+    if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_APP"; then
+        log_error "Failed to deploy application"
+        return 1
+    fi
+
+    if ! kube_rollout_status; then
+        return 1
+    fi
+
+    log_step "Application deployed"
+    return 0
+}
+
+deploy_routes() {
+    if [ "$CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE" -ne 1 ]; then
+        return 0
+    fi
+
+    print_section "Configuring HTTP routes"
+
+    if ! kube_apply "$CLOUDNESS_DEPLOY_YAML_ROUTE"; then
+        log_error "Failed to configure HTTP routes"
+        return 1
+    fi
+
+    log_step "HTTP routes configured"
+    return 0
+}
+
+# ==============================================================================
+# Lifecycle Management
+# ==============================================================================
 
 cleanup() {
-	info "Running clean up..."
-	local CLEANUP_ERROR=""
+    if [ "$CLEANUP_DONE" = "true" ]; then
+        return 0
+    fi
+    CLEANUP_DONE=true
 
-	if [ "$CLOUDNESS_DEPLOY_FLAG_APP_TYPE" = "Stateless" ]; then
-		if ! CLEANUP_ERROR=$(kubectl delete statefulset/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" --ignore-not-found=true 2>&1 >/dev/null); then
-			error "$CLEANUP_ERROR"
-			warn "Error cleaning up deployment, Skipping..."
-		fi
-	else
-		if ! CLEANUP_ERROR=$(kubectl delete deployment/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" --ignore-not-found=true 2>&1 >/dev/null); then
-			error "$CLEANUP_ERROR"
-			warn "Error cleaning up deployment, Skipping..."
-		fi
-	fi
+    log_info "Running cleanup..."
+
+    opposite_type=""
+    opposite_type=$(get_opposite_resource_type)
+
+    kube_delete "$opposite_type" "$CLOUDNESS_DEPLOY_APP_IDENTIFIER" "$CLOUDNESS_DEPLOY_APP_NAMESPACE" || true
 }
 
-wait_for_pvc_resize() {
-	PVC_NAME="$1"
-	NEW_SIZE="$2"
-	NAMESPACE="$CLOUDNESS_DEPLOY_APP_NAMESPACE"
-
-	TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-300}" # 5 minutes
-	SLEEP_SECONDS="${SLEEP_SECONDS:-5}"
-
-	local current_time=$(date +%s)
-	local deadline=$(expr "$current_time" + "$TIMEOUT_SECONDS")
-
-	check_resize_pending() {
-		kubectl get pvc "$PVC_NAME" -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="FileSystemResizePending")].status}' 2>/dev/null
-	}
-
-	# Function to parse a storage string (e.g., "11Gi") and convert to GiB
-	parse_size_to_gib() {
-		local size_str=$1
-		local value=$(echo "$size_str" | sed 's/Gi//')
-		# Use 'bc' for floating-point arithmetic if necessary
-		echo "$value"
-	}
-
-	check_pvc_status() {
-		kubectl get pvc "$PVC_NAME" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null
-	}
-
-	get_pvc_event() {
-		kubectl get events -n "$NAMESPACE" --field-selector involvedObject.kind=PersistentVolumeClaim,involvedObject.name="$PVC_NAME" --sort-by=.lastTimestamp -o jsonpath='{.items[-1:].reason}' 2>/dev/null
-	}
-
-	while true; do
-		PVC_STATUS=$(check_pvc_status)
-		# Handle WaitForFirstConsumer specifically
-		if [ "$PVC_STATUS" == "Pending" ]; then
-			PVC_EVENT=$(get_pvc_event)
-			if [ "$PVC_EVENT" == "WaitForFirstConsumer" ]; then
-				return 0
-			fi
-		fi
-
-		CURRENT_SIZE=$(kubectl get pvc $PVC_NAME -n $NAMESPACE -o jsonpath='{.status.capacity.storage}')
-		if [ $(parse_size_to_gib "$CURRENT_SIZE") -ge $(parse_size_to_gib "$NEW_SIZE") ]; then
-			return 0 # Exit the function with success status
-		fi
-
-		# Check for FileSystemResizePending condition
-		if [ "$(check_resize_pending)" == "True" ]; then
-			info "Volume has been resized. Remounting application to finalize resize."
-			return 0
-		fi
-
-		# Timeout
-		current_time=$(date +%s)
-		if [ "$current_time" -ge "$deadline" ]; then
-			info "⏱️  Timed out after ${TIMEOUT_SECONDS}s waiting for PVC '$PVC_NAME' to reach $NEW_SIZE."
-			return 1
-		fi
-
-		echo "Waiting for Volume..."
-		sleep "$SLEEP_SECONDS"
-	done
+on_exit() {
+    exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        log_error "Deployment failed with exit code $exit_code"
+    fi
+    cleanup
+    exit $exit_code
 }
 
-################################################ MAIN #################################
+# ==============================================================================
+# Main Entrypoint
+# ==============================================================================
 
-# Applying common artifacts namespace, service account, role, rolebinding, configmap, secrets...
-if apply_kube_config_from_string "$CLOUDNESS_DEPLOY_YAML_COMMON"; then
-	success_info "Setting up prequestic artifacts."
-else
-	error "Error setting up prequestic artifacts. Exiting..."
-	return 1
-fi
+main() {
+    # Set up exit trap
+    trap on_exit EXIT
 
-# Apply volume/pvc configuration
-if [ "$CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME" -eq 1 ]; then
-	if [ "$CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT" -eq 1 ]; then #if the volume is scaled up and needs remount for changes to apply
-		#delete the statefulset before scaling up the volume
-		if !(kubectl delete statefulset/"$CLOUDNESS_DEPLOY_APP_IDENTIFIER" -n "$CLOUDNESS_DEPLOY_APP_NAMESPACE" --ignore-not-found=true 2>&1 >/dev/null); then
-			error "Error cleaning up deployment, Skipping..."
-			return 1
-		fi
-	fi
-	if apply_kube_config_from_string "$CLOUDNESS_DEPLOY_YAML_VOLUME"; then
-		# Iterate through each PVC found
-		PVC_DATA=$(echo -e "$CLOUDNESS_DEPLOY_YAML_VOLUME" | sed 's/\t/  /g' | yq -r 'select(.kind == "PersistentVolumeClaim") | .metadata.name + " " + .spec.resources.requests.storage' -)
-		echo "$PVC_DATA" | while read -r PVC_NAME NEW_SIZE; do
-			PVC_NAME=$(echo "$PVC_NAME" | xargs)
-			NEW_SIZE=$(echo "$NEW_SIZE" | xargs)
-			if [ -z "$PVC_NAME" ] || [ -z "$NEW_SIZE" ]; then #discard ---- and empty lines
-				continue
-			fi
+    # Validate prerequisites
+    if ! validate_dependencies; then
+        exit 1
+    fi
 
-			if ! wait_for_pvc_resize "$PVC_NAME" "$NEW_SIZE"; then
-				error "Failed to resize or confirm PVC '$PVC_NAME'. Check logs above for details."
-				return 1
-			fi
-		done
+    if ! validate_environment; then
+        exit 1
+    fi
 
-		success_info "Volume provisioned."
-	else
-		"Error setting up volume. Exiting..."
-		return 1
-	fi
+    # Execute deployment steps
+    if ! deploy_common_artifacts; then
+        exit 1
+    fi
 
-fi
+    if ! deploy_volume; then
+        exit 1
+    fi
 
-if ! apply_kube_config_from_string "$CLOUDNESS_DEPLOY_YAML_APP"; then
-	error "Error deploying application. Exiting..."
-	return 1
-fi
+    if ! deploy_application; then
+        exit 1
+    fi
 
-if rollout_status; then
-	success_info "Application deployment."
-else
-	#logs are handles in rollout_status method
-	return 1
-fi
+    if ! deploy_routes; then
+        exit 1
+    fi
 
-if [ "$CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE" -eq 1 ]; then
-	if apply_kube_config_from_string "$CLOUDNESS_DEPLOY_YAML_ROUTE"; then
-		success_info "HTTP routes configured."
-	else
-		error "Error setting up http routes. Exiting..."
-		return 1
-	fi
-fi
+    # Success
+    echo ""
+    log_success "Deployment completed successfully!"
+}
 
-cleanup
-
-success "Deployment completed successfully."
+# Run main function
+main "$@"

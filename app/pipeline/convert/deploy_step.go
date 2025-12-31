@@ -12,7 +12,6 @@ import (
 	"github.com/cloudness-io/cloudness/types/enum"
 
 	shlex "github.com/kballard/go-shellquote"
-	"github.com/rs/zerolog/log"
 )
 
 func deployCommand(
@@ -31,18 +30,16 @@ func deployCommand(
 		return err
 	}
 
-	script, common, volume, app, route, err := templates.GenerateKubeTemplates(tmplIn)
+	_, common, volume, app, route, err := templates.GenerateKubeTemplates(tmplIn)
 	if err != nil {
 		return err
 	}
 
-	step.AddScriptCmd(fmt.Sprintf("cd %s", wsDeployVolumePath))
-	step.AddScriptCmd(script)
-
-	//General secrets for log sanitization
+	// General secrets for log sanitization
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_APP_IDENTIFIER", name)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_APP_NAMESPACE", namespace)
-	// flags
+
+	// Flags
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_APP_TYPE", string(in.Application.Type))
 	if len(tmplIn.Volumes) > 0 {
 		addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME", "1")
@@ -50,18 +47,19 @@ func deployCommand(
 	if tmplIn.ServiceDomain != nil {
 		addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE", "1")
 	}
-	// kube files
+
+	// Kube YAML files
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_COMMON", common)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_VOLUME", volume)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_APP", app)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_ROUTE", route)
 
-	// common
+	// Common deployment info
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_NAMESPACE", namespace)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_NAME", name)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_IMAGE", pullImage)
 
-	// unmount before update volumes ?
+	// Unmount before update volumes?
 	needsRemount := "0"
 	if in.ServerRestctions.UnmountBeforeResize {
 		if needsVolumeRemount(in.Deployment, in.PreviousDeployment) {
@@ -70,8 +68,10 @@ func deployCommand(
 	}
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT", needsRemount)
 
+	// Run the deploy script
+	step.AddScriptCmd(". /usr/local/lib/deploy-script.sh")
+
 	step.VolumeMounts = append(step.VolumeMounts, getDeployVolumeMount(pCtx))
-	//TODO: check if deployment is enabled
 	return nil
 }
 
@@ -171,6 +171,5 @@ func needsVolumeRemount(currDeployment *types.Deployment, prevDeployment *types.
 		}
 	}
 
-	log.Error().Msg("Debug: return 4")
 	return false
 }

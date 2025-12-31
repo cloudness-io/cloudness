@@ -13,6 +13,7 @@ func ToRunnerContext(in *pipeline.RunnerContextInput) (*pipeline.RunnerContext, 
 		Steps:          []*pipeline.Step{},
 		InitSteps:      []*pipeline.Step{},
 		Secrets:        []*pipeline.Secret{},
+		Variables:      []*pipeline.Variable{},
 	}
 
 	pCtx.RunnerName = getRunnerNamespace(pCtx)
@@ -59,7 +60,7 @@ func ToRunnerContext(in *pipeline.RunnerContextInput) (*pipeline.RunnerContext, 
 		Envs:           map[string]string{},
 	}
 
-	step.AddStripCmds("#!/bin/sh\n\n", "set -e")
+	step.AddStripCmds("#!/bin/sh\n\n", "set -e", ". /usr/local/lib/cloudness-utils.sh")
 
 	if err := initCommand(step, in, pCtx, spec); err != nil {
 		return nil, err
