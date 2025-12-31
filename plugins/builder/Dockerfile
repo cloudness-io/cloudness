@@ -10,6 +10,14 @@ ARG TARGETPLATFORM
 ARG NIXPACKS_VERSION
 ARG KUBECTL_VERSION
 
+# Build the deployer binary
+FROM golang:1.25-alpine AS deployer-builder
+WORKDIR /build
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /deployer ./plugins/deployer
+
 FROM bitnami/kubectl:${KUBECTL_VERSION} AS kubectl
 FROM ${BASE_IMAGE} AS base
 
@@ -23,6 +31,10 @@ RUN curl -sSL https://nixpacks.com/install.sh | bash
 
 COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/kubectl
 RUN chmod +x /usr/local/bin/kubectl
+
+# Add deployer binary
+COPY --from=deployer-builder /deployer /usr/local/bin/cloudness-deploy
+RUN chmod +x /usr/local/bin/cloudness-deploy
 
 # Add shared utilities and scripts
 COPY scripts/cloudness-utils.sh /usr/local/lib/cloudness-utils.sh

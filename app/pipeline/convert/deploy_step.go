@@ -77,8 +77,8 @@ func deployCommand(
 	}
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT", needsRemount)
 
-	// Run the deploy script
-	step.AddScriptCmd(". /usr/local/lib/deploy-script.sh")
+	// Run the Go-based deployer binary
+	step.AddScriptCmd("cloudness-deploy")
 
 	step.VolumeMounts = append(step.VolumeMounts, getDeployVolumeMount(pCtx))
 	return nil
