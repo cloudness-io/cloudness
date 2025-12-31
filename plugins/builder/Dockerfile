@@ -24,6 +24,15 @@ RUN curl -sSL https://nixpacks.com/install.sh | bash
 COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/kubectl
 RUN chmod +x /usr/local/bin/kubectl
 
+# Add shared utilities and scripts
+COPY scripts/cloudness-utils.sh /usr/local/lib/cloudness-utils.sh
+COPY scripts/init-script.sh /usr/local/lib/init-script.sh
+COPY scripts/build-script.sh /usr/local/lib/build-script.sh
+COPY scripts/deploy-script.sh /usr/local/lib/deploy-script.sh
+RUN chmod +x /usr/local/lib/cloudness-utils.sh /usr/local/lib/init-script.sh /usr/local/lib/build-script.sh /usr/local/lib/deploy-script.sh
+
+# Auto-source utilities for all sh scripts
+ENV ENV="/usr/local/lib/cloudness-utils.sh"
 ENV PATH="/usr/local/bin:${PATH}"
 USER user 
 ENTRYPOINT ["/sbin/tini", "--"]
