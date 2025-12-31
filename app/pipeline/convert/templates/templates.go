@@ -32,7 +32,6 @@ func init() {
 	kubePVC = getTemplate("2-pvc.yaml")
 	kubeApp = getTemplate("3-app.yaml")
 	kubeHttproute = getTemplate("4-httproute.yaml")
-	kubeScripts = getFileContent("kube-script.sh")
 }
 
 func getFileContent(fileName string) string {
@@ -90,8 +89,7 @@ type (
 	}
 )
 
-func GenerateKubeTemplates(input *TemplateIn) (script string, common string, pvc string, app string, route string, err error) {
-	script = kubeScripts
+func GenerateKubeTemplates(input *TemplateIn) (common string, pvc string, app string, route string, err error) {
 	common, err = renderTemplate(kubeCommon, input)
 	if err != nil {
 		return

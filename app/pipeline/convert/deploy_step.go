@@ -30,7 +30,7 @@ func deployCommand(
 		return err
 	}
 
-	_, common, volume, app, route, err := templates.GenerateKubeTemplates(tmplIn)
+	common, volume, app, route, err := templates.GenerateKubeTemplates(tmplIn)
 	if err != nil {
 		return err
 	}
