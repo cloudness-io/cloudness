@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/url"
 

@@ -244,11 +244,6 @@ func toVolumeMounts(s *pipeline.Step) []v1.VolumeMount {
 				Path: key, // Use key as filename
 			})
 		}
-		volumeMounts = append(volumeMounts, v1.VolumeMount{
-			Name:      "configfiles",
-			MountPath: cfm.Path,
-			ReadOnly:  true,
-		})
 	}
 
 	return volumeMounts
