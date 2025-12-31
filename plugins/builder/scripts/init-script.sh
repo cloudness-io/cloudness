@@ -99,7 +99,6 @@ main() {
         exit 1
     fi
 
-    echo ""
     log_success "Repository cloned successfully!"
 }
 

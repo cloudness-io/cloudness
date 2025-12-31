@@ -87,7 +87,6 @@ EOF
     # Mirror registry configuration
     if [ "$CLOUDNESS_MIRROR_ENABLED" = "true" ] && [ -n "$CLOUDNESS_IMAGE_MIRROR_REGISTRY" ]; then
         MIRROR_REGISTRY=$(echo "$CLOUDNESS_IMAGE_MIRROR_REGISTRY" | cut -d'/' -f1)
-        log_info "Configuring mirror registry: $MIRROR_REGISTRY"
         
         cat >> "$BUILDKITD_CONFIG_PATH" << EOF
 
@@ -99,8 +98,6 @@ EOF
   mirrors = ["$CLOUDNESS_IMAGE_MIRROR_REGISTRY"]
 EOF
     fi
-
-    log_step "BuildKit configured"
 }
 
 # ==============================================================================
@@ -228,7 +225,6 @@ main() {
             ;;
     esac
 
-    echo ""
     log_success "Build completed successfully!"
 }
 

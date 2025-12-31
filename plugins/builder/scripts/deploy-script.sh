@@ -425,8 +425,6 @@ main() {
         exit 1
     fi
 
-    # Success
-    echo ""
     log_success "Deployment completed successfully!"
 }
 

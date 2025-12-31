@@ -20,7 +20,7 @@ log_error() {
 }
 
 log_warn() {
-    printf "%b\n" "${CLOUDNESS_YELLOW}⚠️  $*${CLOUDNESS_NC}"
+    printf "%b\n" "${CLOUDNESS_YELLOW}⚠️ $*${CLOUDNESS_NC}"
 }
 
 log_info() {
@@ -28,11 +28,11 @@ log_info() {
 }
 
 log_success() {
-    printf "%b\n" "${CLOUDNESS_GREEN}✅ $*${CLOUDNESS_NC}"
+    printf "%b\n" "${CLOUDNESS_GREEN}✔ $*${CLOUDNESS_NC}"
 }
 
 log_step() {
-    printf "%b\n" "${CLOUDNESS_GREEN}✔ $*${CLOUDNESS_NC}"
+    printf "%b\n" "$* ${CLOUDNESS_GREEN}✔${CLOUDNESS_NC}"
 }
 
 log_debug() {
