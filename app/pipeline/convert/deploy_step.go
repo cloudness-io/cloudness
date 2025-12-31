@@ -1,7 +1,6 @@
 package convert
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/url"
 
@@ -35,6 +34,18 @@ func deployCommand(
 		return err
 	}
 
+	// Add YAML files as ConfigFiles (will be mounted from ConfigMap)
+	addConfigFile(pCtx, "common.yaml", common)
+	addConfigFile(pCtx, "volume.yaml", volume)
+	addConfigFile(pCtx, "app.yaml", app)
+	addConfigFile(pCtx, "route.yaml", route)
+
+	// Mount ConfigFiles to deploy path
+	step.ConfigFileMounts = append(step.ConfigFileMounts, &pipeline.ConfigFileMount{
+		Path: wsDeployVolumePath,
+		Keys: []string{"common.yaml", "volume.yaml", "app.yaml", "route.yaml"},
+	})
+
 	// General secrets for log sanitization
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_APP_IDENTIFIER", name)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_APP_NAMESPACE", namespace)
@@ -48,11 +59,8 @@ func deployCommand(
 		addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE", "1")
 	}
 
-	// Kube YAML files
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_COMMON", common)
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_VOLUME", volume)
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_APP", app)
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_ROUTE", route)
+	// Deploy path for script to find YAML files
+	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_PATH", wsDeployVolumePath)
 
 	// Common deployment info
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_NAMESPACE", namespace)
@@ -172,4 +180,16 @@ func needsVolumeRemount(currDeployment *types.Deployment, prevDeployment *types.
 	}
 
 	return false
+}
+
+// addConfigFile adds a file to the ConfigMap for mounting
+func addConfigFile(pCtx *pipeline.RunnerContext, filename string, content string) {
+	if content == "" {
+		return
+	}
+	pCtx.ConfigFiles = append(pCtx.ConfigFiles, &pipeline.ConfigFile{
+		Key:      filename,
+		Filename: filename,
+		Content:  content,
+	})
 }

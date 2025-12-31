@@ -22,11 +22,14 @@ readonly PVC_RESIZE_POLL_INTERVAL="${PVC_RESIZE_POLL_INTERVAL:-5}"
 : "${CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME:=0}"
 : "${CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT:=0}"
 : "${CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE:=0}"
-: "${CLOUDNESS_DEPLOY_YAML_COMMON:=}"
-: "${CLOUDNESS_DEPLOY_YAML_VOLUME:=}"
-: "${CLOUDNESS_DEPLOY_YAML_APP:=}"
-: "${CLOUDNESS_DEPLOY_YAML_ROUTE:=}"
+: "${CLOUDNESS_DEPLOY_PATH:=}"
 : "${VERBOSE:=false}"
+
+# YAML file paths (set from CLOUDNESS_DEPLOY_PATH)
+CLOUDNESS_DEPLOY_YAML_COMMON=""
+CLOUDNESS_DEPLOY_YAML_VOLUME=""
+CLOUDNESS_DEPLOY_YAML_APP=""
+CLOUDNESS_DEPLOY_YAML_ROUTE=""
 
 # Track cleanup state
 CLEANUP_DONE=false
@@ -76,10 +79,21 @@ validate_environment() {
         has_errors=1
     fi
 
+    if [ -z "$CLOUDNESS_DEPLOY_PATH" ]; then
+        log_error "  - CLOUDNESS_DEPLOY_PATH is required"
+        has_errors=1
+    fi
+
     if [ "$has_errors" -eq 1 ]; then
         log_error "Environment validation failed"
         return 1
     fi
+
+    # Set YAML file paths from deploy path (mounted from ConfigMap)
+    CLOUDNESS_DEPLOY_YAML_COMMON="$CLOUDNESS_DEPLOY_PATH/common.yaml"
+    CLOUDNESS_DEPLOY_YAML_VOLUME="$CLOUDNESS_DEPLOY_PATH/volume.yaml"
+    CLOUDNESS_DEPLOY_YAML_APP="$CLOUDNESS_DEPLOY_PATH/app.yaml"
+    CLOUDNESS_DEPLOY_YAML_ROUTE="$CLOUDNESS_DEPLOY_PATH/route.yaml"
 
     return 0
 }
@@ -106,24 +120,24 @@ get_opposite_resource_type() {
     fi
 }
 
-# Apply Kubernetes configuration from YAML string
+# Apply Kubernetes configuration from YAML file
 kube_apply() {
-    yaml_string="$1"
+    yaml_file="$1"
     error_output=""
 
-    # Skip if empty
-    if [ -z "$yaml_string" ]; then
+    # Skip if file doesn't exist or is empty
+    if [ ! -f "$yaml_file" ] || [ ! -s "$yaml_file" ]; then
         return 0
     fi
 
     # Apply the YAML
     if [ "$VERBOSE" = "true" ]; then
-        if ! printf '%s' "$yaml_string" | sed 's/\t/  /g' | kubectl apply -f -; then
-            log_error "Failed to apply Kubernetes configuration"
+        if ! kubectl apply -f "$yaml_file"; then
+            log_error "Failed to apply Kubernetes configuration from $yaml_file"
             return 1
         fi
     else
-        if ! error_output=$(printf '%s' "$yaml_string" | sed 's/\t/  /g' | kubectl apply -f - 2>&1 >/dev/null); then
+        if ! error_output=$(kubectl apply -f "$yaml_file" 2>&1 >/dev/null); then
             log_error "Failed to apply Kubernetes configuration:"
             log_error "$error_output"
             return 1
@@ -301,10 +315,9 @@ deploy_volume() {
         return 1
     fi
 
-    # Wait for each PVC to be ready
+    # Wait for each PVC to be ready (read from file)
     pvc_data=""
-    pvc_data=$(printf '%s' "$CLOUDNESS_DEPLOY_YAML_VOLUME" | sed 's/\t/  /g' | \
-        yq -r 'select(.kind == "PersistentVolumeClaim") | .metadata.name + " " + .spec.resources.requests.storage' - 2>/dev/null || echo "")
+    pvc_data=$(yq -r 'select(.kind == "PersistentVolumeClaim") | .metadata.name + " " + .spec.resources.requests.storage' "$CLOUDNESS_DEPLOY_YAML_VOLUME" 2>/dev/null || echo "")
 
     echo "$pvc_data" | while read -r pvc_name new_size; do
         # Skip empty lines
