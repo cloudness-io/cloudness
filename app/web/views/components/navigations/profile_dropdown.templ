@@ -11,7 +11,7 @@ import (
 )
 
 templ ProfileDropdown(dto *dto.NavBarOption) {
-	<div class="flex justify-center hover:bg-secondary-hover">
+	<div class="flex items-center hover:bg-secondary-hover h-full px-1">
 		<div
 			x-data="{
             open: false,
@@ -44,7 +44,7 @@ templ ProfileDropdown(dto *dto.NavBarOption) {
 				:aria-expanded="open"
 				:aria-controls="$id('dropdown-button')"
 				type="button"
-				class="flex items-center cursor-pointer gap-1 pr-3"
+				class="flex items-center cursor-pointer gap-1 pr-2"
 			>
 				<div class="hidden sm:flex flex-col">
 					<span>{ dto.DisplayName }</span>
