@@ -14,6 +14,5 @@ const (
 
 	//certificates
 	defaultProxyAPIKeySecretKey   = "token"
-	defaultLetsEncryptServerURL   = "https://acme-staging-v02.api.letsencrypt.org/directory"
 	DefaultWidlcardCertificateKey = "cloudness-wildcard"
 )
