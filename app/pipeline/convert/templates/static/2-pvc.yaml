@@ -6,7 +6,10 @@ metadata:
   name: {{ .VolumeName }}
   namespace: {{ $.Namespace }}
   labels:
-    identifier: {{ $.Identifier }}
+    app.kubernetes.io/name: {{ $.Identifier }}
+    app.kubernetes.io/instance: {{ $.Identifier }}
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/managed-by: cloudness
 spec:
   accessModes:
     - ReadWriteOnce

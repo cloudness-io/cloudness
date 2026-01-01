@@ -6,11 +6,14 @@ metadata:
   name: {{ .Identifier }}
   namespace: {{ .Namespace }}
   labels:
-    app: {{ .Identifier }}
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: service
+    app.kubernetes.io/managed-by: cloudness
 spec:
   selector:
-    app: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
   ports:
   {{- range $index, $value := .ServicePorts }}
   - name: {{ $value }}-port
@@ -28,7 +31,10 @@ metadata:
   name: {{ .Identifier }}-http
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/managed-by: cloudness
 spec:
   parentRefs:
   {{ if .ServiceDomain.Websecure }}

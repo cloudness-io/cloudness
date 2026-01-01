@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: cloudness
 
 ---
 apiVersion: v1
@@ -10,7 +12,10 @@ metadata:
   name: {{ .Identifier }}-sa
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: serviceaccount
+    app.kubernetes.io/managed-by: cloudness
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -19,7 +24,10 @@ metadata:
   name: {{ .Identifier }}-role
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/managed-by: cloudness
 rules:
 - apiGroups: [""] # Core API group
   resources: ["services"]
@@ -32,7 +40,10 @@ metadata:
   name: {{ .Identifier }}-rolebinding
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/managed-by: cloudness
 subjects:
 - kind: ServiceAccount
   name: {{ .Identifier }}-sa
@@ -49,7 +60,10 @@ metadata:
   name: {{ .Identifier }}
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: config
+    app.kubernetes.io/managed-by: cloudness
 data:
   {{- range $key, $value := .Variables }}
   {{ $key }}: {{ $value }}
@@ -62,7 +76,10 @@ metadata:
   name: {{ .Identifier }}
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: config
+    app.kubernetes.io/managed-by: cloudness
 type: Opaque
 data:
   {{- range $key, $value := .Secrets }}
