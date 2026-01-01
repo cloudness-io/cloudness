@@ -114,10 +114,6 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 			if err := manager.AddSSLCertificate(ctx, server, kube.DefaultK8sCloudnessName, fqdnURL.Hostname(), certKey, instance.DNSProvider, instance.DNSProviderAuth); err != nil {
 				return err
 			}
-		} else {
-			if err := manager.RemoveSSLCertificate(ctx, server, kube.DefaultK8sCloudnessName, certKey); err != nil {
-				return err
-			}
 		}
 
 		if doAddRoute {
