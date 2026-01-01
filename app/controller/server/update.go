@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/cloudness-io/cloudness/app/usererror"
+	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/check"
 	"github.com/cloudness-io/cloudness/types/enum"
@@ -101,6 +102,10 @@ func (c *Controller) UpdateNetwork(ctx context.Context, in *ServerNetworkUpdateM
 			hostname, err := publicsuffix.EffectiveTLDPlusOne(in.WildCardDomain)
 			if err != nil {
 				return nil, err
+			}
+
+			if strings.HasPrefix(hostname, "https://") {
+				_, _, hostname = helpers.ParseFQDN(hostname)
 			}
 
 			if err := c.proxySvc.ValidateToken(ctx, in.DNSProvider, in.DNSProviderAuth, hostname); err != nil {
