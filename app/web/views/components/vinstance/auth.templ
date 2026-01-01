@@ -86,7 +86,7 @@ templ DemoUser(instance *types.Instance) {
 			Tooltip: "Add new demo user to the system",
 			Disclaimer: `<span x-show="initial.demo_user_enabled !== form.demo_user_enabled && form.demo_user_enabled ===
 			'true'" class="text-error">Demo user
-			comes with its own risk. Make sure you know what you are doing before enabling this.</span>`,
+			comes with its own risk. Make sure you absolutely sure of what you are doing before enabling this.</span>`,
 			Attrs: templ.Attributes{
 				"x-model.boolean": "form.demo_user_enabled",
 				"x-bind:checked":  "form.demo_user_enabled === 'true'",

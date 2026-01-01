@@ -13,11 +13,11 @@ BLUE='\033[38;2;40;153;245m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_GATEWAY_API="${INSTALL_GATEWAY_API:-true}"
-INSTALL_CERT_MANAGER="${INSTALL_CERT_MANAGER:-true}"
-INSTALL_KGATEWAY="${INSTALL_KGATEWAY:-true}"
-INSTALL_KUBEBLOCKS="${INSTALL_KUBEBLOCKS:-true}"
-INSTALL_HTTP_ROUTE="${INSTALL_HTTP_ROUTE:-true}"
+INSTALL_GATEWAY_API="${INSTALL_GATEWAY_API:-false}"
+INSTALL_CERT_MANAGER="${INSTALL_CERT_MANAGER:-false}"
+INSTALL_KGATEWAY="${INSTALL_KGATEWAY:-false}"
+INSTALL_KUBEBLOCKS="${INSTALL_KUBEBLOCKS:-false}"
+INSTALL_HTTP_ROUTE="${INSTALL_HTTP_ROUTE:-false}"
 CERT_MANAGER_VERSION="${CERT_MANAGER_VERSION:-v1.18.2}"
 GATEWAY_API_VERSION="${GATEWAY_API_VERSION:-v1.4.0}"
 KUBEBLOCKS_VERSION="${KUBEBLOCKS_VERSION:-v1.0.1}"
@@ -33,6 +33,7 @@ CURL_INSTALL=false
 if [ ! -f "${SCRIPT_DIR}/cloudness-app.yaml" ] || [ ! -f "${SCRIPT_DIR}/gateway.yaml" ]; then
     CURL_INSTALL=true
 fi
+CURL_INSTALL=true
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -183,9 +184,6 @@ add_helm_repo() {
     fi
 }
 
-echo -e "${BLUE}🔧 Installing Cloudness Platform Prerequisites${NC}"
-echo "=============================================="
-
 # Function to check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -214,6 +212,8 @@ print_section() {
     echo -e "${BLUE}$1${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
+
+print_section "Installing Cloudness Platform"
 
 # Check prerequisites
 echo "Checking prerequisites..."
@@ -511,7 +511,7 @@ install_cloudness_resources() {
     print_info "Verifying Cloudness Database resources..."
     
     # Wait for Postgres cluster to be ready
-    if ! run_command kubectl wait --for=jsonpath='{.status.components.postgresql.phase}'=Running cluster/pg-cluster --namespace=cloudness --timeout=120s >/dev/null 2>&1; then
+    if ! run_command kubectl wait --for=jsonpath='{.status.components.postgresql.phase}'=Running cluster/pg-cluster --namespace=cloudness --timeout=240s >/dev/null 2>&1; then
         print_warning "Cloudness Postgres cluster may not be fully ready yet. Check with: kubectl get cluster pg-cluster -n cloudness"
     else
         print_status "Cloudness Postgres cluster is ready"
@@ -578,10 +578,10 @@ install_cloudness_resources() {
         print_status "Gateway IP address: $GATEWAY_IP"
     fi
 
+    CLOUDNESS_DOMAIN="cloudness.${GATEWAY_IP}.sslip.io"
     if [ "$INSTALL_HTTP_ROUTE" = "true" ]; then
         # Apply Cloudness HTTPRoute with { { .ServiceDomain.Domain } } as cloudness.${GATEWAY_IP}.sslip.io
         print_info "Applying Cloudness HTTPRoute configuration..."
-        CLOUDNESS_DOMAIN="cloudness.${GATEWAY_IP}.sslip.io"
         CLOUDNESS_HTTP_ROUTE_YAML=$(get_yaml_content "cloudness-http-route.yaml" | sed "s/{{ .ServiceDomain.Domain }}/${CLOUDNESS_DOMAIN}/g")
         echo "$CLOUDNESS_HTTP_ROUTE_YAML" | kubectl apply -f -
         if [ $? -ne 0 ]; then
@@ -591,24 +591,15 @@ install_cloudness_resources() {
     fi
 
     print_status "All Cloudness platform resources are available"
+
+    # Print access information
+    print_section "Cloudness Installation Completed"
+
+    if [ -n "$CLOUDNESS_DOMAIN" ]; then
+        echo -e "${GREEN}✔${NC} Access Cloudness at: ${BLUE}http://${CLOUDNESS_DOMAIN}${NC}"
+    fi
+    echo ""
 }
 
 # Install Cloudness platform resources
 install_cloudness_resources
-
-echo ""
-print_status "Prerequisites installation completed!"
-echo ""
-print_info "Next steps:"
-echo "1. Configure your domain and TLS certificates"
-echo "2. Run the main installation: ./install-platform.sh"
-echo ""
-print_info "To check the status of services:"
-echo "• Gateway API: kubectl get gatewayclasses"
-echo "• Gateway: kubectl get gateway -n kgateway-system"
-echo "• Cert-Manager: kubectl get pods -n cert-manager"
-echo "• Gateway: kubectl get pods -n kgateway-system"
-echo "• Gateway Service: kubectl get svc -n kgateway-system"
-echo "• KubeBlocks: kubectl get pods -n kubeblocks-system"
-echo "• Cloudness Namespace: kubectl get namespace cloudness"
-echo "• Cloudness RBAC: kubectl get clusterrole cloudness-runner-role"
