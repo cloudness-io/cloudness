@@ -5,6 +5,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/version"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 )
 
 templ MainNav(dto *dto.NavBarOption) {
@@ -21,7 +22,10 @@ templ MainNav(dto *dto.NavBarOption) {
 			<span class="font-semibold text-md">{ views.AppName }</span>
 			<span class="text-sm text-muted-foreground font-mono">v{ version.GetVersion() }</span>
 		</a>
-		<div class="flex items-center ml-auto space-x-8 hover:bg-secondary-hover">
+		<div class="flex items-center ml-auto space-x-2">
+			<span class="size-6">
+				@shared.AppLinkGithub()
+			</span>
 			@ProfileDropdown(dto)
 		</div>
 	</header>

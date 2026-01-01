@@ -3,6 +3,7 @@ package pages
 import "github.com/cloudness-io/cloudness/app/web/views"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vauth"
+import "github.com/cloudness-io/cloudness/app/web/views/components/footer"
 
 templ RegistrationDisabled() {
 	<div class="flex min-h-full flex-col justify-center px-0 sm:px-6 py-12 lg:px-8">
@@ -33,4 +34,5 @@ templ RegistrationPage() {
 			@vauth.RegisterForm()
 		</div>
 	</div>
+	@footer.Footer()
 }

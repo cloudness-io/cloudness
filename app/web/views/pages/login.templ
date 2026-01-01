@@ -8,6 +8,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/enum"
+	"github.com/cloudness-io/cloudness/app/web/views/components/footer"
 )
 
 templ LoginNoAuth() {
@@ -65,4 +66,5 @@ templ loginPage(userSignupEnabled bool, passwordAuth *types.AuthSetting, oauths 
 			</div>
 		</div>
 	</div>
+	@footer.Footer()
 }
