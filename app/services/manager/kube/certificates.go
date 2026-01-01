@@ -179,6 +179,7 @@ func (m *K8sManager) createOrUpdateIssuer(ctx context.Context, cmclient *cmclien
 	}
 
 	if !issuerExisits {
+		acmeUrl, acmeEmail := m.configSvc.GetAcmeUrl()
 		issuer = &cmv1.Issuer{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      issuerName,
@@ -187,8 +188,8 @@ func (m *K8sManager) createOrUpdateIssuer(ctx context.Context, cmclient *cmclien
 			Spec: cmv1.IssuerSpec{
 				IssuerConfig: cmv1.IssuerConfig{
 					ACME: &cmacme.ACMEIssuer{
-						Email:  "selfhost@cloudness.io",
-						Server: defaultLetsEncryptServerURL,
+						Email:  acmeEmail,
+						Server: acmeUrl,
 						PrivateKey: cmmeta.SecretKeySelector{
 							LocalObjectReference: cmmeta.LocalObjectReference{
 								Name: certLetsEncryptKey(certKey),

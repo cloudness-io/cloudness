@@ -34,6 +34,12 @@ type Config struct {
 	TenantConfig     TenantConfig
 	KubeServerConfig KubeServerConfig
 
+	ACME struct {
+		ACMEUrl    string `envconfig:"CLOUDNESS_ACME_URL" default:"https://acme-v02.api.letsencrypt.org/directory"`
+		Email      string `envconfig:"CLOUDNESS_ACME_EMAIL" default:"cloudness@localhost.com"`
+		UseStaging bool   `envconfig:"CLOUDNESS_ACME_USE_STAGING" default:"false"`
+	}
+
 	// Token defines token configuration parameters.
 	Token struct {
 		CookieName string        `envconfig:"CLOUDNESS_TOKEN_COOKIE_NAME" default:"token"`
