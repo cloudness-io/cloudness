@@ -80,7 +80,6 @@ func deployCommand(
 	// Run the Go-based deployer binary
 	step.AddScriptCmd("cloudness-deploy")
 
-	step.VolumeMounts = append(step.VolumeMounts, getDeployVolumeMount(pCtx))
 	return nil
 }
 

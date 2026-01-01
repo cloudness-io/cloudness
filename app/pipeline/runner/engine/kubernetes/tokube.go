@@ -235,15 +235,13 @@ func toVolumeMounts(s *pipeline.Step) []v1.VolumeMount {
 		})
 	}
 
-	// Add ConfigFileMount volumes
+	// Add ConfigFileMount volumes (mounts ConfigMap files to specified path)
 	for _, cfm := range s.ConfigFileMounts {
-		var items []v1.KeyToPath
-		for _, key := range cfm.Keys {
-			items = append(items, v1.KeyToPath{
-				Key:  key,
-				Path: key, // Use key as filename
-			})
-		}
+		volumeMounts = append(volumeMounts, v1.VolumeMount{
+			Name:      "configfiles",
+			MountPath: cfm.Path,
+			ReadOnly:  true,
+		})
 	}
 
 	return volumeMounts

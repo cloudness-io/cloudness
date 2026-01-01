@@ -30,14 +30,6 @@ func getBuildVolumeMount(in *pipeline.RunnerContext) *pipeline.VolumeMount {
 	}
 }
 
-func getDeployVolumeMount(in *pipeline.RunnerContext) *pipeline.VolumeMount {
-	return &pipeline.VolumeMount{
-		ID:       getDeploymentWorkspaceVolumeId(in),
-		Path:     wsDeployVolumePath,
-		Readonly: false,
-	}
-}
-
 // var replacer
 func replaceEnvVars(input string, vars map[string]*types.Variable) string {
 	var builder strings.Builder
