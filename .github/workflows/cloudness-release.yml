@@ -24,12 +24,12 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  build-cloudness-builder:
-    name: Builder Plugin
+  build-cloudness-helper:
+    name: Helper Plugin
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/_build-builder.yml
+    uses: ./.github/workflows/_build-helper.yml
     with:
       enable-cache: true
     secrets:
@@ -38,7 +38,7 @@ jobs:
 
   upload-scripts:
     name: Upload Scripts
-    needs: [build-cloudness-app, build-cloudness-builder]
+    needs: [build-cloudness-app, build-cloudness-helper]
     permissions:
       contents: read
     uses: ./.github/workflows/_upload-scripts.yml

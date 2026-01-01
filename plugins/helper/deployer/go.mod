@@ -1,4 +1,4 @@
-module github.com/cloudness-io/cloudness/plugins/builder/deployer
+module github.com/cloudness-io/cloudness/plugins/helper/deployer
 
 go 1.25
 

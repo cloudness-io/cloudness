@@ -1,4 +1,4 @@
-name: Build and Push Builder (Reusable)
+name: Build and Push Helper (Reusable)
 
 on:
     workflow_call:
@@ -46,13 +46,13 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Extract metadata (tags, labels) for Builder
+            - name: Extract metadata (tags, labels) for Helper
               id: meta
               uses: docker/metadata-action@v5
               with:
                   images: |
-                      ghcr.io/${{ github.repository }}/builder
-                      ${{ secrets.DOCKERHUB_USERNAME }}/builder
+                      ghcr.io/${{ github.repository }}/helper
+                      ${{ secrets.DOCKERHUB_USERNAME }}/helper
                   tags: |
                       # on git tag push, create a tag with the version number (e.g., v1.2.3)
                       type=ref,event=tag
@@ -61,11 +61,11 @@ jobs:
                       # create a tag with the git sha for every push
                       type=sha
 
-            - name: Build and push Builder Plugin
+            - name: Build and push Helper Plugin
               uses: docker/build-push-action@v5
               with:
-                  context: ./plugins/builder
-                  file: ./plugins/builder/Dockerfile
+                  context: ./plugins/helper
+                  file: ./plugins/helper/Dockerfile
                   push: ${{ inputs.push-images }}
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
