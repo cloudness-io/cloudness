@@ -33,7 +33,7 @@ COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/kubectl
 RUN chmod +x /usr/local/bin/kubectl
 
 # Add deployer binary
-COPY --from=deployer-builder /deployer /usr/local/bin/cloudness-deploy
+COPY --from=deployer-builder /build/deployer /usr/local/bin/cloudness-deploy
 RUN chmod +x /usr/local/bin/cloudness-deploy
 
 # Add shared utilities and scripts
