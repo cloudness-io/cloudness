@@ -12,7 +12,6 @@ import (
 	"github.com/cloudness-io/cloudness/types/enum"
 
 	shlex "github.com/kballard/go-shellquote"
-	"github.com/rs/zerolog/log"
 )
 
 func deployCommand(
@@ -31,18 +30,28 @@ func deployCommand(
 		return err
 	}
 
-	script, common, volume, app, route, err := templates.GenerateKubeTemplates(tmplIn)
+	common, volume, app, route, err := templates.GenerateKubeTemplates(tmplIn)
 	if err != nil {
 		return err
 	}
 
-	step.AddScriptCmd(fmt.Sprintf("cd %s", wsDeployVolumePath))
-	step.AddScriptCmd(script)
+	// Add YAML files as ConfigFiles (will be mounted from ConfigMap)
+	addConfigFile(pCtx, "common.yaml", common)
+	addConfigFile(pCtx, "volume.yaml", volume)
+	addConfigFile(pCtx, "app.yaml", app)
+	addConfigFile(pCtx, "route.yaml", route)
 
-	//General secrets for log sanitization
+	// Mount ConfigFiles to deploy path
+	step.ConfigFileMounts = append(step.ConfigFileMounts, &pipeline.ConfigFileMount{
+		Path: wsDeployVolumePath,
+		Keys: []string{"common.yaml", "volume.yaml", "app.yaml", "route.yaml"},
+	})
+
+	// General secrets for log sanitization
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_APP_IDENTIFIER", name)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_APP_NAMESPACE", namespace)
-	// flags
+
+	// Flags
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_APP_TYPE", string(in.Application.Type))
 	if len(tmplIn.Volumes) > 0 {
 		addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_HAS_VOLUME", "1")
@@ -50,18 +59,16 @@ func deployCommand(
 	if tmplIn.ServiceDomain != nil {
 		addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_HAS_ROUTE", "1")
 	}
-	// kube files
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_COMMON", common)
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_VOLUME", volume)
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_APP", app)
-	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_YAML_ROUTE", route)
 
-	// common
+	// Deploy path for script to find YAML files
+	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_PATH", wsDeployVolumePath)
+
+	// Common deployment info
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_NAMESPACE", namespace)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_NAME", name)
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_TARGET_IMAGE", pullImage)
 
-	// unmount before update volumes ?
+	// Unmount before update volumes?
 	needsRemount := "0"
 	if in.ServerRestctions.UnmountBeforeResize {
 		if needsVolumeRemount(in.Deployment, in.PreviousDeployment) {
@@ -70,8 +77,9 @@ func deployCommand(
 	}
 	addSecret(pCtx, step, "CLOUDNESS_DEPLOY_FLAG_NEED_REMOUNT", needsRemount)
 
-	step.VolumeMounts = append(step.VolumeMounts, getDeployVolumeMount(pCtx))
-	//TODO: check if deployment is enabled
+	// Run the Go-based deployer binary
+	step.AddScriptCmd("cloudness-deploy")
+
 	return nil
 }
 
@@ -171,6 +179,17 @@ func needsVolumeRemount(currDeployment *types.Deployment, prevDeployment *types.
 		}
 	}
 
-	log.Error().Msg("Debug: return 4")
 	return false
+}
+
+// addConfigFile adds a file to the ConfigMap for mounting
+func addConfigFile(pCtx *pipeline.RunnerContext, filename string, content string) {
+	if content == "" {
+		return
+	}
+	pCtx.ConfigFiles = append(pCtx.ConfigFiles, &pipeline.ConfigFile{
+		Key:      filename,
+		Filename: filename,
+		Content:  content,
+	})
 }

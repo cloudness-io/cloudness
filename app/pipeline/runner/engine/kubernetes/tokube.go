@@ -52,6 +52,25 @@ func toSecret(p *pipeline.RunnerContext) *v1.Secret {
 	}
 }
 
+func toConfigMap(p *pipeline.RunnerContext) *v1.ConfigMap {
+	stringData := make(map[string]string)
+	for _, s := range p.Variables {
+		stringData[s.Name] = s.Value
+	}
+
+	// Add ConfigFiles to ConfigMap
+	for _, cf := range p.ConfigFiles {
+		stringData[cf.Key] = cf.Content
+	}
+
+	return &v1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: p.RunnerName,
+		},
+		Data: stringData,
+	}
+}
+
 func toPod(nameSpace string, p *pipeline.RunnerContext) *v1.Pod {
 	resource := toResources(p)
 	return &v1.Pod{
@@ -157,6 +176,20 @@ func toEnv(s *pipeline.Step, p *pipeline.RunnerContext) []v1.EnvVar {
 			},
 		})
 	}
+
+	for _, varEnv := range s.Variables {
+		envs = append(envs, v1.EnvVar{
+			Name: varEnv.Key,
+			ValueFrom: &v1.EnvVarSource{
+				ConfigMapKeyRef: &v1.ConfigMapKeySelector{
+					LocalObjectReference: v1.LocalObjectReference{
+						Name: p.RunnerName,
+					},
+					Key: varEnv.Key,
+				},
+			},
+		})
+	}
 	return envs
 }
 
@@ -174,6 +207,21 @@ func toVolume(p *pipeline.RunnerContext) []v1.Volume {
 			},
 		})
 	}
+
+	// Add ConfigMap volume for file mounts if there are ConfigFiles
+	if len(p.ConfigFiles) > 0 {
+		volumes = append(volumes, v1.Volume{
+			Name: "configfiles",
+			VolumeSource: v1.VolumeSource{
+				ConfigMap: &v1.ConfigMapVolumeSource{
+					LocalObjectReference: v1.LocalObjectReference{
+						Name: p.RunnerName,
+					},
+				},
+			},
+		})
+	}
+
 	return volumes
 }
 
@@ -186,6 +234,16 @@ func toVolumeMounts(s *pipeline.Step) []v1.VolumeMount {
 			ReadOnly:  v.Readonly,
 		})
 	}
+
+	// Add ConfigFileMount volumes (mounts ConfigMap files to specified path)
+	for _, cfm := range s.ConfigFileMounts {
+		volumeMounts = append(volumeMounts, v1.VolumeMount{
+			Name:      "configfiles",
+			MountPath: cfm.Path,
+			ReadOnly:  true,
+		})
+	}
+
 	return volumeMounts
 }
 

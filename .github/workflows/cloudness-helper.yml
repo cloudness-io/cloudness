@@ -1,4 +1,4 @@
-name: Plugin - Builder
+name: Plugin - Helper
 
 on:
   # push:
@@ -15,12 +15,12 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-cloudness-builder:
-    name: Builder Plugin
+  build-cloudness-helper:
+    name: Helper Plugin
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/_build-builder.yml
+    uses: ./.github/workflows/_build-helper.yml
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -37,21 +37,25 @@ type (
 		Steps          []*Step
 		InitSteps      []*Step
 		Secrets        []*Secret
+		Variables      []*Variable
+		ConfigFiles    []*ConfigFile // Files to add to ConfigMap
 		ResourcesLimit *ResourcesLimit
 	}
 
 	Step struct {
-		Name           string
-		Image          string
-		Command        []string
-		Args           []string
-		ScriptCommands []string
-		WorkingDir     string
-		Envs           map[string]string
-		VolumeMounts   []*VolumeMount
-		Secrets        []*SecretEnv
-		Privileged     bool
-		RestartPolicy  RestartPolicy
+		Name             string
+		Image            string
+		Command          []string
+		Args             []string
+		ScriptCommands   []string
+		WorkingDir       string
+		Envs             map[string]string
+		VolumeMounts     []*VolumeMount
+		Secrets          []*SecretEnv
+		Variables        []*VariableEnv
+		ConfigFileMounts []*ConfigFileMount // ConfigMap file mounts
+		Privileged       bool
+		RestartPolicy    RestartPolicy
 
 		//housekeeping
 		Liveness *Liveness
@@ -63,8 +67,30 @@ type (
 		Mask bool
 	}
 
+	Variable struct {
+		Name  string
+		Value string
+	}
+
 	SecretEnv struct {
 		Key string
+	}
+
+	VariableEnv struct {
+		Key string
+	}
+
+	// ConfigFile represents a file to be mounted from ConfigMap
+	ConfigFile struct {
+		Key      string // Key in ConfigMap
+		Filename string // Filename when mounted
+		Content  string // File content
+	}
+
+	// ConfigFileMount represents a mounted ConfigMap as files
+	ConfigFileMount struct {
+		Path string   // Mount path directory
+		Keys []string // Keys to mount as files
 	}
 
 	Volume struct {

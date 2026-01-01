@@ -260,6 +260,9 @@
   .pointer-events-none {
     pointer-events: none;
   }
+  .collapse {
+    visibility: collapse;
+  }
   .invisible {
     visibility: hidden;
   }
@@ -339,6 +342,9 @@
   }
   .left-\[-18px\] {
     left: -18px;
+  }
+  .isolate {
+    isolation: isolate;
   }
   .z-10 {
     z-index: 10;
@@ -571,6 +577,9 @@
   }
   .hidden\! {
     display: none !important;
+  }
+  .inline {
+    display: inline;
   }
   .inline-block {
     display: inline-block;

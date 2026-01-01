@@ -7,9 +7,6 @@ import (
 )
 
 const (
-	// images
-	busyBoxImage = "busybox:1.37.0"
-
 	// workspace volume
 	wsBuildVolumePath = "/cloudness/workspace/build"
 
@@ -25,8 +22,8 @@ var (
 func getBuilderImage() string {
 	ver := version.Version
 	if ver.Major == 0 && ver.Minor == 0 && ver.Patch == 0 {
-		return "cloudnessio/builder:latest"
+		return "cloudnessio/helper:latest"
 	}
 	// Use semver String() which includes prerelease (e.g., "0.1.0-alpha.1")
-	return fmt.Sprintf("cloudnessio/builder:v%s", ver.String())
+	return fmt.Sprintf("cloudnessio/helper:v%s", ver.String())
 }

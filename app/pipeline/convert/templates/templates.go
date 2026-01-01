@@ -3,24 +3,27 @@ package templates
 import (
 	"bytes"
 	"embed"
-	"strings"
 	"text/template"
 )
 
 //go:embed static/*
 var templateFs embed.FS
 
-var statelessTmpl *template.Template
-var statelessScripts *template.Template
-var statefulTmpl *template.Template
-var statefulScripts *template.Template
+var (
+	statelessTmpl    *template.Template
+	statelessScripts *template.Template
+	statefulTmpl     *template.Template
+	statefulScripts  *template.Template
+)
 
 // latest
-var kubeCommon *template.Template
-var kubePVC *template.Template
-var kubeApp *template.Template
-var kubeHttproute *template.Template
-var kubeScripts string
+var (
+	kubeCommon    *template.Template
+	kubePVC       *template.Template
+	kubeApp       *template.Template
+	kubeHttproute *template.Template
+	kubeScripts   string
+)
 
 func init() {
 	statelessTmpl = getTemplate("stateless.yaml")
@@ -32,7 +35,6 @@ func init() {
 	kubePVC = getTemplate("2-pvc.yaml")
 	kubeApp = getTemplate("3-app.yaml")
 	kubeHttproute = getTemplate("4-httproute.yaml")
-	kubeScripts = getFileContent("kube-script.sh")
 }
 
 func getFileContent(fileName string) string {
@@ -90,8 +92,7 @@ type (
 	}
 )
 
-func GenerateKubeTemplates(input *TemplateIn) (script string, common string, pvc string, app string, route string, err error) {
-	script = kubeScripts
+func GenerateKubeTemplates(input *TemplateIn) (common string, pvc string, app string, route string, err error) {
 	common, err = renderTemplate(kubeCommon, input)
 	if err != nil {
 		return
@@ -141,10 +142,7 @@ func GenerateKubeStatefulTemplate(input *TemplateIn) (string, error) {
 }
 
 func formatTemplate(buf bytes.Buffer) string {
-	tmplStr := buf.String()
-	tmplStr = strings.ReplaceAll(tmplStr, "\n", "\\n")
-	tmplStr = strings.ReplaceAll(tmplStr, "  ", "\\t")
-	return tmplStr
+	return buf.String()
 }
 
 func GenerateKubeStatelessScript(input *DeploymentIn) (string, error) {

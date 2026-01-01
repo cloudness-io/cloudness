@@ -5,15 +5,22 @@ metadata:
   name: {{ .Identifier }}
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: app
+    app.kubernetes.io/managed-by: cloudness
 spec:
   selector:
     matchLabels:
-      app: {{ .Identifier }} # Must match .spec.template.metadata.labels
+      app.kubernetes.io/name: {{ .Identifier }}
+      app.kubernetes.io/instance: {{ .Identifier }}
   template:
     metadata:
       labels:
-        app: {{ .Identifier }} # Must match .spec.selector.matchLabels
+        app.kubernetes.io/name: {{ .Identifier }}
+        app.kubernetes.io/instance: {{ .Identifier }}
+        app.kubernetes.io/component: app
+        app.kubernetes.io/managed-by: cloudness
     spec:
       securityContext:
         runAsUser: 1001
@@ -66,7 +73,10 @@ metadata:
   name: {{ .Identifier }}-hpa
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: autoscaling
+    app.kubernetes.io/managed-by: cloudness
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -96,15 +106,22 @@ metadata:
   name: {{ .Identifier }}
   namespace: {{ .Namespace }}
   labels:
-    identifier: {{ .Identifier }}
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: app
+    app.kubernetes.io/managed-by: cloudness
 spec:
   selector:
     matchLabels:
-      app: {{ .Identifier }} # Must match .spec.template.metadata.labels
+      app.kubernetes.io/name: {{ .Identifier }}
+      app.kubernetes.io/instance: {{ .Identifier }}
   template:
     metadata:
       labels:
-        app: {{ .Identifier }} # Must match .spec.selector.matchLabels
+        app.kubernetes.io/name: {{ .Identifier }}
+        app.kubernetes.io/instance: {{ .Identifier }}
+        app.kubernetes.io/component: app
+        app.kubernetes.io/managed-by: cloudness
     spec:
       securityContext:
         runAsUser: 1001

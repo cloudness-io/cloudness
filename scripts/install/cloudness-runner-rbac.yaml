@@ -4,20 +4,22 @@ metadata:
   name: cloudness-runner-role
   namespace: cloudness
 rules:
-  - apiGroups: [''] # '' indicates core apiGroup (don't remove)
-    resources: ['namespaces','serviceaccounts','persistentvolumeclaims','events']
-    verbs: ["get", "list", "create", "patch", "delete"]
+  - apiGroups: [""] # '' indicates core apiGroup (don't remove)
+    resources:
+      ["namespaces", "serviceaccounts", "persistentvolumeclaims", "events"]
+    verbs: ["get", "list", "create", "patch", "delete", "watch"]
   - apiGroups: [""]
-    resources: ["pods", "services",  "endpoints", "configmaps", "secrets"]
+    resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
     verbs: ["get", "list", "create", "patch", "delete"]
-  - apiGroups: ['apps'] # '' indicates core apiGroup (don't remove)
-    resources: ['statefulsets', 'deployments', 'replicasets','controllerrevisions']
+  - apiGroups: ["apps"] # '' indicates core apiGroup (don't remove)
+    resources:
+      ["statefulsets", "deployments", "replicasets", "controllerrevisions"]
     verbs: ["get", "list", "create", "patch", "watch", "delete"]
   - apiGroups: ["autoscaling"]
     resources: ["horizontalpodautoscalers"]
     verbs: ["get", "list", "create", "patch", "delete"]
   - apiGroups: ["rbac.authorization.k8s.io"]
-    resources: ["roles","rolebindings"]
+    resources: ["roles", "rolebindings"]
     verbs: ["get", "list", "create", "patch", "delete"]
   - apiGroups: ["gateway.networking.k8s.io"]
     resources: ["httproutes"]

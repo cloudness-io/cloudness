@@ -30,14 +30,6 @@ func getBuildVolumeMount(in *pipeline.RunnerContext) *pipeline.VolumeMount {
 	}
 }
 
-func getDeployVolumeMount(in *pipeline.RunnerContext) *pipeline.VolumeMount {
-	return &pipeline.VolumeMount{
-		ID:       getDeploymentWorkspaceVolumeId(in),
-		Path:     wsDeployVolumePath,
-		Readonly: false,
-	}
-}
-
 // var replacer
 func replaceEnvVars(input string, vars map[string]*types.Variable) string {
 	var builder strings.Builder
@@ -60,4 +52,33 @@ func replaceEnvVars(input string, vars map[string]*types.Variable) string {
 	}
 
 	return builder.String()
+}
+
+func addSecrets(ctx *pipeline.RunnerContext, step *pipeline.Step, vars map[string]string) {
+	for key, val := range vars {
+		addSecret(ctx, step, key, val)
+	}
+}
+
+func addSecret(ctx *pipeline.RunnerContext, step *pipeline.Step, key string, value string) {
+	ctx.Secrets = append(ctx.Secrets, &pipeline.Secret{
+		Name: key,
+		Data: value,
+		Mask: true,
+	})
+
+	step.Secrets = append(step.Secrets, &pipeline.SecretEnv{
+		Key: key,
+	})
+}
+
+func addVariable(ctx *pipeline.RunnerContext, step *pipeline.Step, key string, value string) {
+	ctx.Variables = append(ctx.Variables, &pipeline.Variable{
+		Name:  key,
+		Value: value,
+	})
+
+	step.Variables = append(step.Variables, &pipeline.VariableEnv{
+		Key: key,
+	})
 }
