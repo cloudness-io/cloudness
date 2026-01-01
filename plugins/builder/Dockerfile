@@ -10,13 +10,13 @@ ARG TARGETPLATFORM
 ARG NIXPACKS_VERSION
 ARG KUBECTL_VERSION
 
-# Build the deployer binary
+# Build the deployer binary (has its own go.mod)
 FROM golang:1.25-alpine AS deployer-builder
 WORKDIR /build
-COPY go.mod go.sum ./
+COPY ../plugins/deployer/go.mod ../plugins/deployer/go.sum ./
 RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /deployer ./plugins/deployer
+COPY ../plugins/deployer/*.go ./
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /plugins/deployer .
 
 FROM bitnami/kubectl:${KUBECTL_VERSION} AS kubectl
 FROM ${BASE_IMAGE} AS base
@@ -37,10 +37,10 @@ COPY --from=deployer-builder /deployer /usr/local/bin/cloudness-deploy
 RUN chmod +x /usr/local/bin/cloudness-deploy
 
 # Add shared utilities and scripts
-COPY plugins/builder/scripts/cloudness-utils.sh /usr/local/lib/cloudness-utils.sh
-COPY plugins/builder/scripts/init-script.sh /usr/local/lib/init-script.sh
-COPY plugins/builder/scripts/build-script.sh /usr/local/lib/build-script.sh
-COPY plugins/builder/scripts/deploy-script.sh /usr/local/lib/deploy-script.sh
+COPY scripts/cloudness-utils.sh /usr/local/lib/cloudness-utils.sh
+COPY scripts/init-script.sh /usr/local/lib/init-script.sh
+COPY scripts/build-script.sh /usr/local/lib/build-script.sh
+COPY scripts/deploy-script.sh /usr/local/lib/deploy-script.sh
 RUN chmod +x /usr/local/lib/cloudness-utils.sh /usr/local/lib/init-script.sh /usr/local/lib/build-script.sh /usr/local/lib/deploy-script.sh
 
 # Auto-source utilities for all sh scripts
