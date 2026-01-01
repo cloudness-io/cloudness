@@ -1,0 +1,20 @@
+package footer
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+
+templ Footer() {
+	<div class="flex flex-col justify-center min-h-full mt-auto px-0 sm:px-6 py-12 lg:px-8">
+		<div class="mx-auto min-w-xs sm:max-w-md">
+			<div class="flex justify-center space-x-6">
+				<span class="size-6">
+					@shared.AppLinkGithub()
+				</span>
+			</div>
+			<div>
+				<p class="text-center text-xs leading-5 text-gray-500">
+					© 2025 Cloudness. All rights reserved.
+				</p>
+			</div>
+		</div>
+	</div>
+}

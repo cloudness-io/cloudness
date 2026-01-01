@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views"
+	"github.com/cloudness-io/cloudness/app/web/views/components/footer"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vauth"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
@@ -65,4 +66,5 @@ templ loginPage(userSignupEnabled bool, passwordAuth *types.AuthSetting, oauths 
 			</div>
 		</div>
 	</div>
+	@footer.Footer()
 }

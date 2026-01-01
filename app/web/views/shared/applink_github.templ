@@ -1,0 +1,9 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views"
+
+templ AppLinkGithub() {
+	<a class="w-full h-full opacity-70 hover:opacity-100" target="_blank" href="https://github.com/cloudness-io/cloudness" class="flex items-center space-x-1">
+		<img src={ views.Asset("github.svg") }/>
+	</a>
+}

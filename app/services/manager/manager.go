@@ -21,7 +21,7 @@ type ServerManager interface {
 	AddSSLCertificate(ctx context.Context, server *types.Server, namespace, dns, certKey string, dnsProvider enum.DNSProvider, dnsAuthKey string) error
 	RemoveSSLCertificate(ctx context.Context, server *types.Server, namespace, certKey string) error
 	ListCertificates(ctx context.Context, server *types.Server) ([]*types.Certificate, error)
-	
+
 	AddHttpRoute(ctx context.Context, server *types.Server, namespace, key, service string, port int32, host string, httpScheme string) error
 	RemoveHttpRoute(ctx context.Context, server *types.Server, namespace, key string) error
 
