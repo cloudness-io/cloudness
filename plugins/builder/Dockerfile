@@ -13,10 +13,10 @@ ARG KUBECTL_VERSION
 # Build the deployer binary (has its own go.mod)
 FROM golang:1.25-alpine AS deployer-builder
 WORKDIR /build
-COPY ../plugins/deployer/go.mod ../plugins/deployer/go.sum ./
+COPY ./deployer/go.mod ./deployer/go.sum ./
 RUN go mod download
-COPY ../plugins/deployer/*.go ./
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /plugins/deployer .
+COPY ./deployer/*.go ./
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o ./deployer .
 
 FROM bitnami/kubectl:${KUBECTL_VERSION} AS kubectl
 FROM ${BASE_IMAGE} AS base
