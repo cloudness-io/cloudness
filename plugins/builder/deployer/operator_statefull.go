@@ -196,7 +196,7 @@ func (k *StatefulOperator) waitForPVC(ctx context.Context, name string) error {
 	}
 	defer watcher.Stop()
 
-	k.log.Info("Waiting for volume '%s'...", name)
+	k.log.Info("Waiting for volume...", name)
 
 	for {
 		select {
@@ -232,15 +232,11 @@ func (k *StatefulOperator) isPVCReady(pvc *corev1.PersistentVolumeClaim) bool {
 		return true
 	}
 
-	// WaitForFirstConsumer - consider ready (will bind when pod schedules)
+	// For Pending PVCs, check if they're waiting for first consumer
 	if pvc.Status.Phase == corev1.ClaimPending {
-		if pvc.Spec.StorageClassName != nil {
-			// Check for WaitForFirstConsumer annotation
-			if ann := pvc.Annotations; ann != nil {
-				if ann["volume.kubernetes.io/selected-node"] != "" {
-					return true
-				}
-			}
+		// Check events to see if it's WaitForFirstConsumer
+		if k.hasWaitForFirstConsumerEvent(pvc.Name) {
+			return true
 		}
 	}
 
@@ -248,6 +244,29 @@ func (k *StatefulOperator) isPVCReady(pvc *corev1.PersistentVolumeClaim) bool {
 	for _, cond := range pvc.Status.Conditions {
 		if cond.Type == corev1.PersistentVolumeClaimFileSystemResizePending && cond.Status == corev1.ConditionTrue {
 			k.log.Info("Volume %s resized. Remounting application to finalize.", pvc.Name)
+			return true
+		}
+	}
+
+	return false
+}
+
+// hasWaitForFirstConsumerEvent checks if the PVC has a WaitForFirstConsumer event
+func (k *StatefulOperator) hasWaitForFirstConsumerEvent(pvcName string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	events, err := k.clientset.CoreV1().Events(k.config.AppNamespace).List(ctx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("involvedObject.kind=PersistentVolumeClaim,involvedObject.name=%s", pvcName),
+	})
+	if err != nil {
+		k.log.Debug("Failed to get events for PVC %s: %v", pvcName, err)
+		return false
+	}
+
+	// Check if any event has WaitForFirstConsumer reason
+	for _, event := range events.Items {
+		if event.Reason == "WaitForFirstConsumer" {
 			return true
 		}
 	}

@@ -8,7 +8,7 @@
 readonly CLOUDNESS_RED='\033[1;31m'
 readonly CLOUDNESS_GREEN='\033[1;32m'
 readonly CLOUDNESS_YELLOW='\033[1;33m'
-readonly CLOUDNESS_BLUE='\033[0;34m'
+readonly CLOUDNESS_BLUE='\033[38;2;40;153;245m'
 readonly CLOUDNESS_NC='\033[0m'
 
 # ==============================================================================
@@ -42,7 +42,6 @@ log_debug() {
 }
 
 print_section() {
-    printf "\n"
     printf "${CLOUDNESS_BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${CLOUDNESS_NC}\n"
     printf "${CLOUDNESS_BLUE}  %s${CLOUDNESS_NC}\n" "$1"
     printf "${CLOUDNESS_BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${CLOUDNESS_NC}\n"
