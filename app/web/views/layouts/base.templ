@@ -87,6 +87,7 @@ templ baseLayout() {
 			<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js" hx-preserve="true"></script>
 			<script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.32.1/humanize-duration.min.js" hx-preserve="true"></script>
 			@shared.ExternalScripts(request.InstanceSettingsFrom(ctx))
+			@shared.AdditionalScripts(request.InstanceSettingsFrom(ctx))
 		</head>
 		<body
 			x-data="{theme: 'dark'}"

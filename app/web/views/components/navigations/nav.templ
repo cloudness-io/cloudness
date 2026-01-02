@@ -15,12 +15,12 @@ templ MainNav(dto *dto.NavBarOption) {
 		class="h-12 grid grid-flow-col pl-4 min-w-full border-b bg-secondary"
 	>
 		<a
-			class="flex items-center space-x-1 md:w-auto md:min-w-0 text-brand text-xl cursor-pointer"
+			class="flex items-center space-x-1.5 max-w-max text-brand text-xl cursor-pointer"
 			hx-get={ routes.TenantCtx(ctx) }
 		>
 			<img src={ views.Asset("logo.svg") } class="h-5 w-auto" alt="logo"/>
 			<span class="font-semibold text-md">{ views.AppName }</span>
-			<span class="text-sm text-muted-foreground font-mono">v{ version.GetVersion() }</span>
+			<span class="text-xs text-muted-foreground font-mono mt-2">v{ version.GetVersion() }</span>
 		</a>
 		<div class="flex items-center ml-auto space-x-2">
 			<span class="size-6">

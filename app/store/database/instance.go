@@ -50,6 +50,7 @@ const instanceColumns = `
 	,instance_registry_mirror_enabled
 	,instance_registry_mirror_size
 	,instance_external_scripts
+	,instance_additional_scripts
 	,instance_created
 	,instance_updated`
 
@@ -71,6 +72,7 @@ INSERT INTO instances (
 	,instance_registry_mirror_enabled
 	,instance_registry_mirror_size
 	,instance_external_scripts
+	,instance_additional_scripts
 	,instance_created
 	,instance_updated
 ) VALUES (
@@ -90,6 +92,7 @@ INSERT INTO instances (
 	,:instance_registry_mirror_enabled
 	,:instance_registry_mirror_size
 	,:instance_external_scripts
+	,:instance_additional_scripts
 	,:instance_created
 	,:instance_updated
 ) RETURNING instance_id
@@ -155,6 +158,7 @@ func (s *InstanceStore) Update(ctx context.Context, instance *types.Instance) (*
 		,instance_registry_mirror_enabled = :instance_registry_mirror_enabled
 		,instance_registry_mirror_size = :instance_registry_mirror_size
 		,instance_external_scripts = :instance_external_scripts
+		,instance_additional_scripts = :instance_additional_scripts
 		,instance_created = :instance_created
 		,instance_updated = :instance_updated
 	WHERE instance_id = 1`

@@ -83,70 +83,39 @@ We actively welcome your pull requests:
 - Node.js (latest stable version)
 - Docker (for local testing)
 - Kubernetes cluster (for integration testing)
-- PostgreSQL (for local development)
 
 ### Setup Steps
 
-1. **Clone the repository:**
+- **Clone the repository:**
 
 ```bash
 git clone https://github.com/cloudness-io/cloudness.git
 cd cloudness
 ```
 
-1. **Install dependencies:**
+- **Install dependencies:**
 
 ```bash
 make dep
 make tools
 ```
 
-1. **Build the project:**
+- **Run the development server:**
 
 ```bash
-make build
+make dev
 ```
 
-1. **Set up PostgreSQL:**
+- **Access the UI:**
 
-```bash
-docker run --name cloudness-pg \
-  -e POSTGRES_PASSWORD=postgrespwd \
-  -e POSTGRES_USER=cloudnessusr \
-  -p 5432:5432 \
-  -d postgres:latest
-```
-
-1. **Configure environment:**
-
-Create a `.env` file in the project root:
-
-```bash
-CLOUDNESS_DATABASE_DRIVER=postgres
-CLOUDNESS_DATABASE_HOST=localhost
-CLOUDNESS_DATABASE_PORT=5432
-CLOUDNESS_DATABASE_NAME=cloudness
-CLOUDNESS_DATABASE_USER=cloudnessusr
-CLOUDNESS_DATABASE_PASSWORD=postgrespwd
-CLOUDNESS_DEBUG=true
-```
-
-1. **Run the application:**
-
-```bash
-./cloudness server .env
-```
-
-1. **Access the UI:**
-
-Open your browser at `http://localhost:8000`
+Open your browser at `http://localhost:7331`
 
 ## Coding Standards
 
 ### Go Code
 
 - Follow [Effective Go](https://golang.org/doc/effective_go.html) guidelines
-- Use `gofmt` to format your code
+- Use `make format` to format your code
 - Run `go vet` to catch common mistakes
 - Use meaningful variable and function names
 - Add comments for exported functions and complex logic
@@ -171,7 +140,7 @@ func ProcessDeployment(ctx context.Context, spec *DeploymentSpec) error {
 ### Frontend Code
 
 - Follow [Templ](https://templ.guide/) best practices for Go templates
-- Use `templ fmt` to format template files
+- Use `make format` to format template files
 - Write semantic HTML in templ components
 - Use Tailwind CSS utility classes consistently
 - Keep components small and reusable

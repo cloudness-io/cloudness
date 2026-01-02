@@ -25,6 +25,7 @@ type Instance struct {
 	RegistryMirrorEnabled bool             `db:"instance_registry_mirror_enabled"   json:"registry_mirror_enabled,string"`
 	RegistryMirrorSize    int64            `db:"instance_registry_mirror_size"      json:"registry_mirror_size"`
 	ExternalScripts       string           `db:"instance_external_scripts"          json:"external_scripts"`
+	AdditionalScripts     string           `db:"instance_additional_scripts"        json:"additional_scripts"`
 	Created               int64            `db:"instance_created"                   json:"-"`
 	Updated               int64            `db:"instance_updated"                   json:"-"`
 }

@@ -25,6 +25,7 @@ templ Settings(instance *types.Instance, server *types.Server) {
 									DNSValidationEnabled: instance.DNSValidationEnabled,
 									DNSServers: instance.DNSServers,
 									ExternalScripts: instance.ExternalScripts,
+									AdditionalScripts: instance.AdditionalScripts,
 						}) }
 			x-data={ xdata.ToFormData(instance) }
 			x-clock
@@ -83,13 +84,23 @@ templ Settings(instance *types.Instance, server *types.Server) {
 					"x-model": "form.dns_servers",
 				},
 			})
-			<h4 class="mt-2">External Scripts</h4>
+			<h4 class="mt-2">Scripts</h4>
 			@shared.Textarea(&shared.TextareaProps{
-				Name:    "external_scripts",
-				Label:   "External Scripts",
-				Tooltip: "External scripts to be loaded in the dashboard,e.g. analytics",
+				Name:        "external_scripts",
+				Label:       "External Javascript",
+				Tooltip:     "External javascript to be loaded in the dashboard",
+				Placeholder: "var data=`test` \nconsole.log(data)",
 				Attrs: templ.Attributes{
 					"x-model": "form.external_scripts",
+				},
+			})
+			@shared.Textarea(&shared.TextareaProps{
+				Name:        "additional_scripts",
+				Label:       "Additional Scripts",
+				Tooltip:     "Additional scripts to be loaded in the dashboard",
+				Placeholder: "<script>function alert(){...}</script>\n<script>console.log('test')</script>",
+				Attrs: templ.Attributes{
+					"x-model": "form.additional_scripts",
 				},
 			})
 			@shared.UpdateDiv("/settings")
