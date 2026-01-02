@@ -1,9 +1,16 @@
 package shared
 
 import "github.com/cloudness-io/cloudness/types"
+import "strings"
 
 templ ExternalScripts(instance *types.Instance, ok bool) {
 	if ok && instance.ExternalScripts!= "" {
 		@templ.Raw("<script hx-preserve='true'>" + instance.ExternalScripts + "</script>")
+	}
+}
+
+templ AdditionalScripts(instance *types.Instance, ok bool) {
+	if ok && instance.AdditionalScripts!= "" {
+		@templ.Raw(strings.ReplaceAll(instance.AdditionalScripts, "<script", "<script hx-preserve='true'"))
 	}
 }

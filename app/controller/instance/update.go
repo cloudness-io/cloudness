@@ -22,6 +22,7 @@ type InstanceUpdateInput struct {
 	DNSValidationEnabled bool             `json:"dns_validation_enabled,string"`
 	DNSServers           string           `json:"dns_servers"`
 	ExternalScripts      string           `json:"external_scripts"`
+	AdditionalScripts    string           `json:"additional_scripts"`
 }
 
 type InstanceRegistryUpdateInput struct {
@@ -103,6 +104,7 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 	instance.DNSValidationEnabled = in.DNSValidationEnabled
 	instance.DNSServers = in.DNSServers
 	instance.ExternalScripts = in.ExternalScripts
+	instance.AdditionalScripts = in.AdditionalScripts
 
 	err = c.tx.WithTx(ctx, func(ctx context.Context) error {
 		manager, err := c.factory.GetServerManager(server)
