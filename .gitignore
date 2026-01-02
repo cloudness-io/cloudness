@@ -24,5 +24,7 @@ tmp/
 *.sqlite3
 *.sqlite3-shm
 *.sqlite3-wal
+
+#dev generated
 app/web/public/assets/index.js
 app/web/public/assets/styles.css
