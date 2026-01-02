@@ -5,6 +5,7 @@ import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/helpers"
 import "github.com/cloudness-io/cloudness/app/services/spec"
+import "strings"
 
 templ Image(app *types.Application) {
 	@shared.Icon(spec.GetSourceIcon(app), "")
@@ -34,14 +35,25 @@ func getSourceLink(spec *types.ApplicationSpec) templ.Component {
 
 		return gitLink(owner+"/"+repo, httpUrl, branch, commit, commitUrl)
 	} else if spec.IsRegistry() {
-		return getRegistryLink(spec.Build.Source.Registry.Image)
+		imageUrl := spec.Build.Source.Registry.Image
+		if !strings.HasPrefix(imageUrl, "https://") {
+			imageUrl = "https://hub.docker.com/r/" + strings.TrimSpace(imageUrl)
+		}
+		//remove tag if present
+		imageUrl = removeTag(imageUrl)
+		return getRegistryLink(spec.Build.Source.Registry.Image, imageUrl)
 	}
 	return emptyLink("unknow source")
 }
 
-templ getRegistryLink(image string) {
-	<a href={ templ.SafeURL(image) } target="_blank" hx-on:click="event.stopPropagation()" class="flex gap-1">
-		<p>{ image }</p>
+templ getRegistryLink(imageName string, imageUrl string) {
+	<a
+		href={ templ.SafeURL(imageUrl) }
+		target="_blank"
+		hx-on:click="event.stopPropagation()"
+		class="flex gap-1	hover:text-link"
+	>
+		<p>{ imageName }</p>
 	</a>
 }
 
@@ -67,4 +79,15 @@ templ gitLink(name string, httpURL string, branch string, commit string, commitU
 
 templ emptyLink(errMsg string) {
 	<p aria-errormessage={ errMsg }></p>
+}
+
+func removeTag(imageName string) string {
+	// Find the last colon, which typically separates name and tag
+	if i := strings.LastIndex(imageName, ":"); i != -1 {
+		// Ensure we don't accidentally split a port in a registry URL (e.g., localhost:5000/img)
+		if !strings.Contains(imageName[i:], "/") {
+			return imageName[:i]
+		}
+	}
+	return imageName
 }
