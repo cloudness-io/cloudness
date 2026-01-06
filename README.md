@@ -190,6 +190,7 @@ Built using:
 - [Go](https://golang.org/)
 - [Kubernetes](https://kubernetes.io/)
 - [Templ](https://templ.guide/)
+- [HTMX](https://htmx.org/)
 - [Alpine.js](https://alpinejs.dev/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Drone SCM](https://github.com/drone/go-scm)
