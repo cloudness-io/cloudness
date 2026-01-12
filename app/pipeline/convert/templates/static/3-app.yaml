@@ -23,14 +23,26 @@ spec:
         app.kubernetes.io/managed-by: cloudness
     spec:
       securityContext:
+        runAsNonRoot: true
         runAsUser: 1001
         fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: {{ .Identifier }}-sa
       terminationGracePeriodSeconds: 10
       automountServiceAccountToken: false
+      enableServiceLinks: false
       containers:
       - name: app
         image: {{ .Image }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
         {{- if .Command }}
         command:
           {{- range .Command }}
@@ -50,6 +62,23 @@ spec:
           name: port-{{ $value }}
         {{- end }}
         env:
+        # Unset Kubernetes service discovery environment variables
+        - name: KUBERNETES_SERVICE_HOST
+          value: ""
+        - name: KUBERNETES_SERVICE_PORT
+          value: ""
+        - name: KUBERNETES_SERVICE_PORT_HTTPS
+          value: ""
+        - name: KUBERNETES_PORT
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP_PROTO
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP_PORT
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP_ADDR
+          value: ""
         {{- range $key, $value:= .Variables }}
         - name: {{ $key }} 
           valueFrom:
@@ -64,7 +93,6 @@ spec:
               name: {{ $.Identifier }}
               key: {{ $key }}
         {{ end }}
-      enableServiceLinks: false
 
 ---
 apiVersion: autoscaling/v2
@@ -124,14 +152,25 @@ spec:
         app.kubernetes.io/managed-by: cloudness
     spec:
       securityContext:
+        runAsNonRoot: true
         runAsUser: 1001
         fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: {{ .Identifier }}-sa
       terminationGracePeriodSeconds: 10
       automountServiceAccountToken: false
       containers:
       - name: app
         image: {{ .Image }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
         {{- if .Command }}
         command:
           {{- range .Command }}
@@ -156,6 +195,23 @@ spec:
           mountPath: {{ .MountPath }}
         {{- end }}
         env:
+        # Unset Kubernetes service discovery environment variables
+        - name: KUBERNETES_SERVICE_HOST
+          value: ""
+        - name: KUBERNETES_SERVICE_PORT
+          value: ""
+        - name: KUBERNETES_SERVICE_PORT_HTTPS
+          value: ""
+        - name: KUBERNETES_PORT
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP_PROTO
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP_PORT
+          value: ""
+        - name: KUBERNETES_PORT_443_TCP_ADDR
+          value: ""
         {{- range $key, $value:= .Variables }}
         - name: {{ $key }} 
           valueFrom:
@@ -170,7 +226,6 @@ spec:
               name: {{ $.Identifier }}
               key: {{ $key }}
         {{ end }}
-      enableServiceLinks: false
       volumes:
       {{- range .Volumes }}
       - name: {{ .VolumeName }}
