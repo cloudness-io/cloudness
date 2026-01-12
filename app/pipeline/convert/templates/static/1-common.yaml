@@ -3,6 +3,7 @@ kind: Namespace
 metadata:
   name: {{ .Namespace }}
   labels:
+    apiserver-proxy.networking.gardener.cloud/inject: "disable"
     app.kubernetes.io/managed-by: cloudness
 
 ---
