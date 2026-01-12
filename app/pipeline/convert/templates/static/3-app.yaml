@@ -32,6 +32,10 @@ spec:
       terminationGracePeriodSeconds: 10
       automountServiceAccountToken: false
       enableServiceLinks: false
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      dnsPolicy: ClusterFirst
       containers:
       - name: app
         image: {{ .Image }}
@@ -160,6 +164,11 @@ spec:
       serviceAccountName: {{ .Identifier }}-sa
       terminationGracePeriodSeconds: 10
       automountServiceAccountToken: false
+      enableServiceLinks: false
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      dnsPolicy: ClusterFirst
       containers:
       - name: app
         image: {{ .Image }}

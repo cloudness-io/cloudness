@@ -86,3 +86,53 @@ data:
   {{- range $key, $value := .Secrets }}
   {{ $key }}: {{ $value }}
   {{ end }}
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: {{ .Identifier }}-netpol
+#   namespace: {{ .Namespace }}
+#   labels:
+#     app.kubernetes.io/name: {{ .Identifier }}
+#     app.kubernetes.io/instance: {{ .Identifier }}
+#     app.kubernetes.io/component: network-policy
+#     app.kubernetes.io/managed-by: cloudness
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Identifier }}
+#       app.kubernetes.io/instance: {{ .Identifier }}
+#   policyTypes:
+#   - Ingress
+#   - Egress
+#   ingress:
+#   # Allow ingress from anywhere within the namespace
+#   - from:
+#     - namespaceSelector:
+#         matchLabels:
+#           kubernetes.io/metadata.name: {{ .Namespace }}
+#   # Allow ingress from HTTP gateway (kgateway.dev)
+#   - from:
+#     - namespaceSelector: {}
+#       podSelector:
+#         matchLabels:
+#           app.kubernetes.io/name: kgateway
+#   egress:
+#   # Allow DNS resolution
+#   - to:
+#     - namespaceSelector:
+#         matchLabels:
+#           kubernetes.io/metadata.name: kube-system
+#     ports:
+#     - protocol: UDP
+#       port: 53
+#     - protocol: TCP
+#       port: 53
+#   # Allow egress within the same namespace only
+#   - to:
+#     - namespaceSelector:
+#         matchLabels:
+#           kubernetes.io/metadata.name: {{ .Namespace }}
+#   # Block access to Kubernetes API server (10.43.0.1 or 10.96.0.1 typically)
+#   # The above rules implicitly deny everything else including API server access
