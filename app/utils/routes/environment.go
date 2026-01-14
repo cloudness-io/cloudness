@@ -15,6 +15,7 @@ const (
 	EnvironmentSettings    = "/settings"
 	EnvironmentDelete      = "/delete"
 	EnvironmentVolumes     = "/volumes"
+	EnvironmentNav         = "/nav"
 )
 
 func Environment(uid int64) string {
@@ -28,6 +29,10 @@ func EnvironmentCreate() string {
 func EnvironmentCtx(ctx context.Context) string {
 	environment, _ := request.EnvironmentFrom(ctx)
 	return fmt.Sprintf("%s/environment/%d", ProjectCtx(ctx), environment.UID)
+}
+
+func EnvironmentCtxUID(ctx context.Context, envUID int64) string {
+	return fmt.Sprintf("%s/environment/%d", ProjectCtx(ctx), envUID)
 }
 
 func EnvironmentApplicationCtx(ctx context.Context) string {

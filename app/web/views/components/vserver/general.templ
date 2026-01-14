@@ -19,7 +19,7 @@ templ generalSetting(server *types.Server) {
 							Name: server.Name,
 							Description: server.Description,
 			}) }
-		x-clock
+		x-cloak
 	>
 		@shared.Input(&shared.InputProps{
 			Name:  "name",

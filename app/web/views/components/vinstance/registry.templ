@@ -18,7 +18,7 @@ templ Registry(instance *types.Instance) {
 		<form
 			class="flex flex-col gap-5 w-full mt-2"
 			x-data={ xdata.ToFormData(instance) }
-			x-clock
+			x-cloak
 		>
 			@shared.CheckBox(&shared.CheckBoxProps{
 				Name:    "registry_enabled",

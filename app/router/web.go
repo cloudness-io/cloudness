@@ -247,8 +247,8 @@ func setupTenant(r chi.Router,
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTenantUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectTenant(tenantCtrl))
 				r.Get("/", handlertenant.HandleGet(tenantCtrl, projectCtrl))
-				setupProject(r, appCtx, tenantCtrl, projectCtrl, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
 				r.Get("/favorites", handlerfavorite.HandleListFavorites(favCtrl))
+				setupProject(r, appCtx, tenantCtrl, projectCtrl, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
 
 				// Admin routes
 				r.Route("/", func(r chi.Router) {
@@ -292,6 +292,7 @@ func setupProject(r chi.Router,
 			r.Use(middlewarerestrict.ToTeamAdmin())
 			r.Post("/", handlerproject.HandleAdd(projectCtrl))
 		})
+		r.Get("/nav", handlerproject.HandleListNavigation(projectCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamProjectUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectProject(projectCtrl))
 			r.Use(middlewarerestrict.ToProjectRole())
@@ -332,6 +333,7 @@ func setupEnvionment(r chi.Router,
 	r.Route("/environment", func(r chi.Router) {
 		r.Get("/", handlerenvironment.HandleList(envCtrl))
 		r.Post("/create", handlerenvironment.HandleAdd(envCtrl))
+		r.Get("/nav", handlerenvironment.HandleListNavigation(envCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamEnvironmentUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectEnvironment(envCtrl))
 			r.Route("/", func(r chi.Router) {
@@ -354,6 +356,7 @@ func setupEnvionment(r chi.Router,
 func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment.Controller, appCtrl *application.Controller, varCtrl *variable.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, deploymentCtrl *deployment.Controller, logsCtrl *logs.Controller, volumeCtrl *volume.Controller, templCtrl *template.Controller, favCtrl *favorite.Controller) {
 	r.Route("/application", func(r chi.Router) {
 		r.Get("/", handlerapplication.HandleList(envCtrl, appCtrl))
+		r.Get("/nav", handlerapplication.HandleListNavigation(appCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamApplicationUID), func(r chi.Router) {
 			//Inject application here
 			r.Use(middlewareinject.InjectApplication(appCtrl))

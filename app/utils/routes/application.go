@@ -35,6 +35,8 @@ const (
 	AppNetworkTCP          = "network/tcp"
 	AppFavorite            = "favorite"
 
+	AppNav = "/nav"
+
 	AppSourceGithub    = "source/github"
 	AppSourceGitPublic = "source/git-public"
 	AppSourceRegistry  = "source/registry"
@@ -51,6 +53,10 @@ func ApplicationCreate(envUID int64) string {
 func ApplicationCtx(ctx context.Context) string {
 	app, _ := request.ApplicationFrom(ctx)
 	return fmt.Sprintf("%s/application/%d", EnvironmentCtx(ctx), app.UID)
+}
+
+func ApplicationCtxUID(ctx context.Context, appUID int64) string {
+	return fmt.Sprintf("%s/application/%d", EnvironmentCtx(ctx), appUID)
 }
 
 func ApplicationProject(projectUID, envUID, appUID int64) string {

@@ -17,6 +17,7 @@ const (
 	ProjectMembers     = "members"
 	ProjectSettings    = "settings"
 	ProjectDelete      = "delete"
+	ProjectNav         = "/nav"
 
 	ProjectSourceGithub = "source/github"
 )
@@ -32,6 +33,10 @@ func ProjectCreate() string {
 func ProjectCtx(ctx context.Context) string {
 	project, _ := request.ProjectFrom(ctx)
 	return fmt.Sprintf("%s/project/%d", TenantCtx(ctx), project.UID)
+}
+
+func ProjectCtxUID(ctx context.Context, projectUID int64) string {
+	return fmt.Sprintf("%s/project/%d", TenantCtx(ctx), projectUID)
 }
 
 func ProjectGithubCtx(ctx context.Context, ghApp *types.GithubApp) string {
