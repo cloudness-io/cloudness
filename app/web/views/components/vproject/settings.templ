@@ -30,7 +30,7 @@ templ projectGeneralSettings(project *types.Project) {
 	<form
 		class="flex flex-col place-items-baseline mt-2 gap-2"
 		x-data={ xdata.ToFormData(&projectGeneralForm{project.Name, project.Description}) }
-		x-clock
+		x-cloak
 	>
 		@shared.Input(&shared.InputProps{
 			Name:  "name",

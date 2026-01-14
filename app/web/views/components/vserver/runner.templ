@@ -23,7 +23,7 @@ templ runnerSettings(server *types.Server) {
 							MaxCPUPerBuild: server.MaxCPUPerBuild,
 							MaxMemoryPerBuild: server.MaxMemoryPerBuild,
 			}) }
-		x-clock
+		x-cloak
 		hx-push-url="false"
 	>
 		@shared.CheckBox(&shared.CheckBoxProps{

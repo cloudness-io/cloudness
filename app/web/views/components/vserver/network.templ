@@ -23,7 +23,7 @@ templ networkSetting(server *types.Server) {
 										DNSProvider: server.DNSProvider,
 										DNSProviderAuth: server.DNSProviderAuth,
 						}) }
-		x-clock
+		x-cloak
 		hx-push-url="false"
 	>
 		@shared.Input(&shared.InputProps{

@@ -24,7 +24,7 @@ templ Settings(tenant *types.Tenant) {
 		<form
 			class="flex flex-col place-items-baseline my-2 gap-2"
 			x-data={ xdata.ToFormData(&tenantGeneralForm{tenant.Name, tenant.Description}) }
-			x-clock
+			x-cloak
 		>
 			@shared.Input(&shared.InputProps{
 				Name:  "name",

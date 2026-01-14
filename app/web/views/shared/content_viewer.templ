@@ -25,7 +25,7 @@ templ ContentViewer(props *ContentViewerProps) {
 			class="w-[100%] sm:w-[80%] min-h-full border-l-0 sm:border-l sm:border-r border-divider border-opacity-[8%] mx-2 sm:mx-6"
 		>
 			for _,section := range props.Sections {
-				<section class="relative pb-5 scroll-mt-32" id={ strings.ToLower(section.Name) }>
+				<section class="relative pb-5" id={ strings.ToLower(section.Name) }>
 					<div
 						class={ "text-base absolute hidden! sm:flex! top-[-6px] left-[-18px] border rounded-full p-[8px] bg-primary", section.HeaderClass }
 						size="40"

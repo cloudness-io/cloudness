@@ -28,7 +28,7 @@ templ Settings(instance *types.Instance, server *types.Server) {
 									AdditionalScripts: instance.AdditionalScripts,
 						}) }
 			x-data={ xdata.ToFormData(instance) }
-			x-clock
+			x-cloak
 		>
 			@shared.Input(&shared.InputProps{
 				Name:  "fqdn",
