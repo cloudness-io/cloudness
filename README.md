@@ -1,6 +1,6 @@
 # Cloudness
 
-An open-source & self-hostable alternative to Heroku / Netlify / Vercel for Kubernetes.
+An open-source, self-hostable application platform for building and operating applications on Kubernetes.
 
 <!-- [![License](https://img.shields.io/github/license/cloudness-io/cloudness)](LICENSE)
 [![Build Status](https://github.com/cloudness-io/cloudness/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/cloudness-io/cloudness/actions)
