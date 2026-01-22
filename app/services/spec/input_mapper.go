@@ -100,8 +100,8 @@ func (s *Service) ToApplication(ctx context.Context, in *types.ApplicationInput,
 func (s *Service) ToGeneralSettings(in *types.ApplicationInput, application *types.Application, spec *types.ApplicationSpec) {
 	var name, description, icon string
 	//Name
-	if in.Name != "" {
-		name = in.Name
+	if in.GeneralInput != nil && in.GeneralInput.Name != "" {
+		name = in.GeneralInput.Name
 	} else if application.Name != "" {
 		name = application.Name
 	} else {
@@ -109,8 +109,8 @@ func (s *Service) ToGeneralSettings(in *types.ApplicationInput, application *typ
 	}
 
 	//Description
-	if in.Description != "" {
-		description = strings.TrimSpace(in.Description)
+	if in.GeneralInput != nil && in.GeneralInput.Description != "" {
+		description = strings.TrimSpace(in.GeneralInput.Description)
 	} else if application.Description != "" {
 		description = application.Description
 	} else {
@@ -118,8 +118,8 @@ func (s *Service) ToGeneralSettings(in *types.ApplicationInput, application *typ
 	}
 
 	//Icon
-	if in.Icon != "" {
-		icon = in.Icon
+	if in.GeneralInput != nil && in.GeneralInput.Icon != "" {
+		icon = in.GeneralInput.Icon
 	} else if application.Spec.Icon != "" {
 		icon = application.Spec.Icon
 	} else {
