@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"time"
 
 	"github.com/cloudness-io/cloudness/app/controller/gitpublic"
 	"github.com/cloudness-io/cloudness/app/controller/server"
@@ -112,6 +113,7 @@ func (c *Controller) updateWithoutTx(ctx context.Context, dto *createOrUpdateDto
 		return nil, err
 	}
 
+	application.Updated = time.Now().UTC().UnixMilli()
 	application, err = c.applicationStore.UpdateSpec(ctx, application)
 	if err != nil {
 		return nil, err

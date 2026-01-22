@@ -27,9 +27,9 @@ templ projectDelette(project *types.Project) {
 			Deleting this project will permanently delete all data components in the project for all environments.
 			This cannot be undone.
 		</div>
-		<buton type="button" class="button-danger w-20" x-on:click="projectDeleteModel = true">
+		<button type="button" class="button-danger w-20" x-on:click="projectDeleteModel = true">
 			Delete
-		</buton>
+		</button>
 		@shared.Modal("projectDeleteModel", deleteProjectForm(project))
 	</div>
 }

@@ -361,6 +361,7 @@ func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment
 			//Inject application here
 			r.Use(middlewareinject.InjectApplication(appCtrl))
 			r.Get("/", handlerapplication.HandleListDeployments(appCtrl, deploymentCtrl))
+			r.Patch("/icon", handlerapplication.HandleUpdateIcon(appCtrl))
 			r.Get("/deployments", handlerapplication.HandleListDeployments(appCtrl, deploymentCtrl))
 			r.Get("/settings", handlerapplication.HandleGetSettings(appCtrl, ghAppCtrl))
 			r.Patch("/settings", handlerapplication.HandleUpdateSettings(appCtrl, ghAppCtrl))

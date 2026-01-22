@@ -1,6 +1,8 @@
 package vapplication
 
 import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vfavorite"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
@@ -9,9 +11,25 @@ import (
 
 templ appHeader(app *types.Application) {
 	<header class="relative h-16 shrink-0 box-border pl-1 md:pl-4">
-		<div id="header-content" class="flex box-border h-full py-2">
-			<span id="header-logo" class="flex grow shrink-0 basis-auto items-center justify-center mr-2 relative">
-				@shared.Icon(icons.ApplicationIcon, "overflow-hidden icon-2xl size-6")
+		<div id="header-content" class="flex box-border h-full py-2" x-data="{updateIconModel: false}">
+			@shared.Modal("updateIconModel", updateIconForm(app))
+			<span
+				id="header-logo"
+				class="flex grow shrink-0 basis-auto items-center justify-center mr-2 relative group"
+				x-on:click="updateIconModel = true"
+			>
+				if app.Spec.Icon != "" {
+					@shared.Icon(app.Spec.Icon, "overflow-hidden icon-2xl size-6")
+				} else {
+					@shared.Icon(icons.ApplicationIcon, "overflow-hidden icon-2xl size-6")
+				}
+				//show edit icon
+				<span
+					id="edit-icon"
+					class="absolute top-[0.2rem] right-[-0.5rem] hidden group-hover:block"
+				>
+					<i class={ icons.EditIcon, "icon-sm" }></i>
+				</span>
 			</span>
 			<div id="title" class="flex-auto w-full">
 				<div id="title-top-row" class="flex items-baseline gap-2">
@@ -32,4 +50,35 @@ templ appHeader(app *types.Application) {
 			</div>
 		</div>
 	</header>
+}
+
+templ updateIconForm(app *types.Application) {
+	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{old:'%[1]s', icon:'%[1]s'}", app.Spec.Icon) }>
+		<h2 class="text-xl font-semibold">Update Icon</h2>
+		<p class="w-full max-w-full">
+			Icon should be an URL to an image file.
+		</p>
+		@shared.Input(&shared.InputProps{
+			Name: "icon",
+			Attrs: templ.Attributes{
+				"x-model": "icon",
+			},
+		})
+		<footer class="flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="updateIconModel= false">
+					Close	
+				</button>
+				<button
+					type="submit"
+					class="button-primary"
+					:disabled="icon == old"
+					hx-patch={ routes.AppIcon }
+					hx-swap="none"
+				>
+					Update	
+				</button>
+			</div>
+		</footer>
+	</form>
 }

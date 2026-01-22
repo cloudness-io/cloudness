@@ -137,8 +137,6 @@ func (s *ApplicationStore) UpdateSpec(ctx context.Context, application *types.Ap
 			,application_deleted = :application_deleted
 		WHERE application_id = :application_id`
 
-	application.Updated = time.Now().UTC().UnixMilli()
-
 	return s.update(ctx, application, applicationUpdate)
 }
 

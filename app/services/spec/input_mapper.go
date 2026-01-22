@@ -98,7 +98,7 @@ func (s *Service) ToApplication(ctx context.Context, in *types.ApplicationInput,
 }
 
 func (s *Service) ToGeneralSettings(in *types.ApplicationInput, application *types.Application, spec *types.ApplicationSpec) {
-	var name, description string
+	var name, description, icon string
 	//Name
 	if in.Name != "" {
 		name = in.Name
@@ -117,8 +117,18 @@ func (s *Service) ToGeneralSettings(in *types.ApplicationInput, application *typ
 		description = spec.Description
 	}
 
+	//Icon
+	if in.Icon != "" {
+		icon = in.Icon
+	} else if application.Spec.Icon != "" {
+		icon = application.Spec.Icon
+	} else {
+		icon = spec.Icon
+	}
+
 	spec.Name = name
 	spec.Description = description
+	spec.Icon = icon
 }
 
 func (s *Service) ToBuildConfigration(ctx context.Context, in *types.ApplicationInput, application *types.Application) (*types.BuildConfiguration, error) {
