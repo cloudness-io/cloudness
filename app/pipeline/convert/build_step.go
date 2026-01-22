@@ -44,7 +44,9 @@ func buildCommandNew(
 	if len(buildVars) > 0 {
 		var args []string
 		for k, v := range buildVars {
-			args = append(args, fmt.Sprintf("%s=%s", k, v))
+			// Escape single quotes in value and wrap value in single quotes
+			escapedValue := strings.ReplaceAll(v, `'`, `'\''`)
+			args = append(args, fmt.Sprintf(`%s='%s'`, k, escapedValue))
 		}
 		addSecret(pCtx, step, "CLOUDNESS_BUILD_ARGS", strings.Join(args, " "))
 	}
