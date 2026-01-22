@@ -39,6 +39,7 @@ const (
 
 	//General Header
 	AppIcon = "icon"
+	AppName = "name"
 
 	AppSourceGithub    = "source/github"
 	AppSourceGitPublic = "source/git-public"

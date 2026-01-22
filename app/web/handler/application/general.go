@@ -35,3 +35,27 @@ func HandleUpdateIcon(appCtrl *application.Controller) http.HandlerFunc {
 		render.Redirect(w, routes.ApplicationCtx(ctx))
 	}
 }
+
+func HandleUpdateName(appCtrl *application.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		in := new(application.UpdateNameInput)
+		if err := json.NewDecoder(r.Body).Decode(in); err != nil {
+			log.Ctx(ctx).Error().Err(err).Msg("Error decoding request body")
+			render.ToastError(ctx, w, err)
+			return
+		}
+
+		app, _ := request.ApplicationFrom(ctx)
+
+		_, err := appCtrl.UpdateName(ctx, app, in)
+		if err != nil {
+			log.Ctx(ctx).Error().Err(err).Msg("Error updating name")
+			render.ToastError(ctx, w, err)
+			return
+		}
+
+		render.Redirect(w, routes.ApplicationCtx(ctx))
+	}
+}
