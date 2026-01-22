@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/cloudness-io/cloudness/app/pipeline"
 	"github.com/cloudness-io/cloudness/app/pipeline/convert/templates"
@@ -97,6 +99,7 @@ func getTemplateInput(image string, input *pipeline.RunnerContextInput, spec *ty
 		//networking
 		ServicePorts: make([]int, 0),
 		HasState:     input.Application.Type == enum.ApplicationTypeStateful,
+		UpdatedAt:    strconv.FormatInt(time.Now().UTC().UnixMilli(), 10),
 	}
 
 	if spec.ShouldAddStartCommand() {
@@ -144,8 +147,11 @@ func getTemplateInput(image string, input *pipeline.RunnerContextInput, spec *ty
 		containerPorts[spec.Networking.TCPProxies.TCPPort] = true
 	}
 
-	for port := range containerPorts {
-		in.ServicePorts = append(in.ServicePorts, port)
+	if len(containerPorts) > 0 {
+		in.PrivateDomain = input.Application.PrivateDomain
+		for port := range containerPorts {
+			in.ServicePorts = append(in.ServicePorts, port)
+		}
 	}
 
 	for _, v := range input.Volumes {

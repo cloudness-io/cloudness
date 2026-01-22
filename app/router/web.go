@@ -444,7 +444,8 @@ func setupApplicationCreate(r chi.Router, appCtrl *application.Controller, ghApp
 				r.Get("/preview", handlercreate.HandleTemplatePreview(templCtrl, "database"))
 			})
 		})
-		r.Route("/onclick", func(r chi.Router) {
+		r.Route("/oneclick", func(r chi.Router) {
+			r.Get("/", handlercreate.HandleGetOnelickTemplate(templCtrl))
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTemplateID), func(r chi.Router) {
 				r.Post("/", handlercreate.HandleTemplateCreate(templCtrl))
 				r.Get("/preview", handlercreate.HandleTemplatePreview(templCtrl, "oneclick"))

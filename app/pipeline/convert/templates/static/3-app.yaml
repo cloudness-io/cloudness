@@ -16,6 +16,8 @@ spec:
       app.kubernetes.io/instance: {{ .Identifier }}
   template:
     metadata:
+      annotations:
+        cloudness.io/deployment-time: "{{ .UpdatedAt }}"
       labels:
         app.kubernetes.io/name: {{ .Identifier }}
         app.kubernetes.io/instance: {{ .Identifier }}
@@ -41,7 +43,7 @@ spec:
         image: {{ .Image }}
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
           runAsNonRoot: true
           runAsUser: 1001
           capabilities:
@@ -149,6 +151,8 @@ spec:
       app.kubernetes.io/instance: {{ .Identifier }}
   template:
     metadata:
+      annotations:
+        cloudness.io/deployment-time: "{{ .UpdatedAt }}"
       labels:
         app.kubernetes.io/name: {{ .Identifier }}
         app.kubernetes.io/instance: {{ .Identifier }}
@@ -174,7 +178,7 @@ spec:
         image: {{ .Image }}
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
           runAsNonRoot: true
           runAsUser: 1001
           capabilities:
@@ -241,4 +245,29 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .VolumeName }}
       {{- end }}
+{{ end }}
+
+{{ if gt (len .ServicePorts) 0 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .PrivateDomain }}
+  namespace: {{ .Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .PrivateDomain }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+    app.kubernetes.io/component: service
+    app.kubernetes.io/managed-by: cloudness
+spec:
+  selector:
+    app.kubernetes.io/name: {{ .Identifier }}
+    app.kubernetes.io/instance: {{ .Identifier }}
+  ports:
+  {{- range $index, $value := .ServicePorts }}
+  - name: {{ $value }}-port
+    protocol: TCP
+    port: {{ $value }}
+    targetPort: {{ $value }}
+  {{- end }}
 {{ end }}

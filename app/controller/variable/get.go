@@ -2,7 +2,6 @@ package variable
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"strconv"
 
@@ -30,7 +29,7 @@ func (c *Controller) UpdateDefaultVariables(
 
 	if app.PrivateDomain != "" {
 		if server.Type == enum.ServerTypeK8s {
-			vars = append(vars, newVariable(env.ID, app.ID, SystemVarAppPrivateDomain, fmt.Sprintf("%s.svc.cluster.local", app.PrivateDomain), enum.VariableTypeBuildAndRun))
+			vars = append(vars, newVariable(env.ID, app.ID, SystemVarAppPrivateDomain, app.PrivateDomain, enum.VariableTypeBuildAndRun))
 		}
 		vars = append(vars, newVariable(env.ID, app.ID, SystemVarServiceName, app.PrivateDomain, enum.VariableTypeBuildAndRun))
 	}

@@ -21,6 +21,6 @@ func HandleDelete(envCtrl *environment.Controller) http.HandlerFunc {
 			return
 		}
 
-		render.Redirect(w, routes.ProjectCtx(ctx))
+		render.Redirect(w, routes.ProjectCtx(ctx)+"/"+routes.ProjectEnvironment)
 	}
 }

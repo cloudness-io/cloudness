@@ -396,6 +396,9 @@ type (
 
 		// List by slugs
 		ListBySlugs(ctx context.Context, slugs []string) ([]*types.Template, error)
+
+		// List not in slugs
+		ListNotInSlugs(ctx context.Context, slugs []string) ([]*types.Template, error)
 	}
 
 	// FavoriteStore defines the favorite data storage

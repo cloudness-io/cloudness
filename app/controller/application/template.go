@@ -46,7 +46,7 @@ func (c *Controller) CreateFromTemplate(
 					return err
 				}
 				dto.Application.Domain = fqdn
-				spec.Networking.ServiceDomain.Domain = fqdn
+				dto.Application.Spec.Networking.ServiceDomain.Domain = fqdn
 			}
 
 			app, err := c.CreateWithoutTx(ctx, dto)
