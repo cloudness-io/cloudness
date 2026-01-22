@@ -10,8 +10,7 @@ import (
 
 func (s *ApplicationSpec) ToInput() *ApplicationInput {
 	return &ApplicationInput{
-		Name:          s.Name,
-		Description:   s.Description,
+		GeneralInput:  s.ToGeneralInput(),
 		GitInput:      s.ToGitInput(),
 		RegistryInput: s.ToRegistryInput(),
 		DeployInput:   s.ToDeployInput(),

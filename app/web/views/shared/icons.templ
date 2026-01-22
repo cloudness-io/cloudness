@@ -7,7 +7,11 @@ import (
 
 templ Icon(icon string, class string) {
 	if strings.HasSuffix(icon, ".svg") {
-		<img class={ "size-4", class } src={ views.Asset(icon) }/>
+		if strings.HasPrefix(icon, "http://") || strings.HasPrefix(icon, "https://") {
+			<img class={ "size-4", class } src={ icon }/>
+		} else {
+			<img class={ "size-4", class } src={ views.Asset(icon) }/>
+		}
 	} else {
 		<i class={ icon, "icon-base", class }></i>
 	}

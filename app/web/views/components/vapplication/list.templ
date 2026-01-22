@@ -29,17 +29,21 @@ templ list(env *types.Environment, apps []*types.Application) {
 			<thead>
 				<tr class="text-tx-secondary">
 					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Name</th>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden text-ellipsis">
-						Live
-						URL
-					</th>
+					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden text-ellipsis">Live URL</th>
 					<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Status</th>
 				</tr>
 			</thead>
 			<tbody class="divide-y overflow-y-visible">
 				for _,app := range apps {
 					<tr class="hover:bg-secondary group cursor-pointer" hx-get={ routes.Application(env.UID, app.UID) }>
-						<td class="whitespace-nowrap px-4 py-2 hover:text-brand">{ app.Name }</td>
+						<td class="whitespace-nowrap px-4 py-2 hover:text-brand flex gap-x-1">
+							if app.Spec.Icon != "" {
+								@shared.Icon(app.Spec.Icon, "overflow-hidden")
+							} else {
+								@shared.Icon(icons.ApplicationIcon, "overflow-hidden")
+							}
+							{ app.Name }
+						</td>
 						<td
 							class="whitespace-nowrap px-4 py-2 max-w-40 sm:max-w-full truncate overflow-hidden
 						text-ellipsis"

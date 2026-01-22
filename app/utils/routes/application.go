@@ -37,6 +37,9 @@ const (
 
 	AppNav = "/nav"
 
+	//General Header
+	AppIcon = "icon"
+
 	AppSourceGithub    = "source/github"
 	AppSourceGitPublic = "source/git-public"
 	AppSourceRegistry  = "source/registry"

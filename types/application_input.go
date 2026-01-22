@@ -7,8 +7,7 @@ import (
 )
 
 type ApplicationInput struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	*GeneralInput
 	*RegistryInput
 	*GitInput
 	*DeployInput
