@@ -43,11 +43,23 @@ templ Preview(template *types.Template, actionUrl string) {
 					</button>
 					<div class="flex flex-col space-y-2 my-2 px-6" x-show="open" x-cloak x-transition>
 						for _, v := range service.Variables {
-							@shared.Input(&shared.InputProps{
-								Label:    v.Key,
-								Value:    v.Value,
-								Disabled: true,
-							})
+							<div
+								class="py-2 rounded-md gap-1 group grid
+		grid-cols-[minmax(0,2fr)_minmax(0,3fr)] justify-items-stretch min-h-[2.25rem] px-4 items-center
+		font-mono"
+							>
+								<div>
+									{ v.Key }
+								</div>
+								<div>
+									@shared.Input(&shared.InputProps{
+										HideLabel: true,
+										Name:      v.Key,
+										Value:     v.Value,
+										Disabled:  true,
+									})
+								</div>
+							</div>
 						}
 					</div>
 				</div>
