@@ -6,7 +6,7 @@ import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vtemplate"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 
-templ TemplateView(templates []*types.Template) {
+templ OneClick(templates []*types.Template) {
 	@createHeader()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: navOneclick,
@@ -16,7 +16,7 @@ templ TemplateView(templates []*types.Template) {
 			@shared.Icon(icons.SourceOneclickIcon, ``)
 			<h3>OneClick</h3>
 		</div>
-		@vtemplate.List(templates, routes.AppNewDatabase)
+		@vtemplate.List(templates, routes.AppNewOneclick)
 	}
 }
 

@@ -63,6 +63,7 @@ type (
 		Command       []string
 		Args          []string
 		ServicePorts  []int
+		PrivateDomain string
 		ServiceDomain *ServiceDomain
 		Volumes       []*Volume
 		MaxReplicas   int64
@@ -70,6 +71,7 @@ type (
 		Memory        float64
 		Variables     map[string]string
 		Secrets       map[string]string
+		UpdatedAt     string
 	}
 
 	ServiceDomain struct {

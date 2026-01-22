@@ -8,6 +8,7 @@ yarn-error*
 release
 node_modules
 .vscode/
+.devdbrc
 
 #templ
 *_templ.go

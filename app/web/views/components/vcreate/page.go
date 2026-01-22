@@ -30,10 +30,10 @@ func getCreatePageNavs() []*shared.PageNavItem {
 			Icon:      icons.SourceDatabaseIcon,
 			ActionUrl: routes.AppNewDatabase,
 		},
-		// {
-		// 	Name:      navOneclick,
-		// 	Icon:      icons.SourceOneclickIcon,
-		// 	ActionUrl: routes.AppNewRegistry,
-		// },
+		{
+			Name:      navOneclick,
+			Icon:      icons.SourceOneclickIcon,
+			ActionUrl: routes.AppNewOneclick,
+		},
 	}
 }

@@ -127,6 +127,25 @@ func (s *TemplateStore) List(ctx context.Context) ([]*types.Template, error) {
 	return s.mapDBTemplates(dst), nil
 }
 
+func (s *TemplateStore) ListNotInSlugs(ctx context.Context, slugs []string) ([]*types.Template, error) {
+	stmt := database.Builder.Select(templateColumns).
+		From("templates").
+		Where(sq.NotEq{"template_slug": slugs})
+
+	query, args, err := stmt.ToSql()
+	if err != nil {
+		return nil, database.ProcessSQLErrorf(ctx, err, "failed to convert list  template query to sql")
+	}
+
+	db := dbtx.GetAccessor(ctx, s.db)
+	dst := []*template{}
+
+	if err := db.SelectContext(ctx, &dst, query, args...); err != nil {
+		return nil, database.ProcessSQLErrorf(ctx, err, "list template query failed")
+	}
+	return s.mapDBTemplates(dst), nil
+}
+
 func (s *TemplateStore) ListBySlugs(ctx context.Context, slugs []string) ([]*types.Template, error) {
 	stmt := database.Builder.Select(templateColumns).
 		From("templates").

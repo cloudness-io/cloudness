@@ -1,0 +1,194 @@
+{
+    "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/plausible.svg",
+    "name": "Plausible Analytics",
+    "readme": "Plausible Analytics is a lightweight, open-source web analytics tool that is privacy-friendly and GDPR compliant.",
+    "tags": [
+        "analytics",
+        "monitoring"
+    ],
+    "services": [
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/plausible.svg",
+            "name": "Plausible",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "plausible/analytics:latest"
+                    }
+                }
+            },
+            "deploy": {
+                "startCommand": "sh -c 'sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run'"
+            },
+            "networking": {
+                "containerPorts": [
+                    8000
+                ],
+                "serviceDomain": {
+                    "port": 8000,
+                    "path": "/"
+                }
+            },
+            "volumes": [],
+            "variables": [
+                {
+                    "key": "BASE_URL",
+                    "value": "${{CLOUDNESS_PUBLIC_DOMAIN}}",
+                    "type": "run"
+                },
+                {
+                    "key": "SECRET_KEY_BASE",
+                    "value": "${{secret(64)}}",
+                    "type": "run"
+                },
+                {
+                    "key": "TOTP_VAULT_KEY",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                },
+                {
+                    "key": "DATABASE_URL",
+                    "value": "${{plausible-db.POSTGRES_PRIVATE_URL}}",
+                    "type": "run"
+                },
+                {
+                    "key": "CLICKHOUSE_DATABASE_URL",
+                    "value": "http://plausible-events:8123/plausible_events",
+                    "type": "run"
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                },
+                {
+                    "key": "DISABLE_REGISTRATION",
+                    "value": "invite_only",
+                    "type": "run"
+                },
+                {
+                    "key": "MAILER_ADAPTER",
+                    "value": "Bamboo.SMTPAdapter",
+                    "type": "run"
+                }
+            ]
+        },
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/postgresql.svg",
+            "name": "plausible-db",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "postgres:16-alpine"
+                    }
+                }
+            },
+            "deploy": {},
+            "networking": {
+                "containerPorts": [
+                    5432
+                ]
+            },
+            "volumes": [
+                {
+                    "name": "db-data",
+                    "mountPath": "/var/lib/postgresql/data"
+                }
+            ],
+            "variables": [
+                {
+                    "key": "PGDATA",
+                    "value": "/var/lib/postgresql/data/pgdata",
+                    "type": "run"
+                },
+                {
+                    "key": "PGHOST",
+                    "value": "${{CLOUDNESS_PRIVATE_DOMAIN}}",
+                    "type": "run"
+                },
+                {
+                    "key": "PGPORT",
+                    "value": "5432",
+                    "type": "run"
+                },
+                {
+                    "key": "POSTGRES_USER",
+                    "value": "analytics",
+                    "type": "run"
+                },
+                {
+                    "key": "PGUSER",
+                    "value": "${{POSTGRES_USER}}",
+                    "type": "run"
+                },
+                {
+                    "key": "PGDATABASE",
+                    "value": "${{POSTGRES_DB}}",
+                    "type": "run"
+                },
+                {
+                    "key": "PGPASSWORD",
+                    "value": "${{POSTGRES_PASSWORD}}",
+                    "type": "run"
+                },
+                {
+                    "key": "POSTGRES_DB",
+                    "value": "analytics",
+                    "type": "run"
+                },
+                {
+                    "key": "POSTGRES_PRIVATE_URL",
+                    "value": "postgresql://${{PGUSER}}:${{POSTGRES_PASSWORD}}@${{CLOUDNESS_PRIVATE_DOMAIN}}:5432/${{PGDATABASE}}?sslmode=disable",
+                    "type": "run"
+                },
+                {
+                    "key": "POSTGRES_PASSWORD",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                }
+            ]
+        },
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/clickhouse.svg",
+            "name": "plausible-events",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "clickhouse/clickhouse-server:24.3.3.102-alpine"
+                    }
+                }
+            },
+            "deploy": {
+                "startCommand": "/bin/bash -c \"sed 's/id -g/id -gn/' /entrypoint.sh > /tmp/entrypoint.sh && exec bash /tmp/entrypoint.sh\""
+            },
+            "networking": {
+                "containerPorts": [
+                    8123,
+                    9000
+                ]
+            },
+            "volumes": [
+                {
+                    "name": "event-data",
+                    "mountPath": "/var/lib/clickhouse"
+                },
+                {
+                    "name": "event-logs",
+                    "mountPath": "/var/log/clickhouse-server"
+                }
+            ],
+            "variables": [
+                {
+                    "key": "CLICKHOUSE_DB",
+                    "value": "plausible_events",
+                    "type": "run"
+                },
+                {
+                    "key": "CLICKHOUSE_USER",
+                    "value": "default",
+                    "type": "run"
+                }
+            ]
+        }
+    ]
+}
