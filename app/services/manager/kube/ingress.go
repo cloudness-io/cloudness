@@ -37,6 +37,11 @@ func (m *K8sManager) AddHttpRoute(ctx context.Context, server *types.Server, nam
 					WithMatches(v1.HTTPRouteMatch().WithPath(v1.HTTPPathMatch().WithType(gatewayv1.PathMatchPathPrefix).WithValue("/"))).
 					WithBackendRefs(
 						v1.HTTPBackendRef().WithName(gatewayv1.ObjectName(service)).WithNamespace(gatewayv1.Namespace(namespace)).WithPort(gatewayv1.PortNumber(port)),
+					).
+					WithTimeouts(
+						v1.HTTPRouteTimeouts().
+							WithRequest(gatewayv1.Duration("300s")).
+							WithBackendRequest(gatewayv1.Duration("300s")),
 					),
 			),
 	)

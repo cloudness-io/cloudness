@@ -1,0 +1,117 @@
+{
+    "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/matomo.svg",
+    "name": "Matomo Analytics",
+    "readme": "Matomo is a powerful open-source web analytics platform that gives you 100% data ownership and user privacy protection.",
+    "tags": [
+        "analytics",
+        "monitoring"
+    ],
+    "services": [
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/matomo.svg",
+            "name": "Matomo",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "matomo:latest"
+                    }
+                }
+            },
+            "deploy": {
+                "startCommand": "sh -c 'if ! id -u www-data > /dev/null 2>&1; then addgroup -g 82 www-data && adduser -u 82 -D -S -G www-data www-data; fi && /entrypoint.sh apache2-foreground'"
+            },
+            "networking": {
+                "containerPorts": [
+                    80
+                ],
+                "serviceDomain": {
+                    "port": 80,
+                    "path": "/"
+                }
+            },
+            "volumes": [
+                {
+                    "name": "matomo-data",
+                    "mountPath": "/var/www/html"
+                }
+            ],
+            "variables": [
+                {
+                    "key": "MATOMO_DATABASE_HOST",
+                    "value": "${{matomo-db.CLOUDNESS_PRIVATE_DOMAIN}}",
+                    "type": "run"
+                },
+                {
+                    "key": "MATOMO_DATABASE_ADAPTER",
+                    "value": "mysql",
+                    "type": "run"
+                },
+                {
+                    "key": "MATOMO_DATABASE_TABLES_PREFIX",
+                    "value": "matomo_",
+                    "type": "run"
+                },
+                {
+                    "key": "MATOMO_DATABASE_USERNAME",
+                    "value": "${{matomo-db.MYSQL_USER}}",
+                    "type": "run"
+                },
+                {
+                    "key": "MATOMO_DATABASE_PASSWORD",
+                    "value": "${{matomo-db.MYSQL_PASSWORD}}",
+                    "type": "run"
+                },
+                {
+                    "key": "MATOMO_DATABASE_DBNAME",
+                    "value": "${{matomo-db.MYSQL_DATABASE}}",
+                    "type": "run"
+                }
+            ]
+        },
+        {
+            "icon": "https://raw.githubusercontent.com/cloudness-io/icons/refs/heads/main/mysql.svg",
+            "name": "matomo-db",
+            "build": {
+                "source": {
+                    "registry": {
+                        "image": "mysql:latest"
+                    }
+                }
+            },
+            "deploy": {},
+            "networking": {
+                "containerPorts": [
+                    3306
+                ]
+            },
+            "volumes": [
+                {
+                    "name": "db-data",
+                    "mountPath": "/var/lib/mysql"
+                }
+            ],
+            "variables": [
+                {
+                    "key": "MYSQL_ROOT_PASSWORD",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQL_DATABASE",
+                    "value": "matomo",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQL_USER",
+                    "value": "matomo",
+                    "type": "run"
+                },
+                {
+                    "key": "MYSQL_PASSWORD",
+                    "value": "${{secret(32)}}",
+                    "type": "run"
+                }
+            ]
+        }
+    ]
+}
