@@ -182,7 +182,7 @@ templ breadCrumbDropdown(crumb *bcItem, identifier bcIdentifier, isDropDownOpen 
 		x-show={ isDropDownOpen }
 		x-on:click.away={ fmt.Sprintf("select('%[1]s', false)", isDropDownOpen) }
 		x-on:keydown.escape.window={ fmt.Sprintf("select('%[1]s', false)", isDropDownOpen) }
-		class="absolute top-8 z-10 w-56 min-h-16 divide-y divide-divider overflow-hidden rounded border border-divider bg-primary shadow-sm"
+		class="absolute top-8 z-10 w-56 min-h-max divide-y divide-divider overflow-hidden rounded border border-divider bg-primary shadow-sm"
 	>
 		<div
 			x-effect={ fmt.Sprintf("if (%s) $el.dispatchEvent(new Event('show'))", isDropDownOpen) }
@@ -193,7 +193,7 @@ templ breadCrumbDropdown(crumb *bcItem, identifier bcIdentifier, isDropDownOpen 
 			hx-indicator={ "#" + identifier + "Indicator" }
 			hx-push-url="false"
 		>
-			<div id={ identifier + "Indicator" } class="flex items-center justify-center align-middle mt-5">
+			<div id={ identifier + "Indicator" } class="flex items-center justify-center align-middle min-h-14">
 				<div class="size-6">
 					<span class="spinner"></span>
 				</div>

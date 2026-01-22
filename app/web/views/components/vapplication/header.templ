@@ -11,11 +11,16 @@ import (
 
 templ appHeader(app *types.Application) {
 	<header class="relative h-16 shrink-0 box-border pl-1 md:pl-4">
-		<div id="header-content" class="flex box-border h-full py-2" x-data="{updateIconModel: false}">
+		<div
+			id="header-content"
+			class="flex box-border h-full py-2"
+			x-data="{updateIconModel: false, updateNameModel: false}"
+		>
 			@shared.Modal("updateIconModel", updateIconForm(app))
+			@shared.Modal("updateNameModel", updateNameForm(app))
 			<span
 				id="header-logo"
-				class="flex grow shrink-0 basis-auto items-center justify-center mr-2 relative group"
+				class="flex grow shrink-0 basis-auto items-center justify-center mr-2 cursor-pointer relative group"
 				x-on:click="updateIconModel = true"
 			>
 				if app.Spec.Icon != "" {
@@ -23,17 +28,24 @@ templ appHeader(app *types.Application) {
 				} else {
 					@shared.Icon(icons.ApplicationIcon, "overflow-hidden icon-2xl size-6")
 				}
-				//show edit icon
-				<span
-					id="edit-icon"
-					class="absolute top-[0.2rem] right-[-0.5rem] hidden group-hover:block"
-				>
+				<span class="absolute top-[0.2rem] right-[-0.5rem] hidden group-hover:block">
 					<i class={ icons.EditIcon, "icon-sm" }></i>
 				</span>
 			</span>
 			<div id="title" class="flex-auto w-full">
 				<div id="title-top-row" class="flex items-baseline gap-2">
-					<h2 class="font-semibold text-xl">{ app.Name } </h2>
+					<div
+						id="name"
+						class="flex basis-auto items-center jusify-center cursor-pointer relative group"
+						x-on:click="updateNameModel = true"
+					>
+						<h2 class="font-semibold text-xl hover:bg-secondary">
+							{ app.Name }
+						</h2>
+						<span class="absolute top-[-0.2rem] right-[-0.5rem] hidden group-hover:block">
+							<i class={ icons.EditIcon, "icon-sm" }></i>
+						</span>
+					</div>
 					if app.Domain != "" {
 						<a href={ templ.SafeURL(app.Domain) } target="_blank">
 							@shared.Icon(icons.OutIcon, "cursor-pointer")
@@ -74,6 +86,34 @@ templ updateIconForm(app *types.Application) {
 					class="button-primary"
 					:disabled="icon == old"
 					hx-patch={ routes.AppIcon }
+					hx-swap="none"
+				>
+					Update	
+				</button>
+			</div>
+		</footer>
+	</form>
+}
+
+templ updateNameForm(app *types.Application) {
+	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{old:'%[1]s', name:'%[1]s'}", app.Name) }>
+		<h2 class="text-xl font-semibold">Update Application Name</h2>
+		@shared.Input(&shared.InputProps{
+			Name: "name",
+			Attrs: templ.Attributes{
+				"x-model": "name",
+			},
+		})
+		<footer class="flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				<button type="button" class="button-neutral" x-on:click="updateNameModel= false">
+					Close	
+				</button>
+				<button
+					type="submit"
+					class="button-primary"
+					:disabled="name== old"
+					hx-patch={ routes.AppName }
 					hx-swap="none"
 				>
 					Update	
