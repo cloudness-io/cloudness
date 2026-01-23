@@ -41,10 +41,10 @@ func (c *Controller) UpdateDefaultVariables(
 	}
 
 	if app.Domain != "" {
-		vars = append(vars, newVariable(env.ID, app.ID, SystemVarAppPublicDomain, app.Domain, enum.VariableTypeBuildAndRun))
+		vars = append(vars, newVariable(env.ID, app.ID, SystemVarAppPublicURL, app.Domain, enum.VariableTypeBuildAndRun))
 		u, err := url.Parse(app.Domain)
 		if err == nil { //NOTE: Ignore error
-			vars = append(vars, newVariable(env.ID, app.ID, SystemVarAppPublicURL, u.Hostname(), enum.VariableTypeBuildAndRun))
+			vars = append(vars, newVariable(env.ID, app.ID, SystemVarAppPublicDomain, u.Hostname(), enum.VariableTypeBuildAndRun))
 		}
 	} else {
 		varsToDelete = append(varsToDelete, SystemVarAppPublicDomain)

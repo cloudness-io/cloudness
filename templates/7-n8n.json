@@ -75,7 +75,7 @@
                 },
                 {
                     "key": "WEBHOOK_URL",
-                    "value": "${{CLOUDNESS_PUBLIC_DOMAIN}}",
+                    "value": "${{CLOUDNESS_PUBLIC_URL}}",
                     "type": "run"
                 }
             ]
