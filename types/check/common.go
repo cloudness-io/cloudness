@@ -16,7 +16,7 @@ const (
 	gitRepoSshPattern   = `^git@([\w.-]+):([\w-]+)\/([\w.-]+)\.git$`
 	fqdnPattern         = `^(https?://)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$`
 	ipV4Pattern         = `^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$`
-	directoryPattern    = `^((/[a-zA-Z0-9-_]+)+|/)$`
+	directoryPattern    = `^((/[a-zA-Z0-9-_.]+)+|/)$`
 	emailRegex          = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 
 	//variables
