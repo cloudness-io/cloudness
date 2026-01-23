@@ -27,41 +27,10 @@
                     "path": "/"
                 }
             },
-            "volumes": [
-                {
-                    "name": "n8n-data",
-                    "mountPath": "/home/n8n"
-                }
-            ],
             "variables": [
                 {
-                    "key": "N8N_USER_FOLDER",
-                    "value": "/home/n8n",
-                    "type": "run"
-                },
-                {
-                    "key": "N8N_HOST",
-                    "value": "${{CLOUDNESS_PUBLIC_DOMAIN}}",
-                    "type": "run"
-                },
-                {
-                    "key": "N8N_PROTOCOL",
-                    "value": "https",
-                    "type": "run"
-                },
-                {
-                    "key": "WEBHOOK_URL",
-                    "value": "${{CLOUDNESS_PUBLIC_DOMAIN}}",
-                    "type": "run"
-                },
-                {
-                    "key": "N8N_PORT",
-                    "value": "5678",
-                    "type": "run"
-                },
-                {
-                    "key": "DB_TYPE",
-                    "value": "postgresdb",
+                    "key": "DB_POSTGRESDB_DATABASE",
+                    "value": "${{n8n-db.POSTGRES_DB}}",
                     "type": "run"
                 },
                 {
@@ -70,13 +39,13 @@
                     "type": "run"
                 },
                 {
-                    "key": "DB_POSTGRESDB_PORT",
-                    "value": "5432",
+                    "key": "DB_POSTGRESDB_PASSWORD",
+                    "value": "${{n8n-db.POSTGRES_PASSWORD}}",
                     "type": "run"
                 },
                 {
-                    "key": "DB_POSTGRESDB_DATABASE",
-                    "value": "${{n8n-db.POSTGRES_DB}}",
+                    "key": "DB_POSTGRESDB_PORT",
+                    "value": "5432",
                     "type": "run"
                 },
                 {
@@ -85,23 +54,28 @@
                     "type": "run"
                 },
                 {
-                    "key": "DB_POSTGRESDB_PASSWORD",
-                    "value": "${{n8n-db.POSTGRES_PASSWORD}}",
+                    "key": "DB_TYPE",
+                    "value": "postgresdb",
                     "type": "run"
                 },
                 {
-                    "key": "EXECUTIONS_DATA_PRUNE",
-                    "value": "true",
+                    "key": "N8N_ENCRYPTION_KEY",
+                    "value": "${{secret(32)}}",
                     "type": "run"
                 },
                 {
-                    "key": "EXECUTIONS_DATA_MAX_AGE",
-                    "value": "168",
+                    "key": "N8N_PORT",
+                    "value": "5678",
                     "type": "run"
                 },
                 {
-                    "key": "N8N_METRICS",
-                    "value": "false",
+                    "key": "PORT",
+                    "value": "5678",
+                    "type": "run"
+                },
+                {
+                    "key": "WEBHOOK_URL",
+                    "value": "${{CLOUDNESS_PUBLIC_DOMAIN}}",
                     "type": "run"
                 }
             ]

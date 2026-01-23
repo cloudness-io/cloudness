@@ -34,6 +34,15 @@ spec:
             type: PathPrefix
             value: /
 
+       filters:
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Upgrade
+                value: websocket
+              - name: Connection
+                value: Upgrade
+
        timeouts:
          request: 300s
          backendRequest: 300s
