@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/cloudness-io/cloudness/app/controller/application"
 	"github.com/cloudness-io/cloudness/app/controller/githubapp"
@@ -38,12 +37,6 @@ func HandleUpdateSettings(appCtrl *application.Controller, ghAppCtrl *githubapp.
 		if err := json.NewDecoder(r.Body).Decode(in); err != nil {
 			log.Error().Err(err).Msg("Invalid request body")
 			render.ToastErrorMsg(ctx, w, "Invalid request body")
-			return
-		}
-
-		in.Name = strings.TrimSpace(in.Name)
-		if in.Name == "" {
-			render.ToastErrorMsg(ctx, w, "Applicaiton name cannot be empty")
 			return
 		}
 
