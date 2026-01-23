@@ -247,7 +247,7 @@ spec:
   {{- range $index, $value := .ServicePorts }}
   - name: {{ $value }}-port
     protocol: TCP
-    appProtocol: {{ if and $.ServiceDomain $.ServiceDomain.Websecure }}kubernetes.io/wss{{ else }}kubernetes.io/ws{{ end }}
+    appProtocol: kubernetes.io/ws
     port: {{ $value }}
     targetPort: {{ $value }}
   {{- end }}
