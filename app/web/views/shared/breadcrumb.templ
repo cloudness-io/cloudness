@@ -102,7 +102,11 @@ templ breadCrumb(crumbs []*bcItem, isHTMLRender bool) {
 				isProjectDropdownOpen:false, 
 				isEnvironmentDropdownOpen:false, 
 				isApplicationDropdownOpen:false, 
-				select(prop, value) {
+				select(prop, value, onlyMe) {
+					if (onlyMe) {
+						this[prop] = value;
+						return;
+					}
 					this.closeAll()
 					this[prop] = value;
 				},
@@ -114,27 +118,11 @@ templ breadCrumb(crumbs []*bcItem, isHTMLRender bool) {
 			}"
 			x-cloak
 		>
-			<ol class="flex flex-wrap items-center gap-1">
+			<ol class="flex items-center gap-2">
 				for _, crumb := range crumbs {
-					<li class="flex items-center justify-center gap-1">
+					<li class="flex items-center justify-center gap-2">
 						@breadCrumbItem(crumb, crumb.identifier, getDropdownIdentifier(crumb.identifier))
-						<span class="self-end mb-[0.215rem] text-disabled">
-							<svg
-								class="rtl:rotate-180 size-2 text-substitute"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 6 10"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="m1 9 4-4-4-4"
-								></path>
-							</svg>
-						</span>
+						<span class="text-neutral-700">/</span>
 					</li>
 				}
 			</ol>
@@ -144,29 +132,19 @@ templ breadCrumb(crumbs []*bcItem, isHTMLRender bool) {
 
 templ breadCrumbItem(crumb *bcItem, identifier bcIdentifier, isDropDownOpen string) {
 	if crumb.listUrl != "" || crumb.identifier == bcIdentifierHome {
-		<span class="flex space-x-2">
+		<span class="flex items-center gap-1">
 			<a
 				href={ crumb.url }
 				class="link cursor-pointer"
 			>{ crumb.name }</a>
 			if crumb.listUrl != "" {
-				<span class="self-end mb-[0.215rem] text-disabled">
-					<svg
-						class="size-2.5 text-link cursor-pointer transition-transform duration-200 ease-in-out"
-						:class={ fmt.Sprintf("%s ? 'rotate-270' : 'rotate-90'", isDropDownOpen) }
-						@click={ fmt.Sprintf("select('%[1]s', !%[1]s)", isDropDownOpen) }
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 6 10"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m1 9 4-4-4-4"
-						></path>
+				<span
+					class="text-disabled cursor-pointer hover:bg-secondary"
+					:class={ fmt.Sprintf("%s ? 'bg-secondary' : ''", isDropDownOpen) }
+					@click={ fmt.Sprintf("select('%[1]s', !%[1]s, false)", isDropDownOpen) }
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"></path>
 					</svg>
 				</span>
 				@breadCrumbDropdown(crumb, identifier, isDropDownOpen)
@@ -180,8 +158,8 @@ templ breadCrumbItem(crumb *bcItem, identifier bcIdentifier, isDropDownOpen stri
 templ breadCrumbDropdown(crumb *bcItem, identifier bcIdentifier, isDropDownOpen string) {
 	<div
 		x-show={ isDropDownOpen }
-		x-on:click.away={ fmt.Sprintf("select('%[1]s', false)", isDropDownOpen) }
-		x-on:keydown.escape.window={ fmt.Sprintf("select('%[1]s', false)", isDropDownOpen) }
+		x-on:click.away={ fmt.Sprintf("select('%[1]s', false, true)", isDropDownOpen) }
+		x-on:keydown.escape.window={ fmt.Sprintf("select('%[1]s', false, true)", isDropDownOpen) }
 		class="absolute top-8 z-10 w-56 min-h-max divide-y divide-divider overflow-hidden rounded border border-divider bg-primary shadow-sm"
 	>
 		<div

@@ -31,8 +31,9 @@ const (
 	LimitsIcon      = "ph ph-prohibit text-brand"
 	SwitchIcon      = "ph ph-arrows-left-right text-brand"
 
-	NavUpIcon   = "ph ph-caret-up"
-	NavDownIcon = "ph ph-caret-down"
+	NavUpIcon     = "ph ph-caret-up"
+	NavDownIcon   = "ph ph-caret-down"
+	NavUpDownIcon = "ph ph-caret-up-down"
 
 	SourceGitIcon      = "git.svg"
 	SourceDatabaseIcon = "ph ph-database text-sky-700"
