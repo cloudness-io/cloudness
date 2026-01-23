@@ -106,11 +106,12 @@ templ Limits(tenant *types.Tenant, restrictions *types.TenantRestrictions, canEd
 				<h3>Volume Limits</h3>
 				<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4">
 					@shared.Input(&shared.InputProps{
-						Name:     "max_volumes",
-						Label:    "Max Volumes",
-						Type:     "number",
-						Tooltip:  "Maximum number of volumes allowed to be created in this team.",
-						Disabled: !canEdit,
+						Name:        "max_volumes",
+						Label:       "Max Volumes",
+						Type:        "number",
+						Tooltip:     "Maximum number of volumes allowed to be created in this team.",
+						Description: "Volume size is in MiB",
+						Disabled:    !canEdit,
 						Attrs: templ.Attributes{
 							"x-model.number": "form.max_volumes",
 							"x-bind:min":     "1",
@@ -118,11 +119,12 @@ templ Limits(tenant *types.Tenant, restrictions *types.TenantRestrictions, canEd
 						},
 					})
 					@shared.Input(&shared.InputProps{
-						Name:     "min_volume_size",
-						Label:    "Min Volume Size",
-						Type:     "number",
-						Tooltip:  "Minimum size allowed per volume in this team.",
-						Disabled: !canEdit,
+						Name:        "min_volume_size",
+						Label:       "Min Volume Size",
+						Type:        "number",
+						Tooltip:     "Minimum size allowed per volume in this team.",
+						Description: "Volume size is in MiB",
+						Disabled:    !canEdit,
 						Attrs: templ.Attributes{
 							"x-model.number": "form.min_volume_size",
 							"x-bind:min":     "1",
@@ -130,11 +132,12 @@ templ Limits(tenant *types.Tenant, restrictions *types.TenantRestrictions, canEd
 						},
 					})
 					@shared.Input(&shared.InputProps{
-						Name:     "max_volume_size",
-						Label:    "Max Volume Size",
-						Type:     "number",
-						Tooltip:  "Maximum size allowed per volume in this team.",
-						Disabled: !canEdit,
+						Name:        "max_volume_size",
+						Label:       "Max Volume Size",
+						Type:        "number",
+						Tooltip:     "Maximum size allowed per volume in this team.",
+						Description: "Volume size is in MiB",
+						Disabled:    !canEdit,
 						Attrs: templ.Attributes{
 							"x-model.number": "form.max_volume_size",
 							"x-bind:min":     "1",

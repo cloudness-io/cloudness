@@ -173,8 +173,8 @@ type TenantConfig struct {
 	DefaultMaxCPUPerApplication       int64   `envconfig:"CLOUDNESS_TENANT_MAX_CPU"                default:"2"`
 	DefaultMaxMemoryPerApplication    float64 `envconfig:"CLOUDNESS_TENANT_MAX_MEMORY"             default:"2"`
 	DefaultMaxVolumeCount             int64   `envconfig:"CLOUDNESS_TENANT_MAX_VOLUME_COUNT"       default:"10"`
-	DefaultMinVolumeSize              int64   `envconfig:"CLOUDNESS_TENANT_MIN_VOLUME_SIZE"        default:"1"`
-	DefaultMaxVolumeSize              int64   `envconfig:"CLOUDNESS_TENANT_MAX_VOLUME_SIZE"        default:"10"`
+	DefaultMinVolumeSize              int64   `envconfig:"CLOUDNESS_TENANT_MIN_VOLUME_SIZE"        default:"1024"`
+	DefaultMaxVolumeSize              int64   `envconfig:"CLOUDNESS_TENANT_MAX_VOLUME_SIZE"        default:"10240"`
 }
 
 type KubeServerConfig struct {

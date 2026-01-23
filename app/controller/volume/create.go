@@ -58,10 +58,10 @@ func (c *Controller) sanitizeCreateInput(in *types.VolumeCreateInput) error {
 func (c *Controller) validateRestrictions(in *types.VolumeCreateInput, restrictions *types.VolumeRestriction) error {
 	err := check.NewValidationErrors()
 	if in.Size < restrictions.MinVolumeSize {
-		err.AddValidationError("size", check.NewValidationErrorf("Volume is below min allowed limit of %dGB", restrictions.MinVolumeSize))
+		err.AddValidationError("size", check.NewValidationErrorf("Volume is below min allowed limit of %dMiB", restrictions.MinVolumeSize))
 	}
 	if in.Size > restrictions.MaxVolumeSize {
-		err.AddValidationError("size", check.NewValidationErrorf("Volume is above max allowed limit of %dGB", restrictions.MaxVolumeSize))
+		err.AddValidationError("size", check.NewValidationErrorf("Volume is above max allowed limit of %dMiB", restrictions.MaxVolumeSize))
 	}
 
 	if err.HasError() {

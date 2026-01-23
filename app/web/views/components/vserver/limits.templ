@@ -36,8 +36,9 @@ templ limits(server *types.Server) {
 		@shared.Input(&shared.InputProps{
 			Name:  "min_volume_size",
 			Label: "Min Volume Size",
-			Tooltip: `Minimum size of the volume in GB, this is to handle the limitations of the underlying cloud
+			Tooltip: `Minimum size of the volume in MiB, this is to handle the limitations of the underlying cloud
 				providers if any. E.g. linode cannot have volumes less than 10GB.`,
+			Description: "Volume size is in MiB",
 			Type:        "number",
 			Placeholder: "1",
 			Required:    true,

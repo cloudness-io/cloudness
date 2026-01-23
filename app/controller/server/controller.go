@@ -76,7 +76,7 @@ func (c *Controller) Init(ctx context.Context) (*types.Server, error) {
 		MaxConcurrentBuilds:           3,
 		MaxCPUPerBuild:                1,
 		MaxMemoryPerBuild:             2,
-		VolumeMinSize:                 1,
+		VolumeMinSize:                 1024,
 	}
 
 	manager, err := c.resolveServerManager(server)
