@@ -41,30 +41,23 @@ func getSettingsSections(
 	ghApp *types.GithubApp,
 	restrictions *types.ApplicationRestrction,
 ) []*shared.ContentViewerSection {
-	sections := []*shared.ContentViewerSection{}
-
-	sections = append(sections, &shared.ContentViewerSection{
-		Name:      "General",
-		IconClass: icons.SettingsIcon,
-		Content:   settingsGeneral(),
-	})
-
-	sections = append(sections, &shared.ContentViewerSection{
-		Name:      spec.GetSourceText(application),
-		IconClass: spec.GetSourceIcon(application),
-		Content:   SourceSettings(application, ghApp),
-	})
-	sections = append(sections, &shared.ContentViewerSection{
-		Name:      "Networking",
-		IconClass: icons.NetworkSectionIcon,
-		Content:   NetworkSettings(application),
-	})
-
-	sections = append(sections, &shared.ContentViewerSection{
-		Name:      "Deploy",
-		IconClass: icons.DeploySectionIcon,
-		Content:   settingsDeploy(project, application, restrictions),
-	})
+	sections := []*shared.ContentViewerSection{
+		{
+			Name:      spec.GetSourceText(application),
+			IconClass: spec.GetSourceIcon(application),
+			Content:   SourceSettings(application, ghApp),
+		},
+		{
+			Name:      "Networking",
+			IconClass: icons.NetworkSectionIcon,
+			Content:   NetworkSettings(application),
+		},
+		{
+			Name:      "Deploy",
+			IconClass: icons.DeploySectionIcon,
+			Content:   settingsDeploy(project, application, restrictions),
+		},
+	}
 
 	return sections
 }
