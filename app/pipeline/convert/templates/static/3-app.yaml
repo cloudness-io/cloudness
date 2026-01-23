@@ -10,6 +10,7 @@ metadata:
     app.kubernetes.io/component: app
     app.kubernetes.io/managed-by: cloudness
 spec:
+  progressDeadlineSeconds: 600  
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Identifier }}
@@ -25,9 +26,6 @@ spec:
         app.kubernetes.io/managed-by: cloudness
     spec:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-        fsGroup: 1001
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: {{ .Identifier }}-sa
@@ -41,14 +39,6 @@ spec:
       containers:
       - name: app
         image: {{ .Image }}
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
-          runAsNonRoot: true
-          runAsUser: 1001
-          capabilities:
-            drop:
-              - ALL
         {{- if .Command }}
         command:
           {{- range .Command }}
@@ -145,6 +135,7 @@ metadata:
     app.kubernetes.io/component: app
     app.kubernetes.io/managed-by: cloudness
 spec:
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Identifier }}
@@ -160,9 +151,6 @@ spec:
         app.kubernetes.io/managed-by: cloudness
     spec:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-        fsGroup: 1001
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: {{ .Identifier }}-sa
@@ -176,14 +164,6 @@ spec:
       containers:
       - name: app
         image: {{ .Image }}
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
-          runAsNonRoot: true
-          runAsUser: 1001
-          capabilities:
-            drop:
-              - ALL
         {{- if .Command }}
         command:
           {{- range .Command }}
@@ -267,6 +247,7 @@ spec:
   {{- range $index, $value := .ServicePorts }}
   - name: {{ $value }}-port
     protocol: TCP
+    appProtocol: {{ if and $.ServiceDomain $.ServiceDomain.Websecure }}kubernetes.io/wss{{ else }}kubernetes.io/ws{{ end }}
     port: {{ $value }}
     targetPort: {{ $value }}
   {{- end }}
