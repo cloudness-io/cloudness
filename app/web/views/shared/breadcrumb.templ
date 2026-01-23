@@ -135,7 +135,7 @@ templ breadCrumbItem(crumb *bcItem, identifier bcIdentifier, isDropDownOpen stri
 		<span class="flex items-center gap-1">
 			<a
 				href={ crumb.url }
-				class="text-tx-secondary hover:text-tx-primary cursor-pointer"
+				class="link cursor-pointer opacity-90"
 			>{ crumb.name }</a>
 			if crumb.listUrl != "" {
 				<span
@@ -188,7 +188,7 @@ templ BreadCrumbDropdownList(items []*dto.BreadCrumbListItem) {
 			<a
 				hx-push-url="true"
 				href={ item.Link }
-				class="block px-3 py-2 text-sm font-medium text-tx-secondary transition-colors hover:bg-secondary hover:text-tx-primary"
+				class="block px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-brand"
 			>{ item.Name }</a>
 		}
 	}
