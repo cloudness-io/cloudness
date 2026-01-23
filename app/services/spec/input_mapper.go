@@ -22,7 +22,7 @@ const (
 	defaultTCPPort            = 8000
 	defaultMountName          = "Storage"
 	defaultMountPath          = "/data"
-	defaultMountSize          = 1
+	defaultMountSize          = 1024
 	defaultReplicas           = 1
 	defaultMemory             = 0.5
 	defaultCPU                = 1

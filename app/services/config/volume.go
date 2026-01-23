@@ -8,7 +8,7 @@ import (
 func (s *Service) GetVolumeRestrictions(server *types.Server, tenant *types.Tenant) *types.VolumeRestriction {
 	return &types.VolumeRestriction{
 		MaxVolumes:    tenant.MaxVolumes,
-		MinVolumeSize: helpers.Max(tenant.MinVolumeSize, server.VolumeMinSize),
+		MinVolumeSize: helpers.Min(tenant.MinVolumeSize, server.VolumeMinSize),
 		MaxVolumeSize: tenant.MaxVolumeSize,
 	}
 }

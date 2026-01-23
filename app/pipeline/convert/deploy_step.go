@@ -157,7 +157,7 @@ func getTemplateInput(image string, input *pipeline.RunnerContextInput, spec *ty
 	for _, v := range input.Volumes {
 		in.Volumes = append(in.Volumes, &templates.Volume{
 			VolumeName: v.GetIdentifierStr(),
-			Storage:    fmt.Sprintf("%dGi", v.Size),
+			Storage:    fmt.Sprintf("%dMi", v.Size),
 			MountPath:  v.MountPath,
 		})
 	}

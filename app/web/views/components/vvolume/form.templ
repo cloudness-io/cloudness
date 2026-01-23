@@ -69,10 +69,11 @@ templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64)
 			})
 			@shared.Input(&shared.InputProps{
 				Label:       "Size",
-				Tooltip:     "Size of the volume in GB, cannot be downsized",
+				Tooltip:     "Size of the volume in MiB, cannot be downsized",
+				Description: "Volume size is in MiB",
 				Name:        "size",
 				Type:        "number",
-				Placeholder: "1",
+				Placeholder: "1024",
 				Required:    true,
 				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
 				Attrs: templ.Attributes{
