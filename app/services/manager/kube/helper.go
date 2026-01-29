@@ -2,6 +2,7 @@ package kube
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/cloudness-io/cloudness/app/usererror"
@@ -42,4 +43,26 @@ func (m *K8sManager) getKubeKeyForDomain(subdomain, hostname string) (string, er
 
 func (m *K8sManager) certificateSecretName(key string) string {
 	return key + "-secret"
+}
+
+func (m *K8sManager) getApplicationUIDFromPodLabels(labels map[string]string) int64 {
+	appName := labels["app.kubernetes.io/name"] //will be of type app-123123123
+
+	appUIDStr, found := strings.CutPrefix(appName, "app-")
+
+	if found {
+		appUID, _ := strconv.ParseInt(appUIDStr, 10, 64)
+		return appUID
+	}
+
+	return 0
+}
+
+func (m *K8sManager) getUpdateTimeFromPodLabels(labels map[string]string) int64 {
+	updateTimeStr, found := labels["cloudness.io/deployment-time"]
+	if !found {
+		return 0
+	}
+	updateTime, _ := strconv.ParseInt(updateTimeStr, 10, 64)
+	return updateTime
 }

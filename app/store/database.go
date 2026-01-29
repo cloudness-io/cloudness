@@ -415,4 +415,13 @@ type (
 		// Delete delete a favorite
 		Delete(ctx context.Context, userID, applicationID int64) error
 	}
+
+	// MetricsStore defines the metrics data storage
+	MetricsStore interface {
+		// UpsertMany upserts the metrics
+		UpsertMany(ctx context.Context, metrics []*types.AppMetrics) error
+
+		// ListByApplicationUID lists the metrics by application uid
+		ListByApplicationUID(ctx context.Context, applicationUID int64, from time.Time, to time.Time, bucketSeconds int64) ([]*types.AppMetricsAggregate, error)
+	}
 )

@@ -24,8 +24,8 @@ const (
 	defaultMountPath          = "/data"
 	defaultMountSize          = 1024
 	defaultReplicas           = 1
-	defaultMemory             = 0.5
 	defaultCPU                = 1
+	defaultMemory             = 0.5
 	defaultRestartPolicy      = enum.RestartPolicyTypeOnFailure
 	defaultRestartMaxRetries  = 5
 	defaultHealthCheckPath    = "/"

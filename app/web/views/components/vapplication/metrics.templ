@@ -1,16 +1,58 @@
 package vapplication
 
 import (
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
 )
 
-templ Metrics(app *types.Application) {
+templ Metrics(app *types.Application, metrics *types.AppMetricsViewModel, span enum.MetricsSpan) {
 	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavMetrics,
 		Header:     shared.CommandBar(getCommandButtons()),
-		Content:    shared.Maintainance(&shared.MaintainanceProps{}),
+		Content:    metricsContent(metrics, span),
 		Options:    getAppPageNav(app),
 	})
+}
+
+templ metricsContent(metrics *types.AppMetricsViewModel, span enum.MetricsSpan) {
+	<div id="metrics-container" class="mt-4 flex flex-col gap-4">
+		@metricsSpanSwitcher(span)
+		<div class="flex flex-col gap-10">
+			@shared.MetricsChart(&shared.MetricsChartData{
+				Title:          "CPU Usage (vCore)",
+				ValueUnit:      "vCores",
+				ValuePrecision: 2,
+				Height:         250,
+				Series:         metrics.CPU,
+			})
+			@shared.MetricsChart(&shared.MetricsChartData{
+				Title:          "Memory Usage (MB)",
+				ValueUnit:      "MB",
+				ValuePrecision: 2,
+				Height:         250,
+				Series:         metrics.Memory,
+			})
+		</div>
+	</div>
+}
+
+templ metricsSpanSwitcher(span enum.MetricsSpan) {
+	<div role="group" dir="ltr" class="rounded-md text-tx-secondary grid grid-cols-4 w-full max-w-none sm:max-w-max sm:w-auto sm:flex" tabindex="0" style="outline: none;">
+		for _, mSpan := range enum.MetricsSpans {
+			<button
+				type="button"
+				role="radio"
+				aria-checked="true"
+				class={
+					`relative flex items-center justify-center -ml-px h-[34px] px-3 py-2 text-sm border border-divider first:rounded-l first:ml-0 last:rounded-r hover:bg-secondary hover:border-brand hover:z-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandh focus-visible:z-[100] cursor-pointer opacity-100`,
+					templ.KV("bg-secondary text-brand", mSpan == span),
+				}
+				hx-get={ fmt.Sprintf("%s/%s", routes.AppMetrics, string(mSpan)) }
+			>{ mSpan }</button>
+		}
+	</div>
 }

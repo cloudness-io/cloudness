@@ -28,7 +28,11 @@ type ServerManager interface {
 	//Registry endpoints
 	AddOrUpdateRegistry(ctx context.Context, server *types.Server, name string, size int64, enableNodePort bool) error
 	RemoveRegistry(ctx context.Context, server *types.Server, name string) error
+
 	//Artifacts
 	ListArtifacts(ctx context.Context, server *types.Server, app *types.Application) ([]*types.Artifact, error)
 	TailLogs(ctx context.Context, server *types.Server, app *types.Application) (<-chan *types.ArtifactLogLine, <-chan error, error)
+
+	//Metrics
+	ListMetrics(ctx context.Context, server *types.Server) ([]*types.AppMetrics, error)
 }

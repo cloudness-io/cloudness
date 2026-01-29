@@ -28,3 +28,12 @@ func (f *ManagerFactory) GetServerManager(server *types.Server) (ServerManager, 
 
 	return val, nil
 }
+
+func (f *ManagerFactory) GetServerManagerByType(serverType enum.ServerType) (ServerManager, error) {
+	val := f.managers[serverType]
+	if val == nil {
+		return nil, fmt.Errorf("unknown server manager type: %s", serverType)
+	}
+
+	return val, nil
+}

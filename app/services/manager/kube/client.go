@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 	gatewayclientset "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 )
 
@@ -49,6 +50,14 @@ func (m *K8sManager) getGatewayClient(ctx context.Context, server *types.Server)
 		return nil, err
 	}
 	return gatewayclientset.NewForConfig(config)
+}
+
+func (m *K8sManager) getMetricsClient(ctx context.Context, server *types.Server) (*metricsclient.Clientset, error) {
+	config, err := m.getClientConfig(ctx, server)
+	if err != nil {
+		return nil, err
+	}
+	return metricsclient.NewForConfig(config)
 }
 
 func (m *K8sManager) getClientConfig(ctx context.Context, server *types.Server) (*rest.Config, error) {

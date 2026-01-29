@@ -34,4 +34,8 @@ type RunnerClient interface {
 
 	// Upload uploads the full logs to server
 	Upload(ctx context.Context, deploymentID int64, logs []*types.LogLine) error
+
+	//Metrics
+	// UploadMetrics uploads the full metrics to server
+	UploadMetrics(ctx context.Context, metrics []*types.AppMetrics) error
 }

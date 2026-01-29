@@ -1,0 +1,1 @@
+` docker run -d   --name cloudness   -p 5432:5432   -e POSTGRES_USER=postgres   -e POSTGRES_PASSWORD=postgres   -e POSTGRES_DB=cloudness   -e TZ=UTC   -v pg18-data:/var/lib/postgresql  timescale/timescaledb:latest-pg17`

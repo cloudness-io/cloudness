@@ -27,6 +27,7 @@ type Controller struct {
 	schemaSvc        *schema.Service
 	specSvc          *spec.Service
 	applicationStore store.ApplicationStore
+	metricsStore     store.MetricsStore
 	serverCtrl       *server.Controller
 	varCtrl          *variable.Controller
 	gitPublicCtrl    *gitpublic.Controller
@@ -42,6 +43,7 @@ func NewController(
 	schemaSvc *schema.Service,
 	specSvc *spec.Service,
 	applicationStore store.ApplicationStore,
+	metricsStore store.MetricsStore,
 	serverCtrl *server.Controller,
 	varCtrl *variable.Controller,
 	gitPublicCtrl *gitpublic.Controller,
@@ -56,6 +58,7 @@ func NewController(
 		schemaSvc:        schemaSvc,
 		specSvc:          specSvc,
 		applicationStore: applicationStore,
+		metricsStore:     metricsStore,
 		serverCtrl:       serverCtrl,
 		varCtrl:          varCtrl,
 		gitPublicCtrl:    gitPublicCtrl,

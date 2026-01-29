@@ -369,7 +369,7 @@ func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment
 			r.Get("/logs", handlerapplication.HandleGetLogs(appCtrl))
 			r.Get("/logs/stream", handlerapplication.HandleTailLogs(appCtx, appCtrl))
 			r.Get("/terminal", handlerapplication.HandleGetTerminal())
-			r.Get("/metrics", handlerapplication.HandleGetMetrics(appCtrl))
+			r.Get(fmt.Sprintf("/metrics/{%s}", request.PathParamMetricsSpan), handlerapplication.HandleGetMetrics(appCtrl))
 			r.Route("/favorite", func(r chi.Router) {
 				r.Get("/", handlerfavorite.HandleGetFavorite(favCtrl))
 				r.Get("/add", handlerfavorite.HandleAddFavorite(favCtrl))
