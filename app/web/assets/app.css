@@ -347,3 +347,18 @@
   display: inline-block;
   transition: opacity 200ms ease-in;
 }
+
+/* uChart */
+.u-title {
+  @apply text-tx-secondary;
+  font-size: var(--text-base) !important;
+  font-weight: 500 !important;
+}
+
+.u-label {
+  @apply text-tx-secondary;
+}
+
+.u-value {
+  @apply text-sm;
+}

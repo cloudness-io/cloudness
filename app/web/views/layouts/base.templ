@@ -71,6 +71,7 @@ templ baseLayout() {
 			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" hx-preserve="true"/>
 			<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;700&display=swap" rel="stylesheet" hx-preserve="true"/>
 			<!-- <script defer src={ views.Asset("index.js") } hx-preserve="true"></script> -->
+			<script defer src={ views.Asset("metrics-chart.js") } hx-preserve="true"></script>
 			<!-- ICONS -->
 			@phosphorLinks()
 			<!-- Alpine Plugins -->
@@ -86,6 +87,9 @@ templ baseLayout() {
 			<!-- JS -->
 			<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js" hx-preserve="true"></script>
 			<script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.32.1/humanize-duration.min.js" hx-preserve="true"></script>
+			<!-- uPlot -->
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.min.css" hx-preserve="true"/>
+			<script src="https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.iife.min.js" hx-preserve="true"></script>
 			@shared.ExternalScripts(request.InstanceSettingsFrom(ctx))
 			@shared.AdditionalScripts(request.InstanceSettingsFrom(ctx))
 		</head>

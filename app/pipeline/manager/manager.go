@@ -53,6 +53,10 @@ type (
 
 		// Upload uploads the full logs to server
 		Upload(ctx context.Context, deploymentID int64, r io.Reader) error
+
+		//Metrics
+		// UploadMetrics uploads the full metrics to server
+		UploadMetrics(ctx context.Context, metrics []*types.AppMetrics) error
 	}
 )
 
@@ -63,6 +67,7 @@ type runnerManager struct {
 	deploymentStore  store.DeploymentStore
 	volumeStore      store.VolumeStore
 	logStore         store.LogStore
+	metricsStore     store.MetricsStore
 	varCtrl          *variable.Controller
 	configSvc        *config.Service
 	ghAppSvc         *githubapp.Service
@@ -76,6 +81,7 @@ func New(scheduler scheduler.Scheduler,
 	deploymentStore store.DeploymentStore,
 	volumeStore store.VolumeStore,
 	logStore store.LogStore,
+	metrcisStore store.MetricsStore,
 	varCtrl *variable.Controller,
 	configSvc *config.Service,
 	ghAppSvc *githubapp.Service,
@@ -89,6 +95,7 @@ func New(scheduler scheduler.Scheduler,
 		deploymentStore:  deploymentStore,
 		volumeStore:      volumeStore,
 		logStore:         logStore,
+		metricsStore:     metrcisStore,
 		varCtrl:          varCtrl,
 		configSvc:        configSvc,
 		ghAppSvc:         ghAppSvc,
@@ -328,6 +335,14 @@ func (m *runnerManager) Stream(ctx context.Context, deploymentID int64, lines []
 func (m *runnerManager) Upload(ctx context.Context, deploymentID int64, r io.Reader) error {
 	if err := m.logStore.Create(ctx, deploymentID, r); err != nil {
 		log.Ctx(ctx).Error().Err(err).Msg("manager: error uploading logs")
+		return err
+	}
+	return nil
+}
+
+func (m *runnerManager) UploadMetrics(ctx context.Context, metrics []*types.AppMetrics) error {
+	if err := m.metricsStore.UpsertMany(ctx, metrics); err != nil {
+		log.Ctx(ctx).Error().Err(err).Msg("manager: error uploading metrics")
 		return err
 	}
 	return nil

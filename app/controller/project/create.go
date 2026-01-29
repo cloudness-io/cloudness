@@ -9,6 +9,7 @@ import (
 	"github.com/cloudness-io/cloudness/errors"
 	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
 
 	"github.com/rs/zerolog/log"
 )
@@ -58,6 +59,12 @@ func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *
 			return err
 		}
 
+		if err := c.AddMember(ctx, session, tenant.ID, project.ID, &ProjectMembershipAddModel{
+			Email: session.Principal.Email,
+			Role:  enum.ProjectRoleOwner,
+		}); err != nil {
+			return err
+		}
 		_, err = c.envCtrl.Create(ctx, session, tenant, project, &environment.CreateEnvironmentInput{
 			Name: "Development",
 		})

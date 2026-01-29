@@ -1,10 +1,13 @@
 package vapplication
 
 import (
+	"fmt"
+
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/enum"
 )
 
 const (
@@ -30,7 +33,7 @@ func getAppPageNav(app *types.Application) []*shared.PageNavItem {
 		{
 			Name:      AppNavMetrics,
 			Icon:      icons.MetricsIcon,
-			ActionUrl: routes.AppMetrics,
+			ActionUrl: fmt.Sprintf("%s/%s", routes.AppMetrics, enum.MetricsSpan1h),
 		},
 		{
 			Name:      AppNavLogs,

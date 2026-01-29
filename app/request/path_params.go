@@ -17,6 +17,7 @@ const (
 	PathParamAuthProvider   = "auth_provider"
 	PathParamVariableUID    = "variable_uid"
 	PathParamTemplateID     = "template_id"
+	PathParamMetricsSpan    = "metrics_span"
 )
 
 func GetTenantUIDFromPath(r *http.Request) (int64, error) {
@@ -97,4 +98,9 @@ func GetTemplateIDFromPath(r *http.Request) (int64, error) {
 
 func GetAuthProviderFromPath(r *http.Request) (string, error) {
 	return PathParamOrError(r, PathParamAuthProvider)
+}
+
+func GetMetricsSpanFromPath(r *http.Request) string {
+	span, _ := PathParam(r, PathParamMetricsSpan)
+	return span
 }

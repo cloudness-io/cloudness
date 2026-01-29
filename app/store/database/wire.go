@@ -35,6 +35,7 @@ var WireSet = wire.NewSet(
 	ProvideJobStore,
 	ProvideTemplateStore,
 	ProvideFavoriteStore,
+	ProvideMetricsStore,
 )
 
 // migrator is helper function to set up the database by performing automated
@@ -151,4 +152,9 @@ func ProvideTemplateStore(db *sqlx.DB) store.TemplateStore {
 // ProvideFavoriteStore provides a favorite store.
 func ProvideFavoriteStore(db *sqlx.DB) store.FavoriteStore {
 	return NewFavoriteStore(db)
+}
+
+// ProvideMetricsStore provides a metrics store.
+func ProvideMetricsStore(db *sqlx.DB) store.MetricsStore {
+	return NewMetricsStore(db)
 }

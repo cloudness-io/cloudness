@@ -1,0 +1,32 @@
+package shared
+
+import "encoding/json"
+import "github.com/cloudness-io/cloudness/types"
+
+type MetricsChartData struct {
+	Title          string                          `json:"title"`
+	ValueUnit      string                          `json:"valueUnit"`
+	ValuePrecision int                             `json:"valuePrecision"`
+	Height         int                             `json:"height"`
+	Series         []*types.MetricsSeriesViewModel `json:"series"`
+}
+
+func (d MetricsChartData) ToJSON() string {
+	b, _ := json.Marshal(d)
+	return string(b)
+}
+
+templ MetricsChart(data *MetricsChartData) {
+	@MetricsChartWithData(data)
+}
+
+templ MetricsChartWithData(data *MetricsChartData) {
+	<div class="bg-primary border border-border rounded-sm p-6">
+		<div
+			x-data="metricsChart()"
+			x-init={ "config = " + data.ToJSON() + "; initChart()" }
+			class="metrics-chart-container"
+			:style="'height: ' + config.height + 'px'"
+		></div>
+	</div>
+}
