@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	applicationName = "Cloudness Platfrm"
+	applicationName = "Cloudness Platform"
 	description     = "Awesome App Platform"
 )
 
