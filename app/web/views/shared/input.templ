@@ -67,7 +67,7 @@ templ Input(props *InputProps) {
 					}
 					x-cloak
 					class={
-						`w-full text-sm rounded-sm bg-transparent border border-divider hover:border-brand focus:border-brand focus:outline-hidden leading-5 px-2 py-1 cursor-auto disabled:bg-secondary disabled:hover:border-0 disabled:focus:border-0 disabled:text-substitute`,
+						`flex w-full text-sm rounded-md border bg-transparent border border-divider focus:border-brand focus:outline-hidden leading-4 px-3 py-2 h-[34px] cursor-auto disabled:bg-secondary disabled:hover:border-0 disabled:focus:border-0 disabled:text-substitute`,
 						templ.KV("border-error", props.Error != ""),
 						templ.KV("disabled", isInputDisabled(props)),
 						props.InputClass,

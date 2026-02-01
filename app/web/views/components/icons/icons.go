@@ -7,14 +7,14 @@ const (
 	K8sIcon    = "k8s.svg"
 	RunnerIcon = "ph-fill ph-person-simple-run text-violet-500"
 
-	ProjectIcon     = "ph ph-stack text-indigo-400"
+	ProjectIcon     = "ph ph-stack"
 	EnvironmentIcon = "ph ph-package text-cyan-700"
 	ApplicationIcon = "ph ph-globe-simple text-blue-400"
 	OutIcon         = "ph ph-arrow-square-out text-brand"
 
 	//Fav
-	ToFavIcon = "ph ph-star text-yellow-400"
-	IsFavIcon = "ph-fill ph-star text-yellow-400"
+	ToFavIcon = "ph ph-star"
+	IsFavIcon = "ph-fill ph-star"
 
 	PipelineSucessIcon  = "ph-fill ph-check-circle"
 	PipelineErrorIcon   = "ph-fill ph-x-circle"
@@ -59,7 +59,7 @@ const (
 	FunctionIcon     = "ph ph-function"
 	CopyIcon         = "ph ph-copy"
 
-	SettingsIcon             = "ph ph-gear text-slate-400"
+	SettingsIcon             = "ph ph-gear"
 	BuildSectionIcon         = "ph ph-hammer"
 	DeploySectionIcon        = "ph ph-cube"
 	MetricsSectionIcon       = "ph ph-chart-line"

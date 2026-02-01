@@ -18,6 +18,23 @@ templ projectCreateButton() {
 	}
 }
 
+templ NewHome(tenants []*types.TenantMembershipUser) {
+	<div class="max-w-7xl mx-auto flex flex-col gap-1 mt-1 px-1 md:px-2">
+		<div
+			id="organizations"
+			class="min-h-72"
+		>
+			<div class="flex items-center gap-1">
+				@shared.Icon(icons.ProjectIcon, "icon-lg size-5")
+				<h3>
+					Projects
+				</h3>
+			</div>
+			@shared.NoData("No Projects found", projectCreateButton())
+		</div>
+	</div>
+}
+
 templ Home(tenant *types.Tenant, projects []*types.Project) {
 	<div class="max-w-7xl mx-auto flex flex-col gap-1 mt-1 px-1 md:px-2">
 		<div

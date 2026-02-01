@@ -7,18 +7,19 @@
     --warning: rgb(192, 144, 2);
     --pending: rgba(0, 120, 212, 1);
 
-    --background-primary: #151515;
-    --background-secondary: #242423;
-    --background-secondary-hover: #4d4c4c;
+    --background-primary: #171717;
+    --background-secondary: #242424;
+    --background-secondary-hover: #2e2e2e;
     --background-dropdown: #1a1a1a;
-    --text-primary: #cfcfcf;
-    --text-secondary: #989694;
-    --brand: #2899f5;
-    --link: #2899f5;
+    --text-primary: #fafafa;
+    --text-secondary: #b4b4b4;
+    --brand: #1e88e5;
+    --link: #1e88e5;
     --link-hover: #82c7ff;
     --link-disabled: #797775;
     --disabled: #797775;
-    --border: #414141;
+    --border: #2e2e2e;
+    --border-strong: #454545;
     --border-mutted: #323130;
   }
 }
@@ -45,6 +46,7 @@
 
   /* controls, border */
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-border-mutted: var(--border-mutted);
 
   /* size */
@@ -69,8 +71,7 @@
     -moz-tab-size: 4;
     -o-tab-size: 4;
     tab-size: 4;
-    font-family:
-      "Segoe UI", system-ui, "Open Sans", "Helvetica Neue", sans-serif;
+    font-family: "Plus Jakarta Sans", sans-serif;
     font-feature-settings: normal;
     font-variation-settings: normal;
     -webkit-tap-highlight-color: transparent;
@@ -216,7 +217,7 @@
 }
 
 @utility button {
-  @apply flex justify-center items-center gap-1 px-6 py-1 opacity-90 cursor-pointer hover:opacity-100 transform transition-transform active:scale-95 focus:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:transition-none disabled:transform-none rounded-xs hover:no-underline font-medium text-white;
+  @apply flex justify-center items-center gap-1 px-6 py-1 h-[34px] opacity-90 cursor-pointer hover:opacity-100 transform transition-transform active:scale-95 focus:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:transition-none disabled:transform-none rounded-xs hover:no-underline font-medium text-white;
 }
 
 @utility link {

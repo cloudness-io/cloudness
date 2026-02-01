@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cloudness-io/cloudness/app/auth"
+	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/types"
 )
 
@@ -29,6 +30,7 @@ const (
 	deploymentKey
 	volumeKey
 	authSettingKey
+	navItemsKey
 )
 
 // WithRequestID returns a copy of parent in which the request id value is set.
@@ -237,4 +239,20 @@ func WithAuthSetting(parent context.Context, c *types.AuthSetting) context.Conte
 func AuthSettingFrom(ctx context.Context) (*types.AuthSetting, bool) {
 	c, ok := ctx.Value(authSettingKey).(*types.AuthSetting)
 	return c, ok && c != nil
+}
+
+// WithNavItem function returns a copy of parent with navigation items
+func WithNavItem(parent context.Context, nav *dto.NavItem) context.Context {
+	navItems, _ := NavItemsFrom(parent)
+	navItems = append(navItems, nav)
+	return context.WithValue(parent, navItemsKey, navItems)
+}
+
+// NavItensFrom returns the value of the main navigation crumb
+func NavItemsFrom(ctx context.Context) ([]*dto.NavItem, bool) {
+	c, ok := ctx.Value(navItemsKey).([]*dto.NavItem)
+	if c == nil {
+		return []*dto.NavItem{}, true
+	}
+	return c, ok
 }

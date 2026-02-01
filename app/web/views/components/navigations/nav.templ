@@ -1,27 +1,28 @@
 package navigations
 
 import (
-	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
-	"github.com/cloudness-io/cloudness/version"
 )
 
 templ MainNav(dto *dto.NavBarOption) {
 	<header
 		hx-sync="#main:replace"
 		hx-push-url="true"
-		class="h-12 grid grid-flow-col pl-4 min-w-full border-b bg-secondary"
+		class="h-12 grid grid-flow-col pl-4 min-w-full border-b bg-primary"
 	>
-		<a
-			class="flex items-center space-x-1.5 max-w-max text-brand text-xl cursor-pointer"
-			hx-get={ routes.TenantCtx(ctx) }
-		>
-			<img src={ views.Asset("logo.svg") } class="h-5 w-auto" alt="logo"/>
-			<span class="font-semibold text-md">{ views.AppName }</span>
-			<span class="text-xs text-muted-foreground font-mono mt-2">v{ version.GetVersion() }</span>
-		</a>
+		<div class="flex items-center text-sm">
+			<a
+				class="flex items-center space-x-1.5 max-w-max cursor-pointer"
+				hx-get="/"
+			>
+				<img src={ views.Asset("logo.svg") } class="size-4 w-auto" alt="logo"/>
+			</a>
+			<div class="hidden md:block">
+				@breadCrumb(buildBreadcrumbProps(ctx), false)
+			</div>
+		</div>
 		<div class="flex items-center ml-auto space-x-2">
 			<span class="size-6">
 				@shared.AppLinkGithub()
@@ -29,4 +30,8 @@ templ MainNav(dto *dto.NavBarOption) {
 			@ProfileDropdown(dto)
 		</div>
 	</header>
+	<!-- mobile set md:hidden-->
+	<div class="h-12 block pl-4 min-w-full border-b bg-primary flex items-center">
+		@breadCrumb(buildBreadcrumbProps(ctx), false)
+	</div>
 }

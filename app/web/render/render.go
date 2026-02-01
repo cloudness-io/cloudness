@@ -7,6 +7,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/common"
+	"github.com/cloudness-io/cloudness/app/web/views/components/navigations"
 	"github.com/cloudness-io/cloudness/app/web/views/components/toast"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/layouts"
@@ -24,13 +25,8 @@ func getBaseLayoutDTO(ctx context.Context) *dto.BaseLayoutOption {
 
 	if session, ok := request.AuthSessionFrom(ctx); ok {
 		dto.Nav.DisplayName = session.Principal.DisplayName
+		dto.Nav.Email = session.Principal.Email
 	}
-
-	if tenant, ok := request.TenantFrom(ctx); ok {
-		dto.Nav.TenantName = tenant.Name
-		dto.Nav.TenantUID = tenant.UID
-	}
-
 	return dto
 }
 
@@ -59,6 +55,7 @@ func Page(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 		w.Header().Set("HX-Reswap", "innerHTML")
 		w.Header().Set("HX-Retarget", "#main")
 		shared.Title().Render(ctx, w)
+		navigations.BreadCrumb().Render(ctx, w)
 		shared.BaseUrl().Render(ctx, w)
 		shared.BreadCrumb(false).Render(ctx, w)
 		if _, ok := request.ProjectFrom(ctx); ok {

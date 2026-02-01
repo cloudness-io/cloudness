@@ -1,0 +1,39 @@
+package navigations
+
+import "context"
+import "github.com/cloudness-io/cloudness/app/request"
+import "github.com/cloudness-io/cloudness/app/web/views/dto"
+
+func buildBreadcrumbProps(ctx context.Context) []*dto.NavItem {
+	navItems, _ := request.NavItemsFrom(ctx)
+	return navItems
+}
+
+templ BreadCrumb() {
+	@breadCrumb(buildBreadcrumbProps(ctx), true)
+}
+
+templ breadCrumb(crumbs []*dto.NavItem, doSwap bool) {
+	<div
+		id="breadcrumb"
+		class="flex items-center md:pl-1"
+		if doSwap {
+			hx-swap-oob="true"
+		}
+	>
+		for _, crumb := range crumbs {
+			@breadCrumbDivider()
+			@breadCrumbItem(crumb)
+		}
+	</div>
+}
+
+templ breadCrumbItem(item *dto.NavItem) {
+	<span class="text-tx-primary">{ item.Title }</span>
+}
+
+templ breadCrumbDivider() {
+	<span class="text-border-strong pr-2 hidden md:block">
+		<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision"><path d="M16 3.549L7.12 20.600"></path></svg>
+	</span>
+}

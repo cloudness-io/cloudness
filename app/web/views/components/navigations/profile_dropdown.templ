@@ -1,19 +1,16 @@
 package navigations
 
 import (
-	"fmt"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 )
 
 templ ProfileDropdown(dto *dto.NavBarOption) {
-	<div class="flex items-center hover:bg-secondary-hover h-full px-1">
-		<div
-			x-data="{
+	<div
+		x-data="{
             open: false,
             toggle() {
                 if (this.open) {
@@ -32,73 +29,64 @@ templ ProfileDropdown(dto *dto.NavBarOption) {
                 focusAfter && focusAfter.focus()
             }
         }"
-			x-on:keydown.escape.prevent.stop="close($refs.button)"
-			x-on:focusin.window="! $refs.panel.contains($event.target) && close()"
-			x-id="['dropdown-button']"
-			class="relative"
+		x-on:keydown.escape.prevent.stop="close($refs.button)"
+		x-on:focusin.window="! $refs.panel.contains($event.target) && close()"
+		x-id="['dropdown-button']"
+		class="relative"
+	>
+		<!-- Button -->
+		<button
+			x-ref="button"
+			x-on:click="toggle()"
+			:aria-expanded="open"
+			:aria-controls="$id('dropdown-button')"
+			type="button"
+			class="cursor-pointer pr-2"
 		>
-			<!-- Button -->
-			<button
-				x-ref="button"
-				x-on:click="toggle()"
-				:aria-expanded="open"
-				:aria-controls="$id('dropdown-button')"
-				type="button"
-				class="flex items-center cursor-pointer gap-1 pr-2"
-			>
-				<div class="hidden sm:flex flex-col">
-					<span>{ dto.DisplayName }</span>
-					<span class="text-2xs uppercase ml-auto">{ dto.TenantName } </span>
-				</div>
-				<img
-					class="size-6 rounded-full object-cover"
-					src={ "https://api.dicebear.com/9.x/initials/svg?backgroundColor=2899f5&seed=" + dto.DisplayName }
-					alt="avatar"
-				/>
-				@shared.Icon(icons.NavDownIcon, "icon-md")
-			</button>
-			<!-- Panel -->
-			<div
-				x-ref="panel"
-				x-show="open"
-				x-transition.origin.top.left
-				x-on:click.outside="close($refs.button)"
-				:id="$id('dropdown-button')"
-				style="display: none;"
-				class="absolute right-0 m-2 mt-3 w-40 rounded-xs bg-primary shadow-md border-2 border-divider divide-y"
-			>
-				<ul class="flex flex-col py-1.5" role="none">
-					if dto.TenantName != "" && request.IsTeamAdmin(ctx) {
-						@dropdownItem(dto.TenantName, icons.TeamIcon, fmt.Sprintf("/%s/settings", routes.Tenant(dto.TenantUID)))
-					}
-					@dropdownItem("Switch Team", icons.SwitchIcon, routes.AccountTeams)
-				</ul>
-				if request.IsSuperAdmin(ctx) {
-					<ul class="flex flex-col py-1.5" role="none">
-						@dropdownItem(views.AppName, "logo.svg", "/settings")
-					</ul>
-				}
-				if request.IsAuthenticated(ctx) {
-					<ul class="flex flex-col py-1.5" role="none">
-						@dropdownItem("Profile", icons.UserProfileIcon, routes.Profile)
-					</ul>
-				}
-				<!-- Dropdown Section -->
-				<ul class="flex flex-col py-1.5" role="none">
-					@dropdownItem("Logout", icons.UserSignoutIcon, routes.Logout)
-				</ul>
+			<img
+				class="size-6 rounded-full object-cover mt-1"
+				src={ "https://api.dicebear.com/9.x/identicon/svg?rowColor=1e88e5&seed=" + dto.DisplayName }
+				alt="avatar"
+			/>
+		</button>
+		<!-- Panel -->
+		<div
+			x-ref="panel"
+			p-8
+			x-show="open"
+			x-transition.origin.top.left
+			x-on:click.outside="close($refs.button)"
+			:id="$id('dropdown-button')"
+			style="display: none;"
+			class="absolute right-0 m-1 mr-2 min-w-[8rem] w-64 p-1 overflow-hidden rounded-md bg-secondary text-tx-secondary shadow-md border-1 z-10"
+		>
+			<div class="px-2 py-1 flex flex-col gap-0 text-sm">
+				<span title={ dto.DisplayName } class="w-full text-left truncate text-tx-primary">{ dto.DisplayName }</span>
+				<span title={ dto.Email } class="w-full text-left text-xs truncate">{ dto.Email }</span>
 			</div>
+			@shared.Seperator()
+			@dropdownItem("Account Settings", icons.SettingsIcon, routes.Account)
+			@shared.Seperator()
+			if request.IsSuperAdmin(ctx) {
+				@dropdownItem("Instance Settings", "logo.svg", "/settings")
+				@shared.Seperator()
+			}
+			@dropdownItem("Logout", icons.UserSignoutIcon, routes.Logout)
 		</div>
 	</div>
 }
 
 templ dropdownItem(name string, icon string, action string) {
-	<li
+	<a
 		role="menuitem"
+		class="relative cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none
+						transition-colors hover:bg-secondary-hover hover:text-tx-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 flex gap-2"
+		tabindex="-1"
+		data-orientation="vertical"
+		data-radix-collection-item=""
+		href={ action }
 	>
-		<a href={ action } class="flex items-center gap-2 px-4 py-2 text-sm  cursor-pointer hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-hidden">
-			@shared.Icon(icon, "icon-lg")
-			{ name }
-		</a>
-	</li>
+		@shared.Icon(icon, "icon-sm")
+		{ name }
+	</a>
 }

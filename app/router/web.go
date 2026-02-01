@@ -29,6 +29,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/middleware/hx"
 	middlewareinject "github.com/cloudness-io/cloudness/app/middleware/inject"
 	"github.com/cloudness-io/cloudness/app/middleware/logging"
+	middlewarenav "github.com/cloudness-io/cloudness/app/middleware/nav"
 	"github.com/cloudness-io/cloudness/app/middleware/nocache"
 	middlewarerestrict "github.com/cloudness-io/cloudness/app/middleware/restrict"
 	"github.com/cloudness-io/cloudness/app/middleware/url"
@@ -194,6 +195,7 @@ func setupWebhooks(r chi.Router, tenantCtrl *tenant.Controller, projectCtrl *pro
 func setupInstance(r chi.Router, instanceCtrl *instance.Controller, serverCtrl *server.Controller, authCtrl *auth.Controller) {
 	r.Route("/settings", func(r chi.Router) {
 		r.Use(middlewarerestrict.ToSuperAdmin())
+		r.Use(middlewarenav.PopulateNavItem("Instance Settings"))
 		r.Get("/", handlerinstance.HandleGetSettings(instanceCtrl, serverCtrl))
 		r.Patch("/", handlerinstance.HandlePatchInstanceSettings(instanceCtrl, serverCtrl))
 		r.Route("/auth", func(r chi.Router) {
@@ -244,6 +246,7 @@ func setupTenant(r chi.Router,
 				r.Use(middlewarerestrict.ToSuperAdmin())
 				r.Post("/", handlertenant.HandleAdd(tenantCtrl))
 			})
+			r.Get("/", handlertenant.HandleList(tenantCtrl))
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTenantUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectTenant(tenantCtrl))
 				r.Get("/", handlertenant.HandleGet(tenantCtrl, projectCtrl))
@@ -268,7 +271,7 @@ func setupTenant(r chi.Router,
 				})
 			})
 		})
-		r.Get("/", handlertenant.HandleGetWithoutTenantUID(tenantCtrl))
+		r.Get("/", handlertenant.HandleList(tenantCtrl))
 	})
 }
 
@@ -509,7 +512,8 @@ func setupAccountWithoutAuth(r chi.Router, config *types.Config, instanceCtrl *i
 func setupAccount(r chi.Router, config *types.Config, authCtrl *auth.Controller, userCtrl *user.Controller, tenantCtrl *tenant.Controller) {
 	cookieName := config.Token.CookieName
 	r.Get("/logout", accounthandler.HandleLogout(authCtrl, cookieName))
-	r.Route("/profile", func(r chi.Router) {
+	r.Route("/account", func(r chi.Router) {
+		r.Use(middlewarenav.PopulateNavItem("Account"))
 		r.Get("/", accounthandler.HandleGetProfile(userCtrl))
 		r.Patch("/", accounthandler.HandlePatchProfile(userCtrl))
 		r.Get("/teams", accounthandler.HandleGetSwitch(userCtrl, tenantCtrl))
