@@ -5,7 +5,7 @@ import "github.com/cloudness-io/cloudness/app/utils/routes"
 import "github.com/cloudness-io/cloudness/types"
 
 templ LoginForm(userSignupEnabled bool, demoUser *types.DemoUser) {
-	<form class="mt-6 space-y-3" hx-post={ routes.Login } hx-swap="none">
+	<form class="mt-6 space-y-3" hx-post={ routes.Login } hx-swap="none" hx-indicator="#overlay-spinner">
 		@shared.NewInput(&shared.NewInputProps{
 			Name:        "email",
 			Label:       "Email",

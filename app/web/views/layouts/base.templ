@@ -25,11 +25,8 @@ templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 		@navigations.MainNav(dto.Nav)
 	</div>
 	<div class="relative">
-		<div class="progress-indicator mx-auto">
-			<div
-				class="indeterminate bg-brand"
-			></div>
-		</div>
+		@shared.ProgressIndicator()
+		@shared.OverlaySpinner()
 		@common.RenderSSEStreamer()
 		<div class="main" id="main">
 			@shared.BreadCrumb(false)
@@ -45,11 +42,8 @@ templ LayoutWithoutNav(contents templ.Component) {
 		<div class="sticky top-0 z-50">
 			<div id="toast" class="toast-wrapper"></div>
 		</div>
-		<div class="progress-indicator mx-auto">
-			<div
-				class="indeterminate bg-brand"
-			></div>
-		</div>
+		@shared.ProgressIndicator()
+		@shared.OverlaySpinner()
 		@contents
 	</div>
 }

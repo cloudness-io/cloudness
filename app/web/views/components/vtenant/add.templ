@@ -55,7 +55,7 @@ templ AddTeamPage() {
 }
 
 templ addTeamFrom() {
-	<form id="addTeamForm" hx-push-url="false" hx-post={ routes.TenantCreate() } hx-swap="none">
+	<form id="addTeamForm" hx-push-url="false" hx-post={ routes.TenantCreate() } hx-swap="none" hx-indicator="#overlay-spinner">
 		<div class="relative">
 			<div class="transition-opacity duration-300">
 				<div class="bg-secondary rounded-md border shadow-sm overflow-hidden mb-4 md:mb-8">

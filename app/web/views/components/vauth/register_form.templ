@@ -12,6 +12,7 @@ templ RegisterForm() {
 		x-cloak
 		hx-post={ routes.Register }
 		hx-swap="none"
+		hx-indicator="#overlay-spinner"
 	>
 		@shared.NewInput(&shared.NewInputProps{
 			Name:        "displayName",
