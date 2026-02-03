@@ -46,7 +46,7 @@ templ LogContainer(d *types.Deployment) {
 
 templ LogViewer(logs []*types.LogLine) {
 	if len(logs) == 0 {
-		<div class="text-tx-secondary p-1">No logs found</div>
+		<div class="text-foreground-light p-1">No logs found</div>
 	} else {
 		for _, log := range logs {
 			if log.Message != "" {
@@ -66,7 +66,7 @@ templ logContainer(withSpinner bool, initMsg string) {
 				<span class="spinner w-12 h-12"></span>
 			</div>
 		} else {
-			<div class="text-tx-secondary p-1">{ initMsg }</div>
+			<div class="text-foreground-light p-1">{ initMsg }</div>
 		}
 	</div>
 }

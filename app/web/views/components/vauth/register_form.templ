@@ -13,64 +13,42 @@ templ RegisterForm() {
 		hx-post={ routes.Register }
 		hx-swap="none"
 	>
-		<div>
-			<label class="text-sm font-medium mb-2 block">Display Name</label>
-			<div class="relative flex items-center">
-				@shared.Input(&shared.InputProps{
-					Name:        "displayName",
-					HideLabel:   true,
-					Placeholder: "Enter Display Name",
-					Attrs: templ.Attributes{
-						"x-model": "form.displayName",
-					},
-				})
-			</div>
-		</div>
-		<div>
-			<label class="text-sm font-medium mb-2 block">Email</label>
-			<div class="relative flex items-center">
-				@shared.Input(&shared.InputProps{
-					Name:        "email",
-					HideLabel:   true,
-					Placeholder: "Enter Email",
-					Attrs: templ.Attributes{
-						"x-model": "form.email",
-					},
-				})
-			</div>
-		</div>
-		<div>
-			<label class="text-sm font-medium mb-2 block">Password</label>
-			<div class="relative flex items-center">
-				@shared.Input(&shared.InputProps{
-					Name:        "password",
-					Type:        "password",
-					HideLabel:   true,
-					Placeholder: "Enter Password",
-					Attrs: templ.Attributes{
-						"x-model": "form.password",
-					},
-				})
-			</div>
-		</div>
-		<div>
-			<label class="text-sm font-medium mb-2 block">Confirm Password</label>
-			<div class="relative flex items-center">
-				@shared.Input(&shared.InputProps{
-					Name:        "confirmPassword",
-					Type:        "password",
-					HideLabel:   true,
-					Placeholder: "Confirm Password",
-					Attrs: templ.Attributes{
-						"x-model": "form.confirmPassword",
-					},
-				})
-			</div>
-			<span
-				class="text-error text-xs"
-				x-show="form.password != form.confirmPassword"
-			>Confirm Password doesn't match</span>
-		</div>
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "displayName",
+			Label:       "Display Name",
+			Placeholder: "Enter Display Name",
+			Direction:   "vertical",
+			InputAttrs: templ.Attributes{
+				"x-model": "form.displayName",
+			},
+		})
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "email",
+			Label:       "Email",
+			Placeholder: "Enter Email",
+			Direction:   "vertical",
+			InputAttrs: templ.Attributes{
+				"x-model": "form.email",
+			},
+		})
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "password",
+			Label:       "Password",
+			Placeholder: "Enter Password",
+			Direction:   "vertical",
+			InputAttrs: templ.Attributes{
+				"x-model": "form.password",
+			},
+		})
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "confirmPassword",
+			Label:       "Confirm Password",
+			Placeholder: "Confirm Password",
+			Direction:   "vertical",
+			InputAttrs: templ.Attributes{
+				"x-model": "form.confirmPassword",
+			},
+		})
 		<button
 			type="submit"
 			class="w-full py-2 px-4 text-sm button-primary"

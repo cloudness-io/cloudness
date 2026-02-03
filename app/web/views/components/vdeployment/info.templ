@@ -54,7 +54,7 @@ templ info(app *types.Application, d *types.Deployment, info *types.DeploymentIn
 	@vsource.Info(app, d.Spec)
 	<div class="flex flex-col gap-2">
 		<span class="flex gap-1">
-			<span class="text-tx-secondary">
+			<span class="text-foreground-light">
 				Triggered by: 
 			</span>
 			<span>
@@ -66,20 +66,20 @@ templ info(app *types.Application, d *types.Deployment, info *types.DeploymentIn
 		</span>
 		if d.Started > 0 {
 			<span class="flex gap-1">
-				<span class="text-tx-secondary">Started: </span>
+				<span class="text-foreground-light">Started: </span>
 				<span>
 					@common.DateTimeYear(d.Started)
 				</span>
 			</span>
 			if d.IsDone() {
 				<span class="flex gap-1">
-					<span class="text-tx-secondary">Ended: </span>
+					<span class="text-foreground-light">Ended: </span>
 					<span>
 						@common.DateTimeYear(d.Stopped)
 					</span>
 				</span>
 				<span class="flex gap-1">
-					<span class="text-tx-secondary">Duration: </span>
+					<span class="text-foreground-light">Duration: </span>
 					<span>
 						@common.TimeDiff(d.Started, d.Stopped)
 					</span>

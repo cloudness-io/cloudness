@@ -1,0 +1,49 @@
+package shared
+
+type NewInputProps struct {
+	Name             string
+	Label            string
+	LabelDescription string
+	Value            string
+	ValueDescription string
+	Placeholder      string
+	InputAttrs       templ.Attributes
+	Direction        string
+}
+
+templ NewInput(props *NewInputProps) {
+	<div>
+		<div class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction == "vertical") }>
+			if props.Label != "" {
+				<div class={ "transition-all duration-500 ease-in-out col-span-4 flex flex-col gap-2",templ.KV("col-span-12",props.Direction == "vertical") }>
+					<label class="text peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm transition-colors text-foreground flex gap-2 items-center break-all leading-normal">
+						<span>{ props.Label }</span>
+					</label>
+					if props.LabelDescription != "" {
+						<div id={ props.Name + "-description" } class="text-xs text-foreground-muted">{ props.LabelDescription }</div>
+					}
+				</div>
+			}
+			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
+				<div class="">
+					<input
+						name={ props.Name }
+						placeholder={ props.Placeholder }
+						class="flex w-full rounded-md
+					border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent
+					file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control
+					focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed
+					disabled:text-foreground-muted text-sm leading-4 px-3 py-2 h-[34px]"
+						value={ props.Value }
+						{ props.InputAttrs... }
+					/>
+				</div>
+				<div id={ props.Name + "-error" }></div>
+				if props.ValueDescription != "" {
+					<div id={ props.Name + "-value-description" } class="text-foreground-lighter text-sm mt-2">{ props.ValueDescription }</div>
+				}
+			</div>
+		</div>
+	</div>
+}

@@ -1,7 +1,5 @@
 package views
 
-import "fmt"
-
 templ ValidationErrors(errs map[string]string) {
 	for key, msg := range errs {
 		@validationError(key, msg)
@@ -9,7 +7,10 @@ templ ValidationErrors(errs map[string]string) {
 }
 
 templ validationError(key string, msg string) {
-	<span id={ fmt.Sprintf("%s_error", key) } hx-swap-oob="innerHTML">
-		{ msg }
-	</span>
+	<div id={ key + "-error" } hx-swap-oob="innerHTML" style="opacity: 1; height: auto; transform: none;">
+		<p
+			class="text-sm text-error mt-2 transition-all duration-300 ease-in-out"
+			data-formlayout-id="message"
+		>{ msg }</p>
+	</div>
 }

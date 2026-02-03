@@ -1,59 +1,114 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --success: rgba(85, 163, 98, 1);
-    --error: rgb(212, 55, 50);
-    --warning: rgb(192, 144, 2);
-    --pending: rgba(0, 120, 212, 1);
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_Book.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
-    --background-primary: #171717;
-    --background-secondary: #242424;
-    --background-secondary-hover: #2e2e2e;
-    --background-dropdown: #1a1a1a;
-    --text-primary: #fafafa;
-    --text-secondary: #b4b4b4;
-    --brand: #1e88e5;
-    --link: #1e88e5;
-    --link-hover: #82c7ff;
-    --link-disabled: #797775;
-    --disabled: #797775;
-    --border: #2e2e2e;
-    --border-strong: #454545;
-    --border-mutted: #323130;
-  }
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_BookItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_BoldItalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular Std";
+  src: url("/public/assets/fonts/circular-std_BlackItalic.woff2") format("woff2");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
 }
 
 @theme {
-  --color-primary: var(--background-primary);
-  --color-secondary: var(--background-secondary);
-  --color-secondary: var(--background-secondary);
-  --color-secondary-hover: var(--background-secondary-hover);
-  --color-dropdown: var(--background-dropdown);
+  /* backgrounds */
+  --color-primary: #171717;
+  --color-secondary: #1f1f1f;
+  --color-secondary-hover: #2e2e2e;
+  --color-dropdown: #1a1a1a;
 
-  /* text */
-  --color-tx-primary: var(--text-primary);
-  --color-tx-secondary: var(--text-secondary);
-  --color-brand: var(--brand);
-  --color-link: var(--link);
-  --color-link-hover: var(--link-hover);
-  --color-link-disabled: var(--link-disabled);
-  --color-disabled: var(--disabled);
-  --color-success: var(--success);
-  --color-error: var(--error);
-  --color-warning: var(--warning);
-  --color-pending: var(--pending);
+  /* text / foreground */
+  --color-foreground: #fafafa;
+  --color-foreground-muted: #4d4d4d;
+  --color-foreground-light: #b4b4b4;
+  --color-foreground-lighter: #898989;
 
-  /* controls, border */
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-border-mutted: var(--border-mutted);
+  /* brand palette */
+  --color-brand: #1e88e5;
+  --color-brand-50: color-mix(in oklab, white 92%, #1e88e5);
+  --color-brand-100: color-mix(in oklab, white 84%, #1e88e5);
+  --color-brand-200: color-mix(in oklab, white 72%, #1e88e5);
+  --color-brand-300: color-mix(in oklab, white 56%, #1e88e5);
+  --color-brand-400: color-mix(in oklab, white 36%, #1e88e5);
+  --color-brand-500: #1e88e5;
+  --color-brand-600: color-mix(in oklab, black 16%, #1e88e5);
+  --color-brand-700: color-mix(in oklab, black 30%, #1e88e5);
+  --color-brand-800: color-mix(in oklab, black 45%, #1e88e5);
+  --color-brand-900: color-mix(in oklab, black 60%, #1e88e5);
+  
+  
+  /* ring */
+  --color-background-control: #242424;
+
+  /* link */
+  --color-link: #1e88e5;
+  --color-link-hover: #82c7ff;
+  --color-link-disabled: #797775;
+  --color-disabled: #797775;
+
+  /* status */
+  --color-success: rgba(85, 163, 98, 1);
+  --color-error: rgb(212, 55, 50);
+  --color-warning: rgb(192, 144, 2);
+  --color-pending: rgba(0, 120, 212, 1);
+
+  /* border */
+  --color-border: #2e2e2e;
+  --color-border-strong: #454545;
+  --color-border-mutted: #323130;
 
   /* size */
-  --text-sm: 0.813rem;
-  --text-sm--line-height: calc(1 / 0.813);
   --text-2xs: 0.625rem;
   --text-2xs--line-height: calc(1 / 0.625);
+
+  /* padding */
+  --padding-sm: 1rem;
 
   /* box shadow */
   --inset-shadow-sidebar: inset 3px 0 var(--link);
@@ -71,7 +126,7 @@
     -moz-tab-size: 4;
     -o-tab-size: 4;
     tab-size: 4;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Circular Std", sans-serif;
     font-feature-settings: normal;
     font-variation-settings: normal;
     -webkit-tap-highlight-color: transparent;
@@ -79,7 +134,7 @@
     margin: 0;
     padding: 0;
 
-    @apply bg-primary text-tx-primary;
+    @apply bg-primary text-foreground;
   }
 
   [x-cloak] {
@@ -100,6 +155,7 @@
     background: transparent;
   }
 
+  
   /*autofill*/
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
@@ -116,16 +172,45 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
+  h1 {
+    letter-spacing: -0.025em;
+    scroll-margin: 5rem;
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  h1 {
+    letter-spacing: -0.025em;
+    scroll-margin: 5rem;
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  h2 {
+    scroll-margin: 5rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
   h3 {
-    @apply text-lg flex items-center font-semibold;
+    scroll-margin: 5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 
-  h4 {
-    @apply text-base flex items-center font-semibold;
-  }
-
+  h4,
   h5 {
-    @apply text-base flex items-center font-medium;
+    scroll-margin: 5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+  }
+
+  h6 {
+    scroll-margin: 5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
   }
 }
 
@@ -244,14 +329,6 @@
   @apply button bg-error border border-error;
 }
 
-.text-success {
-  color: var(--success);
-}
-
-.text-error {
-  color: var(--error);
-}
-
 .button-success {
   border-color: var(--success);
 }
@@ -261,10 +338,14 @@
 }
 
 .disabled {
-  pointer-events: none; /* Disable clicks & hover */
-  opacity: 0.5; /* Make it look inactive */
-  cursor: not-allowed; /* Show disabled cursor */
-  filter: grayscale(50%); /* Optional: Slightly gray it out */
+  pointer-events: none;
+  /* Disable clicks & hover */
+  opacity: 0.5;
+  /* Make it look inactive */
+  cursor: not-allowed;
+  /* Show disabled cursor */
+  filter: grayscale(50%);
+  /* Optional: Slightly gray it out */
 }
 
 @keyframes indeterminate {
@@ -304,6 +385,10 @@
 /* progress indicator ends */
 
 /* icons overrides */
+.icon-2xs::before {
+  font-size: var(--text-2xs) !important;
+}
+
 .icon-sm::before {
   font-size: var(--text-sm) !important;
 }
@@ -340,10 +425,12 @@
 .htmx-indicator {
   display: none;
 }
+
 .htmx-request .htmx-indicator {
   display: inline-block;
   transition: opacity 200ms ease-in;
 }
+
 .htmx-request.htmx-indicator {
   display: inline-block;
   transition: opacity 200ms ease-in;
@@ -351,13 +438,13 @@
 
 /* uChart */
 .u-title {
-  @apply text-tx-secondary;
+  @apply text-foreground-light;
   font-size: var(--text-base) !important;
   font-weight: 500 !important;
 }
 
 .u-label {
-  @apply text-tx-secondary;
+  @apply text-foreground-light;
 }
 
 .u-value {

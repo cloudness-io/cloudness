@@ -17,12 +17,16 @@ const (
 	TenantMembersAction = "/members"
 )
 
+func TenantBaseURL() string {
+	return "/" + TenantBase
+}
+
 func Tenant(uid int64) string {
 	return fmt.Sprintf("%s/%d", TenantBase, uid)
 }
 
 func TenantCreate() string {
-	return fmt.Sprintf("/%s/create", TenantBase)
+	return fmt.Sprintf("/%s/new", TenantBase)
 }
 
 func TenantCtx(ctx context.Context) string {

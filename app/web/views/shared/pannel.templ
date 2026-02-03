@@ -1,0 +1,18 @@
+package shared
+
+templ PannelPlaceholder(title string, content templ.Component) {
+	<div class="h-full overflow-y-scroll">
+		<div class="w-full min-h-full flex flex-col items-stretch max-w-[1200px] lg:px-6 mx-auto">
+			<div class="@container max-w-[1200px] px-4 @lg:px-6 @xl:px-10 w-full mx-auto pt-12">
+				<div class="flex items-center justify-between gap-4">
+					<h1>{ title }</h1>
+					<div class="flex items-center gap-2">
+						<button class="button-link">
+							Add Organization
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

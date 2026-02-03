@@ -1,6 +1,7 @@
 package navigations
 
 import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
@@ -15,7 +16,7 @@ templ MainNav(dto *dto.NavBarOption) {
 		<div class="flex items-center text-sm">
 			<a
 				class="flex items-center space-x-1.5 max-w-max cursor-pointer"
-				hx-get="/"
+				hx-get={ routes.TenantBaseURL() }
 			>
 				<img src={ views.Asset("logo.svg") } class="size-4 w-auto" alt="logo"/>
 			</a>

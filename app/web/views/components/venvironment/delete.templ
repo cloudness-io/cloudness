@@ -14,7 +14,7 @@ templ deleteEnvironmentForm(env *types.Environment) {
 			Are you sure you want to delete the environment <span class="italic font-semibold">{ env.Name }</span> ? This
 			action is permanent and will delete all your applications in the environment. 
 		</p>
-		<p class="text-tx-secondary">
+		<p class="text-foreground-light">
 			Type <span class="notranslate font-bold">{ env.Name }</span> to confirm.
 		</p>
 		@shared.Input(&shared.InputProps{

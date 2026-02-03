@@ -19,8 +19,8 @@ templ tile(volume *types.Volume, action enum.VolumeFormAction) {
 			<div class="mx-3 my-4" x-on:click={ fmt.Sprintf("%s = true", getModelName(volume)) }>
 				<div class="flex items-center justify-between gap-1">
 					<p class="font-medium truncate">{ volume.Name }</p>
-					<p class="text-tx-secondary">{ volume.MountPath }</p>
-					<p class="text-tx-secondary text-xs">{ fmt.Sprintf("%d",volume.Size) } MiB</p>
+					<p class="text-foreground-light">{ volume.MountPath }</p>
+					<p class="text-foreground-light text-xs">{ fmt.Sprintf("%d",volume.Size) } MiB</p>
 				</div>
 			</div>
 		</div>

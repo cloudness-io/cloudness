@@ -7,8 +7,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
-	"github.com/cloudness-io/cloudness/app/web/views/dto"
-	"github.com/cloudness-io/cloudness/app/web/views/pages"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vtenant"
 
 	"github.com/rs/zerolog/log"
 )
@@ -25,12 +24,11 @@ func HandleList(tenantCtrl *tenant.Controller) http.HandlerFunc {
 			return
 		}
 
-		ctx = request.WithNavItem(ctx, &dto.NavItem{Title: "Teams"})
 		if request.IsLoginOrRegistrationPage(ctx) {
-			w.Header().Set("HX-Purh-Url", "/"+routes.TenantBase)
-			render.Page(ctx, w, pages.NewHome(tenants))
+			w.Header().Set("HX-Purh-Url", routes.TenantBaseURL())
+			render.Page(ctx, w, vtenant.Home(tenants))
 			return
 		}
-		render.RootWithNav(ctx, w, pages.NewHome(tenants), routes.TenantBase)
+		render.RootWithNav(ctx, w, vtenant.Home(tenants), routes.TenantBase)
 	}
 }

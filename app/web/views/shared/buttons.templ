@@ -1,0 +1,68 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ AddButton(text string, actionURL string) {
+	<a
+		data-size="tiny"
+		type="button"
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out duration-200
+rounded-md outline-none transition-all outline-0 focus-visible:outline-4 focus-visible:outline-offset-1 border
+bg-brand/70 hover:bg-brand/50 text-foreground
+border-brand/30 hover:border-brand focus-visible:outline-brand-600
+data-[state=open]:bg-brand-500/80 data-[state=open]:outline-brand-600 text-xs
+px-2.5 py-1 h-[26px]"
+		href={ actionURL }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">{ text }</span>
+	</a>
+}
+
+templ AddButtonNeutral(text string, actionURL string) {
+	<a
+		data-size="tiny"
+		type="button"
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out
+		duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border bg-secondary-hover hover:bg-secondary
+		border-strong hover:border-stronger focus-visible:outline-brand-600 data-[state=open]:bg-selection
+		data-[state=open]:outline-brand-600 data-[state=open]:border-button-hover text-xs px-2.5 py-1 h-[26px]"
+		href={ actionURL }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">New team</span>
+	</a>
+}
+
+templ ButtonNeutral(text string, actionURL string) {
+	<button
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2
+							text-center font-regular ease-out duration-200 rounded-md outline-none transition-all outline-0
+							focus-visible:outline-4 focus-visible:outline-offset-1 border text-foreground bg-alternative
+							dark:bg-muted hover:bg-selection border-strong hover:border-stronger
+							focus-visible:outline-brand-600 data-[state=open]:bg-selection data-[state=open]:outline-brand-600
+							data-[state=open]:border-button-hover text-xs px-2.5 py-1 h-[26px]"
+		hx-get={ actionURL }
+	>
+		<span class="truncate">{ text }</span>
+	</button>
+}
+
+templ ButtonPrimary(text string, attr templ.Attributes) {
+	<button
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center
+							font-regular ease-out duration-200 rounded-md outline-none transition-all outline-0
+							focus-visible:outline-4 focus-visible:outline-offset-1 border bg-brand-400 dark:bg-brand-500
+							hover:bg-brand/80 dark:hover:bg-brand/50 text-foreground border-brand-500/75 dark:border-brand/30
+							hover:border-brand-600 dark:hover:border-brand focus-visible:outline-brand-600
+							data-[state=open]:bg-brand-400/80 dark:data-[state=open]:bg-brand-500/80
+							data-[state=open]:outline-brand-600 text-xs px-2.5 py-1 h-[26px]"
+	>
+		<span class="truncate">{ text }</span>
+	</button>
+}

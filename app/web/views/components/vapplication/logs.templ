@@ -51,14 +51,14 @@ templ logContainer(withSpinner bool, initMsg string) {
 				<span class="spinner w-12 h-12"></span>
 			</div>
 		} else {
-			<div class="text-tx-secondary p-1">{ initMsg }</div>
+			<div class="text-foreground-light p-1">{ initMsg }</div>
 		}
 	</div>
 }
 
 templ LogLine(log *types.ArtifactLogLine) {
 	<div class="flex flex-row basis-auto shrink-0 w-full">
-		<span class="text-tx-secondary min-w-20 mr-4 select-none text-right">{ log.ArtifactUID } </span>
+		<span class="text-foreground-light min-w-20 mr-4 select-none text-right">{ log.ArtifactUID } </span>
 		@templ.Raw(string(ansihtml.ConvertToHTML([]byte(log.Log))))
 	</div>
 }

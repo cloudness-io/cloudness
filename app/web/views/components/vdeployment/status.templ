@@ -58,17 +58,17 @@ templ statusIcon(status enum.DeploymentStatus) {
 func getStatusTextColor(status enum.DeploymentStatus) string {
 	switch status {
 	case enum.DeploymentStatusPending:
-		return "text-tx-secondary"
+		return "text-foreground-light"
 	case enum.DeploymentStatusRunning:
 		return "text-brand"
 	case enum.DeploymentStatusSuccess:
 		return "text-success"
 	case enum.DeploymentStatusSkipped:
-		return "text-tx-secondary"
+		return "text-foreground-light"
 	case enum.DeploymentStatusFailed:
 		return "text-error"
 	case enum.DeploymentStatusCancelled:
-		return "text-tx-secondary"
+		return "text-foreground-light"
 	}
 	return ""
 }

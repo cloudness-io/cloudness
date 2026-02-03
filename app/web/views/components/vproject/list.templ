@@ -36,7 +36,7 @@ func getProjectMenuDropdownProps(ctx context.Context, project *types.Project) []
 templ ListProjects(projects []*types.Project) {
 	<div hx-push-url="true" hx-sync="#main:drop">
 		<table class="min-w-full divide-y bg-primary text-left">
-			<thead class="text-tx-secondary">
+			<thead class="text-foreground-light">
 				<tr>
 					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Name</th>
 					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden text-ellipsis">Description</th>

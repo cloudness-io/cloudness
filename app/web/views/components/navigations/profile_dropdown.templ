@@ -58,10 +58,10 @@ templ ProfileDropdown(dto *dto.NavBarOption) {
 			x-on:click.outside="close($refs.button)"
 			:id="$id('dropdown-button')"
 			style="display: none;"
-			class="absolute right-0 m-1 mr-2 min-w-[8rem] w-64 p-1 overflow-hidden rounded-md bg-secondary text-tx-secondary shadow-md border-1 z-10"
+			class="absolute right-0 m-1 mr-2 min-w-[8rem] w-64 p-1 overflow-hidden rounded-md bg-secondary text-foreground-light shadow-md border-1 z-10"
 		>
 			<div class="px-2 py-1 flex flex-col gap-0 text-sm">
-				<span title={ dto.DisplayName } class="w-full text-left truncate text-tx-primary">{ dto.DisplayName }</span>
+				<span title={ dto.DisplayName } class="w-full text-left truncate text-foreground">{ dto.DisplayName }</span>
 				<span title={ dto.Email } class="w-full text-left text-xs truncate">{ dto.Email }</span>
 			</div>
 			@shared.Seperator()
@@ -80,7 +80,7 @@ templ dropdownItem(name string, icon string, action string) {
 	<a
 		role="menuitem"
 		class="relative cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none
-						transition-colors hover:bg-secondary-hover hover:text-tx-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 flex gap-2"
+						transition-colors hover:bg-secondary-hover hover:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 flex gap-2"
 		tabindex="-1"
 		data-orientation="vertical"
 		data-radix-collection-item=""

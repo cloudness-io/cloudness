@@ -15,7 +15,7 @@ import (
 
 func HandleGetWithoutTenantUID(tenantCtrl *tenant.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.RedirectWithRefresh(w, "/"+routes.TenantBase)
+		render.RedirectWithRefresh(w, routes.TenantBaseURL())
 	}
 }
 

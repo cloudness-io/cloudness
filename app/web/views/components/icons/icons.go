@@ -7,6 +7,7 @@ const (
 	K8sIcon    = "k8s.svg"
 	RunnerIcon = "ph-fill ph-person-simple-run text-violet-500"
 
+	TeamIcon        = "ph ph-building-office"
 	ProjectIcon     = "ph ph-stack"
 	EnvironmentIcon = "ph ph-package text-cyan-700"
 	ApplicationIcon = "ph ph-globe-simple text-blue-400"
@@ -26,7 +27,6 @@ const (
 	UserProfileIcon = "ph ph-user-circle text-brand"
 	UserSessionIcon = "ph ph-notebook text-sky-700"
 	UserSignoutIcon = "ph ph-sign-out text-error"
-	TeamIcon        = "ph ph-users-three text-brand"
 	MembersIcon     = "ph ph-user-list text-teal-500"
 	LimitsIcon      = "ph ph-prohibit text-brand"
 	SwitchIcon      = "ph ph-arrows-left-right text-brand"

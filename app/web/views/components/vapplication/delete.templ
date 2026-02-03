@@ -50,7 +50,7 @@ templ deleteApplicationForm(c *types.Application) {
 			be removed forever.
 		</p>
 		<div class="flex justify-between w-full mt-1">
-			<p class="text-tx-secondary">Delete volumes associated with this resource</p>
+			<p class="text-foreground-light">Delete volumes associated with this resource</p>
 			@shared.CheckBoxWithoutWrapper(&shared.CheckBoxProps{
 				Name:    "volume",
 				Checked: true,

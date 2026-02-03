@@ -26,7 +26,7 @@ templ deleteGithubAppForm(ghApp *types.GithubApp) {
 			Are you sure you want to delete the Github app <span class="italic font-semibold">{ ghApp.Name }</span> ? This
 			action is permanent.
 		</p>
-		<p class="text-tx-secondary">
+		<p class="text-foreground-light">
 			Type <span class="notranslate font-bold">{ ghApp.Name }</span> to confirm.
 		</p>
 		@shared.Input(&shared.InputProps{

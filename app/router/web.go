@@ -241,12 +241,16 @@ func setupTenant(r chi.Router,
 	favCtrl *favorite.Controller,
 ) {
 	r.Route("/", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) { render.RedirectWithRefresh(w, "/team") })
 		r.Route("/team", func(r chi.Router) {
-			r.Route("/create", func(r chi.Router) {
-				r.Use(middlewarerestrict.ToSuperAdmin())
-				r.Post("/", handlertenant.HandleAdd(tenantCtrl))
-			})
+			r.Use(middlewarenav.PopulateNavItem("Team"))
 			r.Get("/", handlertenant.HandleList(tenantCtrl))
+			r.Route("/new", func(r chi.Router) {
+				r.Use(middlewarerestrict.ToSuperAdmin())
+				r.Use(middlewarenav.PopulateNavItem("New Team"))
+				r.Get("/", handlertenant.HandleNew())
+				r.Post("/", handlertenant.HandleCreate(tenantCtrl))
+			})
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTenantUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectTenant(tenantCtrl))
 				r.Get("/", handlertenant.HandleGet(tenantCtrl, projectCtrl))
@@ -271,7 +275,6 @@ func setupTenant(r chi.Router,
 				})
 			})
 		})
-		r.Get("/", handlertenant.HandleList(tenantCtrl))
 	})
 }
 

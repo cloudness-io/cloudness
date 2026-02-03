@@ -17,7 +17,7 @@ templ EnvTile(env *types.Environment) {
 			<div class="flex items-center gap-1">
 				<p
 					class="font-medium truncate"
-					:class={ fmt.Sprintf(`selected === '%d' ? 'text-tx-primary' :	'text-tx-secondary'`, env.UID) }
+					:class={ fmt.Sprintf(`selected === '%d' ? 'text-foreground' :	'text-foreground-light'`, env.UID) }
 					x-cloak
 				>{ env.Name }</p>
 			</div>

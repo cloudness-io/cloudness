@@ -22,7 +22,7 @@ templ privateNetwork(app *types.Application) {
 						<i class={ icons.CancelIcon, "text-error cursor-pointer" } x-show="editPrivateNetwork" x-on:click="editPrivateNetwork = false"></i>
 					</div>
 				</div>
-				<p class="text-2xs text-tx-secondary">
+				<p class="text-2xs text-foreground-light">
 					Ready to talk privately 
 				</p>
 			</div>
@@ -41,7 +41,7 @@ templ privateNetwork(app *types.Application) {
 								},
 							})
 						</div>
-						<p class="text-xs text-tx-secondary whitespace-nowrap pl-1">.cluster.local</p>
+						<p class="text-xs text-foreground-light whitespace-nowrap pl-1">.cluster.local</p>
 					</div>
 				</div>
 				@shared.UpdateDivPost(routes.AppNetworkPrivate)

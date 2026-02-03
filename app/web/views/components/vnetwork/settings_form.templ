@@ -20,7 +20,7 @@ templ networkSettingsForm(app *types.Application) {
 		</template>
 		<div id="public-networking" class="flex flex-col gap-1" x-data="{showTCPProxyForm:false,showCustomDomainForm: false}">
 			<h2>Public Networking</h2>
-			<span class="text-xs text-tx-secondary">Access to this service publicly through HTTP</span>
+			<span class="text-xs text-foreground-light">Access to this service publicly through HTTP</span>
 			@serviceDomain(app.Spec)
 			@tcpProxy()
 			<div class="flex flex-row gap-2 mt-2" x-show="!showTCPProxyForm && !showCustomDomainForm">
@@ -40,7 +40,7 @@ templ networkSettingsForm(app *types.Application) {
 		</div>
 		<div id="private-networking" class="flex flex-col gap-1">
 			<h2>Private Networking</h2>
-			<span class="text-xs text-tx-secondary">Communicate with this service from within the Cloudness network.</span>
+			<span class="text-xs text-foreground-light">Communicate with this service from within the Cloudness network.</span>
 			@privateNetwork(app)
 		</div>
 	</div>
