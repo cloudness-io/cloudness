@@ -19,7 +19,7 @@ templ RegisterForm() {
 			Label:       "Display Name",
 			Placeholder: "Enter Display Name",
 			Direction:   "vertical",
-			InputAttrs: templ.Attributes{
+			Attrs: templ.Attributes{
 				"x-model": "form.displayName",
 			},
 		})
@@ -28,7 +28,7 @@ templ RegisterForm() {
 			Label:       "Email",
 			Placeholder: "Enter Email",
 			Direction:   "vertical",
-			InputAttrs: templ.Attributes{
+			Attrs: templ.Attributes{
 				"x-model": "form.email",
 			},
 		})
@@ -37,7 +37,7 @@ templ RegisterForm() {
 			Label:       "Password",
 			Placeholder: "Enter Password",
 			Direction:   "vertical",
-			InputAttrs: templ.Attributes{
+			Attrs: templ.Attributes{
 				"x-model": "form.password",
 			},
 		})
@@ -46,7 +46,7 @@ templ RegisterForm() {
 			Label:       "Confirm Password",
 			Placeholder: "Confirm Password",
 			Direction:   "vertical",
-			InputAttrs: templ.Attributes{
+			Attrs: templ.Attributes{
 				"x-model": "form.confirmPassword",
 			},
 		})

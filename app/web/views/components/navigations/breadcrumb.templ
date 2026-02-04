@@ -3,6 +3,8 @@ package navigations
 import "context"
 import "github.com/cloudness-io/cloudness/app/request"
 import "github.com/cloudness-io/cloudness/app/web/views/dto"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "fmt"
 
 func buildBreadcrumbProps(ctx context.Context) []*dto.NavItem {
 	navItems, _ := request.NavItemsFrom(ctx)
@@ -20,20 +22,86 @@ templ breadCrumb(crumbs []*dto.NavItem, doSwap bool) {
 		if doSwap {
 			hx-swap-oob="true"
 		}
+		x-data="{
+				dropdownState: {},
+				select(prop) {
+					this.closeAll()
+					this.dropdownState[prop] = true 
+				},
+				closeAll() {
+					this.dropdownState= {};
+				},
+				isOpen(prop) {
+					return this.dropdownState[prop]
+				}
+			}"
+		x-cloak
 	>
 		for _, crumb := range crumbs {
 			@breadCrumbDivider()
-			@breadCrumbItem(crumb)
+			if crumb.NavURL != "" {
+				@breadCrumbItem(crumb)
+			} else {
+				@breadCrumbText(crumb)
+			}
 		}
 	</div>
 }
 
-templ breadCrumbItem(item *dto.NavItem) {
+templ breadCrumbText(item *dto.NavItem) {
 	<span class="text-foreground">{ item.Title }</span>
 }
 
+templ breadCrumbItem(item *dto.NavItem) {
+	<a href={ item.NavURL } class="flex items-center gap-2 flex-shrink-0 text-sm">
+		if item.Icon != "" {
+			@shared.Icon(item.Icon, "text-foreground-lighter hidden md:block")
+		}
+		@breadCrumbText(item)
+	</a>
+	<!--
+	if item.DropdownActionURL != "" {
+		<span
+			class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular
+		ease-out duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border text-foreground hover:bg-secondary shadow-none
+		focus-visible:outline-border-strong border-transparent text-xs h-[26px] px-1.5 py-4  ml-1"
+			@click={ fmt.Sprintf("select('%s')", item.DropdownIdentifier) }
+		>
+			@shared.Icon(icons.NavUpDownIcon, "text-foreground-light")
+		</span>
+		@breadCrumbDropdown(item, item.DropdownIdentifier)
+	}
+	-->
+}
+
 templ breadCrumbDivider() {
-	<span class="text-border-strong px-2 hidden md:block">
+	<span class="text-border-strong px-1">
 		<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision"><path d="M16 3.549L7.12 20.600"></path></svg>
 	</span>
+}
+
+templ breadCrumbDropdown(crumb *dto.NavItem, identifier string) {
+	<div
+		x-show={ fmt.Sprintf("isOpen('%[1]s')", identifier) }
+		x-on:click.away={ fmt.Sprintf("select('%[1]s')", identifier) }
+		x-on:keydown.escape.window={ fmt.Sprintf("select('%[1]s')", identifier) }
+		class="absolute top-8 z-10 w-56 min-h-max divide-y divide-divider overflow-hidden rounded border border-divider bg-primary shadow-sm"
+	>
+		<div
+			x-effect={ fmt.Sprintf("if (isOpen('%s')) $el.dispatchEvent(new Event('show'))", identifier) }
+			hx-get={ crumb.DropdownActionURL }
+			hx-trigger="show"
+			hx-swap="innerHTML"
+			hx-target="this"
+			hx-indicator={ "#" + identifier + "Indicator" }
+			hx-push-url="false"
+		>
+			<div id={ identifier + "Indicator" } class="flex items-center justify-center align-middle min-h-14">
+				<div class="size-6">
+					<span class="spinner"></span>
+				</div>
+			</div>
+		</div>
+	</div>
 }

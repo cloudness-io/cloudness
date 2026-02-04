@@ -6,78 +6,70 @@ import (
 	"github.com/cloudness-io/cloudness/types"
 
 	serverCtrl "github.com/cloudness-io/cloudness/app/controller/server"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/types/enum"
 )
 
 templ networkSetting(server *types.Server) {
-	<div class="flex items-center gap-1">
-		@shared.Icon(icons.NetworkSectionIcon, "icon-lg")
-		<h3>Network Settings</h3>
-	</div>
-	<form
-		class="flex flex-col place-items-baseline mt-4 gap-2"
-		x-data={ xdata.ToFormData(&serverCtrl.ServerNetworkUpdateModel{ 
+	@shared.PageSection("Network Settings", "") {
+		@shared.CardContainer() {
+			<form
+				class="form"
+				x-data={ xdata.ToFormData(&serverCtrl.ServerNetworkUpdateModel{ 
 						WildCardDomain: server.WildCardDomain,
 						            IPV4: server.IPV4,
 										DNSProvider: server.DNSProvider,
 										DNSProviderAuth: server.DNSProviderAuth,
 						}) }
-		x-cloak
-		hx-push-url="false"
-	>
-		@shared.Input(&shared.InputProps{
-			Name:        "wildcard_domain",
-			Label:       "Wildcard Domain",
-			Placeholder: "https://example.com",
-			Tooltip:     `A wildcard domain allows you to receive a randomly generated domain for your new application. For instance, if you set https://example.com as your wildcard domain, your applications will receive domains like https://randomId.example.com`,
-			Attrs: templ.Attributes{
-				"x-model": "form.wildcard_domain",
-			},
-		})
-		<div
-			class="max-w-sm sm:max-w-md md:max-w-lg w-full"
-			x-show="initial.wildcard_domain !== '' && form.wildcard_domain !== initial.wildcard_domain"
-		>
-			@shared.WarningAlert(
-				"Changing you wildcard domain will cause unexpected behavior",
-				"Be very caucious before proceeding",
-			)
-		</div>
-		@shared.Input(&shared.InputProps{
-			Name:    "ipv4",
-			Label:   "Servers's IPV4",
-			Tooltip: `Public IPV4 of the server`,
-			Value:   server.IPV4,
-			Attrs: templ.Attributes{
-				"x-model": "form.ipv4",
-			},
-		})
-		@shared.Dropdown(&shared.DropdownProps{
-			Name:          "dns_provider",
-			Label:         "DNS Provider",
-			Tooltip:       "If your domain in behind a DNS Provider",
-			Options:       enum.DNSProvidersStr,
-			DropdownClass: "capitalize",
-			Attrs: templ.Attributes{
-				"x-model":   "form.dns_provider",
-				":disabled": "form.wildcard_domain === ''",
-			},
-		})
-		@shared.Input(&shared.InputProps{
-			Name:  "dns_provider_auth",
-			Label: "DNS Auth",
-			Tooltip: `DNS API token for the dns service, This is used to generate/renew SSL certificate thorugh
+				x-cloak
+				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-patch="/settings/server/network"
+			>
+				@shared.NewInput(&shared.NewInputProps{
+					Name:             "wildcard_domain",
+					Label:            "Wildcard Domain",
+					Placeholder:      "https://example.com",
+					LabelDescription: `A wildcard domain allows you to receive a randomly generated domain for your new application. For instance, if you set https://example.com as your wildcard domain, your applications will receive domains like https://randomId.example.com`,
+					ValueDescription: `<span x-show="initial.wildcard_domain !== form.wildcard_domain && initial.wildcard_domain !== ''" class="text-error">Changing you wildcard domain will cause unexpected behavior</span>`,
+					Attrs: templ.Attributes{
+						"x-model": "form.wildcard_domain",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:             "ipv4",
+					Label:            "Servers's IPV4",
+					LabelDescription: `Public IPV4 of the server`,
+					Value:            server.IPV4,
+					Attrs: templ.Attributes{
+						"x-model": "form.ipv4",
+					},
+				})
+				@shared.NewDropdown(&shared.NewDropdownProps{
+					Name:             "dns_provider",
+					Label:            "DNS Provider",
+					LabelDescription: "If your domain in behind a DNS Provider",
+					Options:          enum.DNSProvidersStr,
+					Attrs: templ.Attributes{
+						"x-model":   "form.dns_provider",
+						":disabled": "form.wildcard_domain === ''",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:  "dns_provider_auth",
+					Label: "DNS Auth",
+					LabelDescription: `DNS API token for the dns service, This is used to generate/renew SSL certificate thorugh
 			DNS challenge, API token should have access to Zone DNS Edit`,
-			Disclaimer: `<span>How to create API token? Please refer to <a class="link"
+					ValueDescription: `<span>How to create API token? Please refer to <a class="link"
 			href="https://developers.cloudflare.com/fundamentals/api/get-started/create-token" target="_blank">Cloudflare API Tokens</a></span>`,
-			Password: true,
-			Attrs: templ.Attributes{
-				"x-model":   "form.dns_provider_auth",
-				":disabled": "form.wildcard_domain === ''",
-			},
-		})
-		@shared.UpdateDiv("/settings/server/network")
-	</form>
-	<div class="flex items-center gap-1"></div>
+					Type: "password",
+					Attrs: templ.Attributes{
+						"x-model":   "form.dns_provider_auth",
+						":disabled": "form.wildcard_domain === ''",
+					},
+				})
+				@shared.UpdateDivNew()
+			</form>
+		}
+	}
 }

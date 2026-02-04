@@ -26,8 +26,8 @@ func Project(uid int64) string {
 	return fmt.Sprintf("%s/%d", ProjectBase, uid)
 }
 
-func ProjectCreate() string {
-	return fmt.Sprintf("%s/create", ProjectBase)
+func ProjectNew() string {
+	return fmt.Sprintf("%s/new", ProjectBase)
 }
 
 func ProjectCtx(ctx context.Context) string {

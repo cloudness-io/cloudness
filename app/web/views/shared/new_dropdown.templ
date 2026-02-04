@@ -1,0 +1,107 @@
+package shared
+
+type NewDropdownOption struct {
+	Name  string
+	Value string
+}
+
+type NewDropdownProps struct {
+	Name              string
+	Label             string
+	LabelDescription  string
+	SelectedOption    string
+	DefaultOption     string
+	Options           []string
+	Options2          []*NewDropdownOption
+	OptionDescription string
+	Placeholder       string
+	Attrs             templ.Attributes
+	Direction         string
+
+	//action params
+	Disabled bool
+	Required bool
+}
+
+templ NewDropdown(props *NewDropdownProps) {
+	<div>
+		<div class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction == "vertical") }>
+			if props.Label != "" {
+				<div class={ "transition-all duration-500 ease-in-out col-span-4 flex flex-col gap-2",templ.KV("col-span-12",props.Direction == "vertical") }>
+					<label class="text peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm transition-colors text-foreground flex gap-2 items-center break-all leading-normal">
+						<span>{ props.Label }</span>
+					</label>
+					if props.LabelDescription != "" {
+						<div id={ props.Name + "-description" } class="text-xs text-foreground-lighter">{ props.LabelDescription }</div>
+					}
+				</div>
+			}
+			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
+				<div class="">
+					<select
+						name={ props.Name }
+						placeholder={ props.Placeholder }
+						if props.Disabled {
+							disabled
+							aria-disabled="true"
+						}
+						if props.Required {
+							required
+							aria-required="true"
+						}
+						class="flex w-full rounded-md
+					border border-control read-only:border-button bg-secondary file:border-0 file:bg-transparent
+					file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control
+					focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed
+					disabled:text-foreground-muted text-sm leading-4 px-3 py-2 h-[34px] capitalize
+					[&>option]:bg-secondary [&>option]:text-foreground"
+						value={ props.SelectedOption }
+						{ props.Attrs... }
+					>
+						if len(props.Options) == 0 && len(props.Options2) == 0 {
+							if props.SelectedOption== "" {
+								<option disabled selected value="">{ props.DefaultOption }</option>
+							} else {
+								<option value={ props.SelectedOption } selected>
+									{ props.SelectedOption }
+								</option>
+							}
+						} else if len(props.Options2) > 0 {
+							if props.DefaultOption!= "" && props.SelectedOption== "" {
+								<option disabled selected value="">{ props.DefaultOption }</option>
+							}
+							for _, v := range props.Options2 {
+								<option
+									value={ v.Value }
+									if v.Value == props.SelectedOption {
+										selected
+									}
+								>
+									{ v.Name }
+								</option>
+							}
+						} else if len(props.Options) > 0 {
+							for _, v := range props.Options {
+								<option
+									value={ v }
+									if v == props.SelectedOption {
+										selected
+									}
+								>
+									{ v }
+								</option>
+							}
+						}
+					</select>
+				</div>
+				<div id={ props.Name + "-error" }></div>
+				if props.OptionDescription!= "" {
+					<div id={ props.Name + "-value-description" } class="text-foreground-lighter text-xs mt-2">
+						@templ.Raw(props.OptionDescription)
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}

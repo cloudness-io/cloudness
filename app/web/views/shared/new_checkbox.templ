@@ -1,24 +1,21 @@
 package shared
 
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
-
-type NewInputProps struct {
+type NewCheckboxProps struct {
 	Name             string
 	Label            string
 	LabelDescription string
 	Value            string
 	ValueDescription string
-	Placeholder      string
 	Attrs            templ.Attributes
 	Direction        string
-	Type             string
 
 	//action params
+	Checked  bool
 	Disabled bool
 	Required bool
 }
 
-templ NewInput(props *NewInputProps) {
+templ NewCheckbox(props *NewCheckboxProps) {
 	<div>
 		<div class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction == "vertical") }>
 			if props.Label != "" {
@@ -32,18 +29,13 @@ templ NewInput(props *NewInputProps) {
 				</div>
 			}
 			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
-				<div class="relative" x-data="{ show: false }">
+				<div class="flex items-center">
 					<input
+						type="checkbox"
 						name={ props.Name }
-						placeholder={ props.Placeholder }
-						if props.Type == "password" {
-							:type="show ? 'text' : 'password'"
-						}
-						else
-						if props.Type != "" {
-							type={ props.Type }
-						} else {
-							type="text"
+						value={ props.Value }
+						if props.Checked {
+							checked
 						}
 						if props.Disabled {
 							disabled
@@ -53,17 +45,13 @@ templ NewInput(props *NewInputProps) {
 							required
 							aria-required="true"
 						}
-						class={ "flex w-full rounded-md border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-light text-sm leading-4 px-3 py-2 h-[34px]",
-							templ.KV("pr-10", props.Type == "password" && !props.Disabled) }
-						value={ props.Value }
+						class="h-4 w-4 rounded border border-control bg-primary appearance-none
+						checked:bg-brand checked:border-brand cursor-pointer
+						focus:ring-2 focus:ring-background-control focus:ring-offset-2
+						focus:ring-offset-foreground-muted disabled:cursor-not-allowed
+						disabled:opacity-50 checked:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22white%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.207%204.793a1%201%200%20010%201.414l-5%205a1%201%200%2001-1.414%200l-2-2a1%201%200%20011.414-1.414L6.5%209.086l4.293-4.293a1%201%200%20011.414%200z%22%2F%3E%3C%2Fsvg%3E')]"
 						{ props.Attrs... }
 					/>
-					if props.Type == "password" && !props.Disabled {
-						<div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-foreground-muted hover:text-foreground">
-							<i class={ icons.ShownIcon } x-show="!show" x-on:click="show = true" x-cloak></i>
-							<i class={ icons.HiddenIcon } x-show="show" x-on:click="show = false" x-cloak></i>
-						</div>
-					}
 				</div>
 				<div id={ props.Name + "-error" }></div>
 				if props.ValueDescription != "" {

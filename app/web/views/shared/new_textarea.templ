@@ -1,8 +1,8 @@
 package shared
 
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "fmt"
 
-type NewInputProps struct {
+type NewTextareaProps struct {
 	Name             string
 	Label            string
 	LabelDescription string
@@ -11,14 +11,20 @@ type NewInputProps struct {
 	Placeholder      string
 	Attrs            templ.Attributes
 	Direction        string
-	Type             string
+	Rows             int
 
 	//action params
 	Disabled bool
 	Required bool
 }
 
-templ NewInput(props *NewInputProps) {
+templ NewTextarea(props *NewTextareaProps) {
+	{{
+		rows := props.Rows
+		if rows == 0 {
+			rows = 4
+		}
+	}}
 	<div>
 		<div class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction == "vertical") }>
 			if props.Label != "" {
@@ -32,19 +38,11 @@ templ NewInput(props *NewInputProps) {
 				</div>
 			}
 			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
-				<div class="relative" x-data="{ show: false }">
-					<input
+				<div class="">
+					<textarea
 						name={ props.Name }
+						rows={ fmt.Sprintf("%d", rows) }
 						placeholder={ props.Placeholder }
-						if props.Type == "password" {
-							:type="show ? 'text' : 'password'"
-						}
-						else
-						if props.Type != "" {
-							type={ props.Type }
-						} else {
-							type="text"
-						}
 						if props.Disabled {
 							disabled
 							aria-disabled="true"
@@ -53,17 +51,14 @@ templ NewInput(props *NewInputProps) {
 							required
 							aria-required="true"
 						}
-						class={ "flex w-full rounded-md border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-light text-sm leading-4 px-3 py-2 h-[34px]",
-							templ.KV("pr-10", props.Type == "password" && !props.Disabled) }
-						value={ props.Value }
+						class="flex w-full rounded-md
+					border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent
+					file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control
+					focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed
+					disabled:text-foreground-muted text-sm leading-4 px-3 py-2 resize-y"
 						{ props.Attrs... }
-					/>
-					if props.Type == "password" && !props.Disabled {
-						<div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-foreground-muted hover:text-foreground">
-							<i class={ icons.ShownIcon } x-show="!show" x-on:click="show = true" x-cloak></i>
-							<i class={ icons.HiddenIcon } x-show="show" x-on:click="show = false" x-cloak></i>
-						</div>
-					}
+					>{ props.Value }</textarea>
 				</div>
 				<div id={ props.Name + "-error" }></div>
 				if props.ValueDescription != "" {

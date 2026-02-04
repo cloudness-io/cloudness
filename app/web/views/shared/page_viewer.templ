@@ -8,95 +8,98 @@ type PageViewProps struct {
 }
 
 type PageNavItem struct {
-	Name        string
-	Class       string
-	Icon        string
-	IconContent templ.Component
-	ActionUrl   string
-	Hide        bool
+	Name      string
+	Class     string
+	Icon      string
+	ActionUrl string
+	Hide      bool
 }
 
 templ PageView(props *PageViewProps) {
-	<div
-		hx-target="#main"
-		hx-push-url="true"
-		hx-replace-url="true"
-		hx-push-url="true"
-		hx-sync="#main:replace"
-		class="grid grid-rows-[auto_minmax(0px,1fr)] md:grid-rows-none md:grid-cols-[auto_minmax(0px,1fr)] w-full h-full"
-	>
-		<aside class="hidden md:block">
-			@pageNavAside(props)
-		</aside>
+	<div class="flex flex-1 w-full overflow-y-hidden">
 		<div
-			class="flex items-center header-tabs space-x-3 md:space-x-8 md:min-h-[39px] w-full max-w-screen md:pb-0
+			hx-target="#main"
+			hx-push-url="true"
+			hx-replace-url="true"
+			hx-push-url="true"
+			hx-sync="#main:replace"
+			class="grid grid-rows-[auto_minmax(0px,1fr)] md:grid-rows-none md:grid-cols-[auto_minmax(0px,1fr)] w-full h-full"
+		>
+			<aside class="hidden md:block relative border-r-1 m-0 w-40">
+				@pageNavAside(props)
+			</aside>
+			<div
+				class="flex items-center header-tabs space-x-3 md:space-x-8 md:min-h-[39px] w-full max-w-screen md:pb-0
 			overflow-x-auto
 	border-b md:border-transparent md:!hidden pl-1 py-3"
-		>
-			@pageNavTab(props)
-		</div>
-		<div class="w-full max-w-screen px-2 md:px-0 mt-2 md:mt-0 md:pl-4">
-			<div class="max-w-screen md:max-w-container md:mx-auto pr-0 md:pr-1 mb-2">
-				if props.Header != nil {
-					@props.Header
-				}
-				if props.Content != nil {
-					@props.Content
-				}
-				{ children... }
+			>
+				@pageNavTab(props)
 			</div>
+			if props.Header != nil {
+				@props.Header
+			}
+			if props.Content != nil {
+				@props.Content
+			}
+			{ children... }
 		</div>
 	</div>
 }
 
 templ pageNavAside(props *PageViewProps) {
-	<ul class="m-0 w-40">
-		for _, opt := range props.Options {
-			if !opt.Hide {
-				<li
-					class={ `relative flex m-0 p-0 align-top overflow-hidden hover:bg-secondary cursor-pointer`,
-			templ.KV("font-semibold inset-shadow-sidebar bg-secondary", opt.Name == props.ActiveName), opt.Class }
-				>
-					<a
-						class="columns-2 flex items-center w-full py-2 px-5 min-h-8 box-border overflow-hidden"
-						href={ opt.ActionUrl }
+	<ul class="w-full min-w-0 flex flex-col gap-1 items-start">
+		<div class="relative flex w-full min-w-0 flex-col p-2 gap-0.5">
+			for _, opt := range props.Options {
+				if !opt.Hide {
+					<li
+						class="group/menu-item relative"
 					>
-						<span class="pr-0 self-auto relative mr-2">
-							if opt.IconContent != nil {
-								@opt.IconContent
-							} else {
-								@Icon(opt.Icon, "")
+						<a
+							data-active={ opt.Name == props.ActiveName }
+							class="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md py-2 px-1.5
+							text-left outline-none transition-[width,height,padding] focus-visible:ring-2
+							active:bg-secondary-hover
+							active:text-foreground disabled:pointer-events-none disabled:opacity-50 pr-8
+							aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-secondary-hover
+							data-[active=true]:font-medium text-foreground-light data-[active=true]:text-foreground
+							hover:bg-secondary-hover hover:text-foreground h-8 text-sm !px-2 [&>img]:size-5 [&>img]:shrink-0 [&>svg]:size-5 [&>svg]:shrink-0"
+							href={ opt.ActionUrl }
+						>
+							if opt.Icon!= "" {
+								@Icon(opt.Icon, "icon-lg shrink-0 grayscale")
 							}
-						</span>
-						<span class="overflow-hidden text-ellipsis grow capitalize">
-							{ opt.Name }
-						</span>
-					</a>
-				</li>
+							<span class="overflow-hidden text-ellipsis grow capitalize">
+								{ opt.Name }
+							</span>
+						</a>
+					</li>
+				}
 			}
-		}
+		</div>
 	</ul>
 }
 
 templ pageNavTab(props *PageViewProps) {
-	<ul class="m-0 flex flex-row">
+	<ul class="m-0 flex flex-row space-x-1">
 		for _, opt := range props.Options {
 			if !opt.Hide {
 				<li
-					class={ `relative flex m-0 p-0 align-top overflow-hidden hover:bg-secondary cursor-pointer`,
-			templ.KV("font-semibold inset-shadow-tabbar bg-secondary", opt.Name == props.ActiveName), opt.Class }
+					class="group/menu-item relative"
 				>
 					<a
-						class="flex items-center w-full py-1 px-5 min-h-8 box-border overflow-hidden"
+						data-active={ opt.Name == props.ActiveName }
+						class="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md py-2 px-1.5
+							text-left outline-none transition-[width,height,padding] focus-visible:ring-2
+							active:bg-secondary-hover
+							active:text-foreground disabled:pointer-events-none disabled:opacity-50 pr-8
+							aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-secondary-hover
+							data-[active=true]:font-medium text-foreground-light data-[active=true]:text-foreground
+							hover:bg-secondary-hover hover:text-foreground h-8 text-sm !px-2 [&>img]:size-5 [&>img]:shrink-0 [&>svg]:size-5 [&>svg]:shrink-0"
 						href={ opt.ActionUrl }
 					>
-						<span class="pr-0 self-auto relative mr-2">
-							if opt.IconContent != nil {
-								@opt.IconContent
-							} else {
-								@Icon(opt.Icon, "")
-							}
-						</span>
+						if opt.Icon!= "" {
+							@Icon(opt.Icon, "icon-lg shrink-0, grayscale")
+						}
 						<span class="text-ellipsis grow capitalize">
 							{ opt.Name }
 						</span>

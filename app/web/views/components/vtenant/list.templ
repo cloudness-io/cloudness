@@ -1,41 +1,30 @@
 package vtenant
 
 import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
-import "github.com/cloudness-io/cloudness/types/enum"
-import "github.com/cloudness-io/cloudness/app/request"
-import "fmt"
 
 templ List(tenants []*types.TenantMembershipUser) {
-	<table class="min-w-full divide-y bg-primary text-left">
-		<thead>
-			<tr>
-				<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Name</th>
-				<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Role</th>
-				<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%]">Settings</th>
-				<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%]">Switch</th>
-			</tr>
-		</thead>
-		<tbody class="divide-y overflow-y-visible">
-			for _,tenant:= range tenants {
-				<tr>
-					<td class="whitespace-nowrap px-4 py-2 text-brand">{ tenant.TenantName }</td>
-					<td class="whitespace-nowrap px-4 py-2 capitalize">{ string(tenant.Role) }</td>
-					<td class="whitespace-nowrap px-4 py-2">
-						if tenant.Role == enum.TenantRoleAdmin || request.IsSuperAdmin(ctx) {
-							<a
-								href={ fmt.Sprintf("/%s/%d/%s", routes.TenantBase, tenant.TenantUID, routes.TenantSettings) }
-								class="link max-w-max cursor-pointer"
-							>Edit </a>
-						} else {
-							<span class="text-xs text-disabled italic">No Permission</span>
-						}
-					</td>
-					<td class="whitespace-nowrap px-4 py-2">
-						<a href={ routes.Tenant(tenant.TenantUID) } class="button-inert max-w-max cursor-pointer">Switch</a>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+		for _, t := range tenants {
+			<a href={ routes.Tenant(t.TenantUID) }>
+				@shared.CardContainerClickable() {
+					<div class="relative flex items-start gap-3">
+						<div class="rounded-full bg-primary border w-8 h-8 flex items-center justify-center flex-shrink-0">
+							@shared.Icon(icons.TeamIcon, "icons-xs text-foreground")
+						</div>
+						<div class="flex-grow flex flex-col gap-0 min-w-0">
+							<h3 title={ t.TenantName } class="text-sm text-foreground mb-0 truncate max-w-full">{ t.TenantName }</h3>
+							<div class="flex items-center justify-between text-xs text-foreground-light font-sans">
+								<div class="flex items-center gap-x-1.5">
+									<span>1 project</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</a>
+		}
+	</div>
 }

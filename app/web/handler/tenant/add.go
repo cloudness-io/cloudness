@@ -21,7 +21,7 @@ func HandleNew() http.HandlerFunc {
 	}
 }
 
-func HandleCreate(tenantCtrl *tenant.Controller) http.HandlerFunc {
+func HandleAdd(tenantCtrl *tenant.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		session, _ := request.AuthSessionFrom(ctx)

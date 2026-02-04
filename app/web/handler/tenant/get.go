@@ -8,7 +8,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
-	"github.com/cloudness-io/cloudness/app/web/views/pages"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vtenant"
 
 	"github.com/rs/zerolog/log"
 )
@@ -32,6 +32,6 @@ func HandleGet(tenantCtrl *tenant.Controller, projectCtrl *project.Controller) h
 			return
 		}
 
-		render.RootWithNav(ctx, w, pages.Home(tenant, projects), routes.TenantCtx(ctx))
+		render.RootWithNav(ctx, w, vtenant.Home(projects), routes.TenantCtx(ctx))
 	}
 }

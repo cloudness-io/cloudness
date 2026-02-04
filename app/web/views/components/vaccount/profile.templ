@@ -9,34 +9,51 @@ import (
 )
 
 templ Profile(user *types.User) {
-	@accountHeader(user.DisplayName)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AccountNavInfo,
 		Options:    getAccountPageNav(),
 	}) {
-		<h3>{ user.DisplayName }</h3>
-		<form
-			class="flex flex-col place-items-baseline mt-4 gap-2"
-			x-data={ xdata.ToFormData(&userCtrl.UpdateInput{DisplayName: user.DisplayName}) }
-			hx-push-url="false"
-			hx-swap="none"
-		>
-			@shared.Input(&shared.InputProps{
-				Label:    "Email",
-				Value:    user.Email,
-				Tooltip:  `Email Address cannot be modified.`,
-				Disabled: true,
-			})
-			@shared.Input(&shared.InputProps{
-				Name:     "name",
-				Label:    "Name",
-				Tooltip:  `The name that will be displayed in the dashboard.`,
-				Required: true,
-				Attrs: templ.Attributes{
-					"x-model": "form.name",
-				},
-			})
-			@shared.UpdateDiv(routes.AccountProfile)
-		</form>
+		@shared.PageContainer(shared.PageSizeSmall) {
+			@shared.PageHeaderShort() {
+				<h1>Profile</h1>
+				<div class="heading-subSection text-foreground-light">Manage your account profile.</div>
+			}
+			@shared.PageHeaderShort() {
+				@shared.CardContainer() {
+					<form
+						class="w-full"
+						x-data={ xdata.ToFormData(&userCtrl.UpdateInput{DisplayName: user.DisplayName}) }
+						hx-push-url="false"
+						hx-swap="none"
+						hx-indicator="#overlay-spinner"
+						hx-patch={ routes.AccountProfile }
+					>
+						<div class="py-4 px-sm border-b last:border-none">
+							@shared.NewInput(&shared.NewInputProps{
+								Name:             "email",
+								Label:            "Email",
+								LabelDescription: "Your primary Email address, cannot be modified.",
+								Value:            user.Email,
+								Disabled:         true,
+							})
+						</div>
+						<div class="py-4 px-sm border-b last:border-none">
+							@shared.NewInput(&shared.NewInputProps{
+								Name:             "name",
+								Label:            "Name",
+								LabelDescription: "The name that will be displayed in the dashboard.",
+								Required:         true,
+								Attrs: templ.Attributes{
+									"x-model": "form.name",
+								},
+							})
+						</div>
+						<div class="py-4 px-sm border-b last:border-none">
+							@shared.UpdateDivNew()
+						</div>
+					</form>
+				}
+			}
+		}
 	}
 }

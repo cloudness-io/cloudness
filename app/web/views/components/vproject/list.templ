@@ -9,6 +9,30 @@ import (
 	"github.com/cloudness-io/cloudness/types"
 )
 
+templ List(projects []*types.Project) {
+	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+		for _, p := range projects {
+			<a href={ routes.Project(p.UID) }>
+				@shared.CardContainerClickable() {
+					<div class="relative flex items-start gap-3">
+						<div class="rounded-full bg-primary border w-8 h-8 flex items-center justify-center flex-shrink-0">
+							@shared.Icon(icons.ProjectIcon, "icons-xs text-foreground")
+						</div>
+						<div class="flex-grow flex flex-col gap-0 min-w-0">
+							<h3 title={ p.Name } class="text-sm text-foreground mb-0 truncate max-w-full">{ p.Name }</h3>
+							<div class="flex items-center justify-between text-xs text-foreground-light font-sans">
+								<div class="flex items-center gap-x-1.5">
+									<span>1 application</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</a>
+		}
+	</div>
+}
+
 func getProjectMenuDropdownProps(ctx context.Context, project *types.Project) []*shared.MenuDropDownProps {
 	props := []*shared.MenuDropDownProps{}
 

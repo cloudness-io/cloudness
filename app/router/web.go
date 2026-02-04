@@ -195,9 +195,11 @@ func setupWebhooks(r chi.Router, tenantCtrl *tenant.Controller, projectCtrl *pro
 func setupInstance(r chi.Router, instanceCtrl *instance.Controller, serverCtrl *server.Controller, authCtrl *auth.Controller) {
 	r.Route("/settings", func(r chi.Router) {
 		r.Use(middlewarerestrict.ToSuperAdmin())
-		r.Use(middlewarenav.PopulateNavItem("Instance Settings"))
+		r.Use(middlewarenav.PopulateNavItemKey("Instance Settings"))
 		r.Get("/", handlerinstance.HandleGetSettings(instanceCtrl, serverCtrl))
-		r.Patch("/", handlerinstance.HandlePatchInstanceSettings(instanceCtrl, serverCtrl))
+		r.Patch("/fqdn", handlerinstance.HandlePatchFQDN(instanceCtrl, serverCtrl))
+		r.Patch("/dns", handlerinstance.HandlePatchDNS(instanceCtrl, serverCtrl))
+		r.Patch("/scripts", handlerinstance.HandlePatchScripts(instanceCtrl, serverCtrl))
 		r.Route("/auth", func(r chi.Router) {
 			r.Get("/", handlerinstance.HandleGetAuth(instanceCtrl, authCtrl))
 			r.Patch("/password", handlerinstance.HandlePatchPassword(instanceCtrl, authCtrl))
@@ -243,16 +245,17 @@ func setupTenant(r chi.Router,
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) { render.RedirectWithRefresh(w, "/team") })
 		r.Route("/team", func(r chi.Router) {
-			r.Use(middlewarenav.PopulateNavItem("Team"))
+			r.Use(middlewarenav.PopulateNavItemKey("Team"))
 			r.Get("/", handlertenant.HandleList(tenantCtrl))
 			r.Route("/new", func(r chi.Router) {
 				r.Use(middlewarerestrict.ToSuperAdmin())
-				r.Use(middlewarenav.PopulateNavItem("New Team"))
+				r.Use(middlewarenav.PopulateNavItemKey("New Team"))
 				r.Get("/", handlertenant.HandleNew())
-				r.Post("/", handlertenant.HandleCreate(tenantCtrl))
+				r.Post("/", handlertenant.HandleAdd(tenantCtrl))
 			})
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTenantUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectTenant(tenantCtrl))
+				r.Use(middlewarenav.PopulateNavTeam())
 				r.Get("/", handlertenant.HandleGet(tenantCtrl, projectCtrl))
 				r.Get("/favorites", handlerfavorite.HandleListFavorites(favCtrl))
 				setupProject(r, appCtx, tenantCtrl, projectCtrl, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
@@ -294,14 +297,17 @@ func setupProject(r chi.Router,
 	favCtrl *favorite.Controller,
 ) {
 	r.Route("/project", func(r chi.Router) {
-		r.Route("/create", func(r chi.Router) {
+		r.Route("/new", func(r chi.Router) {
 			r.Use(middlewarerestrict.ToTeamAdmin())
+			r.Use(middlewarenav.PopulateNavItemKey("New Project"))
+			r.Get("/", handlerproject.HandleNew())
 			r.Post("/", handlerproject.HandleAdd(projectCtrl))
 		})
 		r.Get("/nav", handlerproject.HandleListNavigation(projectCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamProjectUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectProject(projectCtrl))
 			r.Use(middlewarerestrict.ToProjectRole())
+			r.Use(middlewarenav.PopulateNavProject())
 			r.Route("/", func(r chi.Router) {
 				r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
 				r.Get("/", handlerproject.HandleGet(projectCtrl, envCtrl, appCtrl))
@@ -516,10 +522,9 @@ func setupAccount(r chi.Router, config *types.Config, authCtrl *auth.Controller,
 	cookieName := config.Token.CookieName
 	r.Get("/logout", accounthandler.HandleLogout(authCtrl, cookieName))
 	r.Route("/account", func(r chi.Router) {
-		r.Use(middlewarenav.PopulateNavItem("Account"))
+		r.Use(middlewarenav.PopulateNavItemKey("Account"))
 		r.Get("/", accounthandler.HandleGetProfile(userCtrl))
 		r.Patch("/", accounthandler.HandlePatchProfile(userCtrl))
-		r.Get("/teams", accounthandler.HandleGetSwitch(userCtrl, tenantCtrl))
 		r.Get("/session", accounthandler.HandleGetSession(userCtrl))
 		r.Get("/delete", accounthandler.HandleGetDelete(userCtrl))
 	})

@@ -2,10 +2,10 @@ package icons
 
 const (
 	LogoIcon   = "logo.svg"
-	ServerIcon = "ph ph-hard-drives text-indigo-400"
-	AuthIcon   = "ph ph-key text-yellow-400"
+	ServerIcon = "ph ph-hard-drives"
+	AuthIcon   = "ph ph-key"
 	K8sIcon    = "k8s.svg"
-	RunnerIcon = "ph-fill ph-person-simple-run text-violet-500"
+	RunnerIcon = "ph-fill ph-person-simple-run"
 
 	TeamIcon        = "ph ph-building-office"
 	ProjectIcon     = "ph ph-stack"
@@ -24,12 +24,12 @@ const (
 	PipelinePendingIcon = "ph ph-clock"
 	PipelineCancelIcon  = "ph ph-prohibit"
 
-	UserProfileIcon = "ph ph-user-circle text-brand"
-	UserSessionIcon = "ph ph-notebook text-sky-700"
-	UserSignoutIcon = "ph ph-sign-out text-error"
-	MembersIcon     = "ph ph-user-list text-teal-500"
-	LimitsIcon      = "ph ph-prohibit text-brand"
-	SwitchIcon      = "ph ph-arrows-left-right text-brand"
+	UserProfileIcon = "ph ph-user-circle"
+	UserSessionIcon = "ph ph-notebook"
+	UserSignoutIcon = "ph ph-sign-out"
+	MembersIcon     = "ph ph-user-list"
+	LimitsIcon      = "ph ph-prohibit"
+	SwitchIcon      = "ph ph-arrows-left-right"
 
 	NavUpIcon     = "ph ph-caret-up"
 	NavDownIcon   = "ph ph-caret-down"

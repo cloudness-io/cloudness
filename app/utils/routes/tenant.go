@@ -25,7 +25,7 @@ func Tenant(uid int64) string {
 	return fmt.Sprintf("%s/%d", TenantBase, uid)
 }
 
-func TenantCreate() string {
+func TenantNew() string {
 	return fmt.Sprintf("/%s/new", TenantBase)
 }
 

@@ -18,18 +18,17 @@ templ BaseLayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 	@shared.Title()
 	@shared.BaseUrl()
-	<div class="sticky top-0 z-50">
-		<div id="toast" class="toast-wrapper"></div>
-	</div>
-	<div class="sticky top-0 z-10">
-		@navigations.MainNav(dto.Nav)
-	</div>
-	<div class="relative">
+	<div class="flex flex-col h-screen w-screen">
+		<div class="sticky top-0 z-50">
+			<div id="toast" class="toast-wrapper"></div>
+		</div>
+		<div class="sticky top-0 z-10">
+			@navigations.MainNav(dto.Nav)
+		</div>
 		@shared.ProgressIndicator()
 		@shared.OverlaySpinner()
 		@common.RenderSSEStreamer()
-		<div class="main" id="main">
-			@shared.BreadCrumb(false)
+		<div class="main flex flex-1 w-full overflow-y-hidden" id="main">
 			@contents
 		</div>
 	</div>
@@ -38,13 +37,15 @@ templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 templ LayoutWithoutNav(contents templ.Component) {
 	@shared.Title()
 	@shared.BaseUrl()
-	<div class="flex flex-col flex-1 px-4 pt-2 min-h-[calc(100vh-20rem)] main" id="main">
+	<div class="flex flex-col h-screen w-screen">
 		<div class="sticky top-0 z-50">
 			<div id="toast" class="toast-wrapper"></div>
 		</div>
 		@shared.ProgressIndicator()
 		@shared.OverlaySpinner()
-		@contents
+		<div class="flex flex-col flex-1 px-4 pt-2 main" id="main">
+			@contents
+		</div>
 	</div>
 }
 
@@ -96,7 +97,7 @@ templ baseLayout() {
 		>
 			<div
 				id="root"
-				class="flex flex-col min-h-screen w-screen text-sm"
+				class="flex flex-col min-h-svh w-screen text-sm"
 				hx-indicator=".progress-indicator"
 			>
 				{ children... }

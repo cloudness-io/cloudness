@@ -7,7 +7,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
-	"github.com/cloudness-io/cloudness/app/web/views/components/vtenant"
+	"github.com/cloudness-io/cloudness/app/web/views/pages"
 
 	"github.com/rs/zerolog/log"
 )
@@ -26,9 +26,10 @@ func HandleList(tenantCtrl *tenant.Controller) http.HandlerFunc {
 
 		if request.IsLoginOrRegistrationPage(ctx) {
 			w.Header().Set("HX-Purh-Url", routes.TenantBaseURL())
-			render.Page(ctx, w, vtenant.Home(tenants))
+			render.Page(ctx, w, pages.Home(tenants))
 			return
 		}
-		render.RootWithNav(ctx, w, vtenant.Home(tenants), routes.TenantBase)
+
+		render.RootWithNav(ctx, w, pages.Home(tenants), routes.TenantBaseURL())
 	}
 }

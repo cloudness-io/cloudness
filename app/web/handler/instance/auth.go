@@ -69,7 +69,7 @@ func HandlePatchPassword(instanceCtrl *instance.Controller, authCtrl *auth.Contr
 		err := authCtrl.UpdatePasswordSettings(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating password settings")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -93,7 +93,7 @@ func HandlePatchDemoUser(instanceCtrl *instance.Controller, authCtrl *auth.Contr
 		err := authCtrl.UpdateDemoUserAuth(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating demo user settings")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -117,7 +117,7 @@ func HandlePatchOauthProvider(instanceCtrl *instance.Controller, authCtrl *auth.
 		err := authCtrl.UpdateOauthSettings(ctx, in, provider)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Any("Provider", provider).Msg("Error updating oauth settings")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

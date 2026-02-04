@@ -1,0 +1,19 @@
+package vproject
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ NoProjectAccessCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.ProjectIcon, "icon-lg text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h4>You don't have access to any project</h4>
+				<p class="text-foreground-light text-sm max-w-[640px]">
+					Please ask your administrator/project owner to add
+					you to a project
+				</p>
+			</div>
+		</div>
+	</div>
+}

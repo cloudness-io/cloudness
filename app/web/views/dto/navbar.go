@@ -6,6 +6,9 @@ type NavBarOption struct {
 }
 
 type NavItem struct {
-	Title             string
-	DropdownActionUrl string
+	Title              string
+	Icon               string
+	NavURL             string
+	DropdownIdentifier string
+	DropdownActionURL  string
 }

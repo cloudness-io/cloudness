@@ -256,3 +256,8 @@ func NavItemsFrom(ctx context.Context) ([]*dto.NavItem, bool) {
 	}
 	return c, ok
 }
+
+// NavItemsReset resets the navigation items
+func NavItemsReset(ctx context.Context) context.Context {
+	return context.WithValue(ctx, navItemsKey, []*dto.NavItem{})
+}

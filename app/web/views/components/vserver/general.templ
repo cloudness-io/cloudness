@@ -2,39 +2,42 @@ package vserver
 
 import (
 	serverCtrl "github.com/cloudness-io/cloudness/app/controller/server"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/app/web/views/xdata"
 	"github.com/cloudness-io/cloudness/types"
 )
 
 templ generalSetting(server *types.Server) {
-	<div class="flex items-center gap-1">
-		@shared.Icon(icons.K8sIcon, "size-6")
-		<h3>Cluster Settings</h3>
-	</div>
-	<form
-		class="flex flex-col place-items-baseline mt-4 gap-2"
-		x-data={ xdata.ToFormData(&serverCtrl.ServerGeneralUpdateModel{ 
+	@shared.PageSection("Cluster Settings", "") {
+		@shared.CardContainer() {
+			<form
+				class="form"
+				x-data={ xdata.ToFormData(&serverCtrl.ServerGeneralUpdateModel{ 
 							Name: server.Name,
 							Description: server.Description,
 			}) }
-		x-cloak
-	>
-		@shared.Input(&shared.InputProps{
-			Name:  "name",
-			Label: "Name",
-			Attrs: templ.Attributes{
-				"x-model": "form.name",
-			},
-		})
-		@shared.Input(&shared.InputProps{
-			Name:  "description",
-			Label: "Description",
-			Attrs: templ.Attributes{
-				"x-model": "form.description",
-			},
-		})
-		@shared.UpdateDiv("/settings/server")
-	</form>
+				x-cloak
+				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-patch="/settings/server"
+			>
+				@shared.NewInput(&shared.NewInputProps{
+					Name:  "name",
+					Label: "Name",
+					Attrs: templ.Attributes{
+						"x-model": "form.name",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:  "description",
+					Label: "Description",
+					Attrs: templ.Attributes{
+						"x-model": "form.description",
+					},
+				})
+				@shared.UpdateDivNew()
+			</form>
+		}
+	}
 }

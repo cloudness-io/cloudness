@@ -16,7 +16,7 @@ func getInstanceNav() []*shared.PageNavItem {
 	return []*shared.PageNavItem{
 		{
 			Name:      InstanceNavSettings,
-			Icon:      icons.LogoIcon,
+			Icon:      icons.SettingsIcon,
 			ActionUrl: "/settings",
 		},
 		{

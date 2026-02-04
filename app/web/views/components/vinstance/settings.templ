@@ -10,100 +10,164 @@ import (
 )
 
 templ Settings(instance *types.Instance, server *types.Server) {
-	@header()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: InstanceNavSettings,
 		Options:    getInstanceNav(),
 	}) {
-		<h3>Instance Settings</h3>
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Instance Settings</h1>
+				<div class="heading-subsection text-foreground-light">Manage your instance settings.</div>
+			}
+			@shared.PageContentShort() {
+				<div class="flex flex-col gap-3 mb-2">
+					@fqdnForm(instance, server)
+					@dnsConfigForm(instance)
+					@scriptsForm(instance)
+				</div>
+			}
+		}
+	}
+}
+
+templ fqdnForm(instance *types.Instance, server *types.Server) {
+	@shared.PageSection("Instance FQDN", "Configure your instance ingress FQDN")
+	@shared.CardContainer() {
 		<form
-			class="flex flex-col place-items-baseline mt-4 gap-2"
-			x-data={ xdata.ToFormData(&instanceCtrl.InstanceUpdateInput{ 
+			class="form"
+			x-data={ xdata.ToFormData(&instanceCtrl.InstanceUpdateFQDNInput{ 
 									FQDN: instance.FQDN,
 									DNSProvider: instance.DNSProvider, 
 									DNSProviderAuth: instance.DNSProviderAuth,
-									DNSValidationEnabled: instance.DNSValidationEnabled,
-									DNSServers: instance.DNSServers,
-									ExternalScripts: instance.ExternalScripts,
-									AdditionalScripts: instance.AdditionalScripts,
 						}) }
 			x-data={ xdata.ToFormData(instance) }
+			hx-push-url="false"
+			hx-swap="none"
+			hx-indicator="#overlay-spinner"
+			hx-patch={ "/settings/fqdn" }
 			x-cloak
 		>
-			@shared.Input(&shared.InputProps{
-				Name:  "fqdn",
-				Label: "Instance Domain",
-				Disclaimer: fmt.Sprintf(`If DNS validation fails, please check if your DNS entry is pointing to your primary
-																server's IP	address <i>%s</i>`, server.IPV4),
-				Tooltip: `Enter the full domain name (FQDN) of the instance, including 'https://' if you want to secure the	dashboard with HTTPS. Setting this will make the dashboard accessible via this domain, secured by HTTPS, instead of just the IP address.`,
+			@shared.NewInput(&shared.NewInputProps{
+				Name:             "fqdn",
+				Label:            "Instance Domain",
+				LabelDescription: "The domain name of the instance, including 'https://' if you want to secure the dashboard with HTTPS.",
+				Value:            instance.FQDN,
+				ValueDescription: fmt.Sprintf(`If DNS validation fails, please check if your DNS entry is
+								pointing to your primary server's IP address <i>%s</i>`, server.IPV4),
+				Placeholder: "https://mycloudness.example.com",
 				Attrs: templ.Attributes{
 					"x-model":      "form.fqdn",
 					"autocomplete": "off",
 				},
 			})
-			@shared.Dropdown(&shared.DropdownProps{
-				Name:          "dns_provider",
-				Label:         "DNS Provider",
-				Tooltip:       "If your domain in behind a DNS Provider",
-				Options:       enum.DNSProvidersStr,
-				DropdownClass: "capitalize",
+			@shared.NewDropdown(&shared.NewDropdownProps{
+				Name:             "dns_provider",
+				Label:            "DNS Provider",
+				LabelDescription: "If your domain in behind a DNS Provider",
+				Options:          enum.DNSProvidersStr,
+				SelectedOption:   string(instance.DNSProvider),
 				Attrs: templ.Attributes{
 					"x-model":   "form.dns_provider",
 					":disabled": "form.fqdn === ''",
+					":class":    "capitalize",
 				},
 			})
-			@shared.Input(&shared.InputProps{
-				Name:  "dns_provider_auth",
-				Label: "DNS Auth",
-				Tooltip: `DNS API token for the dns service, This is used to generate/renew SSL certificate thorugh
-			DNS challenge, API token should have access to Zone DNS Edit`,
-				Disclaimer: `<span>How to create API token? Please refer to <a class="link"
+			@shared.NewInput(&shared.NewInputProps{
+				Name:             "dns_provider_auth",
+				Type:             "password",
+				Label:            "DNS Auth",
+				LabelDescription: `This is used to generate/renew SSL certificate thorugh DNS challenge`,
+				Value:            instance.DNSProviderAuth,
+				ValueDescription: `API token should have access to Zone DNS Edit </br> <span>How to create API token? Please refer to <a class="link"
 			href="https://developers.cloudflare.com/fundamentals/api/get-started/create-token" target="_blank">Cloudflare API Tokens</a></span>`,
 				Placeholder: "API Key",
-				Password:    true,
 				Attrs: templ.Attributes{
-					"x-model":   "form.dns_provider_auth",
-					":disabled": "form.fqdn === ''",
+					"x-model":      "form.dns_provider_auth",
+					":disabled":    "form.fqdn === ''",
+					"type":         "password",
+					"autocomplete": "off",
 				},
 			})
-			<h4 class="mt-2">DNS Configuration</h4>
-			@shared.CheckBox(&shared.CheckBoxProps{
-				Name:  "dns_validation_enabled",
-				Label: "DNS Validation",
-				Attrs: templ.Attributes{
-					"x-model.boolean": "form.dns_validation_enabled",
-					"x-bind:checked":  "form.dns_validation_enabled == 'true'",
-					"@change":         "form.dns_validation_enabled = $el.checked ? 'true' : 'false'",
-				},
-			})
-			@shared.Input(&shared.InputProps{
-				Name:    "dns_servers",
-				Label:   "DNS Servers",
-				Tooltip: `Comma separated list of DNS servers to use for DNS validation. `,
-				Attrs: templ.Attributes{
-					"x-model": "form.dns_servers",
-				},
-			})
-			<h4 class="mt-2">Scripts</h4>
-			@shared.Textarea(&shared.TextareaProps{
-				Name:        "external_scripts",
-				Label:       "External Javascript",
-				Tooltip:     "External javascript to be loaded in the dashboard",
-				Placeholder: "var data=`test` \nconsole.log(data)",
-				Attrs: templ.Attributes{
-					"x-model": "form.external_scripts",
-				},
-			})
-			@shared.Textarea(&shared.TextareaProps{
-				Name:        "additional_scripts",
-				Label:       "Additional Scripts",
-				Tooltip:     "Additional scripts to be loaded in the dashboard",
-				Placeholder: "<script>function alert(){...}</script>\n<script>console.log('test')</script>",
-				Attrs: templ.Attributes{
-					"x-model": "form.additional_scripts",
-				},
-			})
-			@shared.UpdateDiv("/settings")
+			@shared.UpdateDivNew()
 		</form>
+	}
+}
+
+templ dnsConfigForm(instance *types.Instance) {
+	@shared.PageSection("DNS Configuration", "") {
+		@shared.CardContainer() {
+			<form
+				class="form"
+				x-data={ xdata.ToFormData(&instanceCtrl.InstanceUpdateDNSConfigInput{ 
+									DNSValidationEnabled: instance.DNSValidationEnabled,
+									DNSServers: instance.DNSServers,
+						}) }
+				x-data={ xdata.ToFormData(instance) }
+				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-patch={ "/settings/dns" }
+				x-cloak
+			>
+				@shared.FormHeader("DNS Configuration", "")
+				@shared.NewCheckbox(&shared.NewCheckboxProps{
+					Name:  "dns_validation_enabled",
+					Label: "DNS Validation",
+					Attrs: templ.Attributes{
+						"x-model.boolean": "form.dns_validation_enabled",
+						"x-bind:checked":  "form.dns_validation_enabled == 'true'",
+						"@change":         "form.dns_validation_enabled = $el.checked ? 'true' : 'false'",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:  "dns_servers",
+					Label: "DNS Servers",
+					Attrs: templ.Attributes{
+						"x-model": "form.dns_servers",
+					},
+				})
+				@shared.UpdateDivNew()
+			</form>
+		}
+	}
+}
+
+templ scriptsForm(instance *types.Instance) {
+	@shared.PageSection("Scripts", "Scripts to be loaded in the dashboard") {
+		@shared.CardContainer() {
+			<form
+				class="form"
+				x-data={ xdata.ToFormData(&instanceCtrl.InstanceUpdateScriptsInput{ 
+									ExternalScripts: instance.ExternalScripts,
+									AdditionalScripts: instance.AdditionalScripts,
+						}) }
+				x-data={ xdata.ToFormData(instance) }
+				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-patch={ "/settings/scripts" }
+				x-cloak
+			>
+				@shared.NewTextarea(&shared.NewTextareaProps{
+					Name:             "external_scripts",
+					Label:            "External Javascript",
+					LabelDescription: "External javascript to be loaded in the dashboard",
+					Placeholder:      "var data=`test` \nconsole.log(data)",
+					Attrs: templ.Attributes{
+						"x-model": "form.external_scripts",
+					},
+				})
+				@shared.NewTextarea(&shared.NewTextareaProps{
+					Name:             "additional_scripts",
+					Label:            "Additional Scripts",
+					LabelDescription: "Additional scripts to be loaded in the dashboard",
+					Placeholder:      "<script>function alert(){...}</script>\n<script>console.log('test')</script>",
+					Attrs: templ.Attributes{
+						"x-model": "form.additional_scripts",
+					},
+				})
+				@shared.UpdateDivNew()
+			</form>
+		}
 	}
 }

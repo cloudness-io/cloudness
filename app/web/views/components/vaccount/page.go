@@ -9,7 +9,6 @@ import (
 const (
 	AccountNavInfo    string = "Account"
 	AccountNavSession string = "Sessions"
-	AccountNavTeams   string = "Teams"
 	AccountNavDelete  string = "Delete"
 )
 
@@ -24,11 +23,6 @@ func getAccountPageNav() []*shared.PageNavItem {
 			Name:      AccountNavSession,
 			Icon:      icons.UserSessionIcon,
 			ActionUrl: routes.AccountSession,
-		},
-		{
-			Name:      AccountNavTeams,
-			Icon:      icons.TeamIcon,
-			ActionUrl: routes.AccountTeams,
 		},
 		{
 			Name:      AccountNavDelete,

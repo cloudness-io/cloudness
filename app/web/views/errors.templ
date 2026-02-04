@@ -9,7 +9,7 @@ templ ValidationErrors(errs map[string]string) {
 templ validationError(key string, msg string) {
 	<div id={ key + "-error" } hx-swap-oob="innerHTML" style="opacity: 1; height: auto; transform: none;">
 		<p
-			class="text-sm text-error mt-2 transition-all duration-300 ease-in-out"
+			class="text-xs text-error mt-2 transition-all duration-300 ease-in-out"
 			data-formlayout-id="message"
 		>{ msg }</p>
 	</div>

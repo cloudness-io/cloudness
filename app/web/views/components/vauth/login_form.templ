@@ -12,7 +12,7 @@ templ LoginForm(userSignupEnabled bool, demoUser *types.DemoUser) {
 			Placeholder: "Enter Email",
 			Value:       demoUser.Email,
 			Direction:   "vertical",
-			InputAttrs: templ.Attributes{
+			Attrs: templ.Attributes{
 				"type":         "email",
 				"autocomplete": "email",
 			},
@@ -23,7 +23,7 @@ templ LoginForm(userSignupEnabled bool, demoUser *types.DemoUser) {
 			Placeholder: "Enter Password",
 			Value:       demoUser.Password,
 			Direction:   "vertical",
-			InputAttrs: templ.Attributes{
+			Attrs: templ.Attributes{
 				"type": "password",
 			},
 		})

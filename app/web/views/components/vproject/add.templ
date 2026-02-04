@@ -1,43 +1,69 @@
 package vproject
 
 import (
-	"github.com/cloudness-io/cloudness/app/controller/project"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 )
 
-templ AddProject(values *project.CreateProjectInput, errors map[string]string) {
-	<form
-		id="addProject"
-		hx-push-url="false"
-	>
-		<div class="flex items-center justify-between">
-			<h1 class="text-2xl font-medium">Create New Project</h1>
+const (
+	projectDescription = "A project groups related applications, environments, and configurations within a team. Use projects to separate concerns like microservices, staging vs production, or different products."
+)
+
+templ AddProjectCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.ProjectIcon, "icon-lg text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h3>Create a project</h3>
+				<p class="text-foreground-light text-sm max-w-[640px]">{ projectDescription }</p>
+			</div>
 		</div>
-		<p class="text-xs text-foreground-light">
-			Project is a logical container where you can group related services
-		</p>
-		<div class="mt-2 flex flex-col space-y-2">
-			<label for="Name">Project Display Name</label>
-			@shared.Input(&shared.InputProps{
-				Name:        "name",
-				Value:       values.Name,
-				Placeholder: "My Cool Project",
-				Attrs: templ.Attributes{
-					"autofocus": true,
-				},
-				Error: errors["name"],
-			})
-		</div>
-		<div class="flex justify-end mt-6">
-			<button
-				type="submit"
-				class="button-primary"
-				hx-swap="none"
-				hx-post={ routes.ProjectCreate() }
-			>
-				Create
-			</button>
+		@shared.AddButtonNeutral("New Project", routes.ProjectNew())
+	</div>
+}
+
+templ AddProjectPage() {
+	@shared.PageContainer(shared.PageSizeSmall) {
+		@shared.PageContentShort() {
+			@addProjectFrom()
+		}
+	}
+}
+
+templ addProjectFrom() {
+	<form id="addTeamForm" hx-push-url="false" hx-post={ routes.ProjectNew() } hx-swap="none" hx-indicator="#overlay-spinner">
+		<div class="relative">
+			<div class="transition-opacity duration-300">
+				<div class="bg-secondary rounded-md border shadow-sm overflow-hidden mb-4 md:mb-8">
+					@shared.FormHeader("Create a new project", projectDescription)
+					<div class="divide-y divide-border-muted">
+						<div class="px-sm py-4">
+							@shared.NewInput(&shared.NewInputProps{
+								Name:             "name",
+								Label:            "Name",
+								Placeholder:      "Project Name",
+								ValueDescription: "What's the name of the project? You can change this later.",
+							})
+						</div>
+					</div>
+					<div class="border-t border-default">
+						<div class="flex h-12 items-center px-sm">
+							<div class="grid grid-cols-12 w-full gap-4 items-center">
+								<div class="col-span-4"></div>
+								<div
+									class="flex items-end col-span-8 space-x-2 ml-auto"
+								>
+									@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantCtx(ctx)})
+									@shared.ButtonPrimary("Create Project", templ.Attributes{
+										"type": "submit",
+									})
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</form>
 }

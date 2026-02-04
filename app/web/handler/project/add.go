@@ -8,9 +8,17 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
 
 	"github.com/rs/zerolog/log"
 )
+
+func HandleNew() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		render.Page(ctx, w, vproject.AddProjectPage())
+	}
+}
 
 func HandleAdd(projectCtrl *project.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +37,7 @@ func HandleAdd(projectCtrl *project.Controller) http.HandlerFunc {
 		project, err := projectCtrl.Create(ctx, session, tenant, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("error creating project")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		ctx = request.WithProject(ctx, project)
