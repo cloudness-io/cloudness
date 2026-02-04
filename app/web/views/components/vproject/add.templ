@@ -26,42 +26,39 @@ templ AddProjectCard() {
 templ AddProjectPage() {
 	@shared.PageContainer(shared.PageSizeSmall) {
 		@shared.PageContentShort() {
-			@addProjectFrom()
+			@shared.CardContainer() {
+				@addProjectFrom()
+			}
 		}
 	}
 }
 
 templ addProjectFrom() {
-	<form id="addTeamForm" hx-push-url="false" hx-post={ routes.ProjectNew() } hx-swap="none" hx-indicator="#overlay-spinner">
-		<div class="relative">
-			<div class="transition-opacity duration-300">
-				<div class="bg-secondary rounded-md border shadow-sm overflow-hidden mb-4 md:mb-8">
-					@shared.FormHeader("Create a new project", projectDescription)
-					<div class="divide-y divide-border-muted">
-						<div class="px-sm py-4">
-							@shared.NewInput(&shared.NewInputProps{
-								Name:             "name",
-								Label:            "Name",
-								Placeholder:      "Project Name",
-								ValueDescription: "What's the name of the project? You can change this later.",
-							})
-						</div>
-					</div>
-					<div class="border-t border-default">
-						<div class="flex h-12 items-center px-sm">
-							<div class="grid grid-cols-12 w-full gap-4 items-center">
-								<div class="col-span-4"></div>
-								<div
-									class="flex items-end col-span-8 space-x-2 ml-auto"
-								>
-									@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantCtx(ctx)})
-									@shared.ButtonPrimary("Create Project", templ.Attributes{
-										"type": "submit",
-									})
-								</div>
-							</div>
-						</div>
-					</div>
+	<form
+		id="addTeamForm"
+		class="form"
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-post={ routes.ProjectNew() }
+	>
+		@shared.CardHeader("Create a new project", projectDescription)
+		@shared.NewInput(&shared.NewInputProps{
+			Name:             "name",
+			Label:            "Name",
+			Placeholder:      "Project Name",
+			ValueDescription: "What's the name of the project? You can change this later.",
+		})
+		<div class="flex h-12 items-center px-sm">
+			<div class="grid grid-cols-12 w-full gap-4 items-center">
+				<div class="col-span-4"></div>
+				<div
+					class="flex items-end col-span-8 space-x-2 ml-auto"
+				>
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantCtx(ctx)})
+					@shared.ButtonPrimary("Create Project", templ.Attributes{
+						"type": "submit",
+					})
 				</div>
 			</div>
 		</div>

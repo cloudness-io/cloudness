@@ -109,7 +109,6 @@ templ dnsConfigForm(instance *types.Instance) {
 				hx-patch={ "/settings/dns" }
 				x-cloak
 			>
-				@shared.FormHeader("DNS Configuration", "")
 				@shared.NewCheckbox(&shared.NewCheckboxProps{
 					Name:  "dns_validation_enabled",
 					Label: "DNS Validation",

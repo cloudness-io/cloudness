@@ -15,3 +15,12 @@ templ CardContainerClickable() {
 		{ children... }
 	</div>
 }
+
+templ CardHeader(title string, description string) {
+	<div class="border-b border-default flex items-center px-sm py-4">
+		<div>
+			<h3>{ title }</h3>
+			<p class="text-sm text-foreground-lighter text-balance">{ description }</p>
+		</div>
+	</div>
+}

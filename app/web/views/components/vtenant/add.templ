@@ -25,47 +25,39 @@ templ AddTeamCard() {
 templ AddTeamPage() {
 	@shared.PageContainer(shared.PageSizeSmall) {
 		@shared.PageContentShort() {
-			@addTeamFrom()
+			@shared.CardContainer() {
+				@addTeamFrom()
+			}
 		}
 	}
 }
 
 templ addTeamFrom() {
-	<form id="addTeamForm" hx-push-url="false" hx-post={ routes.TenantNew() } hx-swap="none" hx-indicator="#overlay-spinner">
-		<div class="relative">
-			<div class="transition-opacity duration-300">
-				<div class="bg-secondary rounded-md border shadow-sm overflow-hidden mb-4 md:mb-8">
-					<div class="border-b border-default flex items-center px-sm py-4">
-						<div>
-							<h3>Create a new team</h3>
-							<p class="text-sm text-foreground-lighter text-balance">{ teamDescription }</p>
-						</div>
-					</div>
-					<div class="divide-y divide-border-muted">
-						<div class="px-sm py-4">
-							@shared.NewInput(&shared.NewInputProps{
-								Name:             "name",
-								Label:            "Name",
-								Placeholder:      "Team Name",
-								ValueDescription: "What's the name of your company or team? You can change this later.",
-							})
-						</div>
-					</div>
-					<div class="border-t border-default">
-						<div class="flex h-12 items-center px-sm">
-							<div class="grid grid-cols-12 w-full gap-4 items-center">
-								<div class="col-span-4"></div>
-								<div
-									class="flex items-end col-span-8 space-x-2 ml-auto"
-								>
-									@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantBaseURL()})
-									@shared.ButtonPrimary("Create Team", templ.Attributes{
-										"type": "submit",
-									})
-								</div>
-							</div>
-						</div>
-					</div>
+	<form
+		id="addTeamForm"
+		class="form"
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-post={ routes.TenantNew() }
+	>
+		@shared.CardHeader("Create a new team", teamDescription)
+		@shared.NewInput(&shared.NewInputProps{
+			Name:             "name",
+			Label:            "Name",
+			Placeholder:      "Team Name",
+			ValueDescription: "What's the name of your company or team? You can change this later.",
+		})
+		<div class="flex h-12 items-center px-sm">
+			<div class="grid grid-cols-12 w-full gap-4 items-center">
+				<div class="col-span-4"></div>
+				<div
+					class="flex items-end col-span-8 space-x-2 ml-auto"
+				>
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantBaseURL()})
+					@shared.ButtonPrimary("Create Team", templ.Attributes{
+						"type": "submit",
+					})
 				</div>
 			</div>
 		</div>
