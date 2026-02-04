@@ -50,7 +50,7 @@ templ fqdnForm(instance *types.Instance, server *types.Server) {
 			@shared.NewInput(&shared.NewInputProps{
 				Name:             "fqdn",
 				Label:            "Instance Domain",
-				LabelDescription: "The domain name of the instance, including 'https://' if you want to secure the dashboard with HTTPS.",
+				LabelDescription: "The domain name of the instance, including 'https://' if you want to secure the dashboard with TLS Certificate.",
 				Value:            instance.FQDN,
 				ValueDescription: fmt.Sprintf(`If DNS validation fails, please check if your DNS entry is
 								pointing to your primary server's IP address <i>%s</i>`, server.IPV4),
