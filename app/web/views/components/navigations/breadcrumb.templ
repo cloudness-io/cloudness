@@ -5,6 +5,7 @@ import "github.com/cloudness-io/cloudness/app/request"
 import "github.com/cloudness-io/cloudness/app/web/views/dto"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 
 func buildBreadcrumbProps(ctx context.Context) []*dto.NavItem {
 	navItems, _ := request.NavItemsFrom(ctx)
@@ -59,8 +60,7 @@ templ breadCrumbItem(item *dto.NavItem) {
 		}
 		@breadCrumbText(item)
 	</a>
-	<!--
-	if item.DropdownActionURL != "" {
+	if item.DropdownIdentifier != dto.DropdownIdentifierNone {
 		<span
 			class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular
 		ease-out duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
@@ -70,9 +70,8 @@ templ breadCrumbItem(item *dto.NavItem) {
 		>
 			@shared.Icon(icons.NavUpDownIcon, "text-foreground-light")
 		</span>
-		@breadCrumbDropdown(item, item.DropdownIdentifier)
+		@breadCrumbDropdown(item, string(item.DropdownIdentifier))
 	}
-	-->
 }
 
 templ breadCrumbDivider() {

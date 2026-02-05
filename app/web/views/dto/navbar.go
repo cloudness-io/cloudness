@@ -5,10 +5,19 @@ type NavBarOption struct {
 	Email       string
 }
 
+type DropdownIdentifier string
+
+const (
+	DropdownIdentifierNone        DropdownIdentifier = "none"
+	DropdownIdentifierTeam        DropdownIdentifier = "team"
+	DropdownIdentifierProject     DropdownIdentifier = "project"
+	DropdownIdentifierEnvironment DropdownIdentifier = "environment"
+)
+
 type NavItem struct {
 	Title              string
 	Icon               string
 	NavURL             string
-	DropdownIdentifier string
+	DropdownIdentifier DropdownIdentifier
 	DropdownActionURL  string
 }

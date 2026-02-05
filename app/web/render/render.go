@@ -47,6 +47,7 @@ func HTML(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 
 func HTMLWithBreadCrumb(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 	shared.BreadCrumb(true).Render(ctx, w)
+	navigations.BreadCrumb().Render(ctx, w)
 	HTML(ctx, w, c)
 }
 

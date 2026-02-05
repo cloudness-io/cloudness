@@ -16,32 +16,33 @@ templ Overview(
 	selected *types.Environment,
 	apps []*types.Application,
 ) {
-	@projectHeader(project)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: ProjectNavOverview,
 		Options:    getProjectPageNav(ctx),
 	}) {
-		<div
-			hx-sync="#appslist:replace"
-			hx-target="#appslist"
-			hx-push-url="true"
-			hx-indicator="#appslist-loader"
-		>
-			@venvironment.List(envs, selected, routes.EnvironmentBase+"/%d/application")
-			<div class="relative mt-3" x-cloak>
-				if len(envs) > 0 && selected == nil {
-					@shared.NoData("Please select an environment to continue", nil)
-				}
-				@shared.PartialPageLoader("appslist-loader")
-				<div id="appslist" class="mt-3">
-					if selected != nil {
-						@vapplication.List(selected, apps)
+		@shared.PageContainer(shared.PageSizeLarge) {
+			<div
+				hx-sync="#appslist:replace"
+				hx-target="#appslist"
+				hx-push-url="true"
+				hx-indicator="#appslist-loader"
+			>
+				@venvironment.List(envs, selected, routes.EnvironmentBase+"/%d/application")
+				<div class="relative mt-3" x-cloak>
+					if len(envs) > 0 && selected == nil {
+						@shared.NoData("Please select an environment to continue", nil)
 					}
+					@shared.PartialPageLoader("appslist-loader")
+					<div id="appslist" class="mt-3">
+						if selected != nil {
+							@vapplication.List(selected, apps)
+						}
+					</div>
 				</div>
 			</div>
-		</div>
-		if views.HasEnvironment(ctx) {
-			@vvolume.ListUnattachedContainer(routes.EnvironmentCtx(ctx) + routes.EnvironmentVolumes)
+			if views.HasEnvironment(ctx) {
+				@vvolume.ListUnattachedContainer(routes.EnvironmentCtx(ctx) + routes.EnvironmentVolumes)
+			}
 		}
 	}
 }

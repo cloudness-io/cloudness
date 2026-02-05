@@ -17,7 +17,6 @@ import (
 
 func HandleGet(projectCtrl *project.Controller, envCtrl *environment.Controller, appCtrl *application.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		ctx := r.Context()
 		tenant, _ := request.TenantFrom(ctx)
 		project, _ := request.ProjectFrom(ctx)

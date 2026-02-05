@@ -9,9 +9,9 @@ const (
 
 	TeamIcon        = "ph ph-building-office"
 	ProjectIcon     = "ph ph-stack"
-	EnvironmentIcon = "ph ph-package text-cyan-700"
-	ApplicationIcon = "ph ph-globe-simple text-blue-400"
-	OutIcon         = "ph ph-arrow-square-out text-brand"
+	EnvironmentIcon = "ph ph-package"
+	ApplicationIcon = "ph ph-globe-simple"
+	OutIcon         = "ph ph-arrow-square-out"
 
 	//Fav
 	ToFavIcon = "ph ph-star"
@@ -36,15 +36,15 @@ const (
 	NavUpDownIcon = "ph ph-caret-up-down"
 
 	SourceGitIcon      = "git.svg"
-	SourceDatabaseIcon = "ph ph-database text-sky-700"
+	SourceDatabaseIcon = "ph ph-database"
 	SourceRegistryIcon = "container-registry.svg"
-	SourceOneclickIcon = "ph ph-hand-tap text-lime-500"
+	SourceOneclickIcon = "ph ph-hand-tap"
 	SourceGithubIcon   = "github.svg"
 	SourceTemplateIcon = "ph ph-folder-open"
 
 	//Action Icons
 	WarningIcon      = "ph-fill ph-warning"
-	DeleteIcon       = "ph ph-trash text-error"
+	DeleteIcon       = "ph ph-trash"
 	RestartIcon      = "ph ph-arrow-clockwise"
 	RefreshIcon      = "ph ph-arrows-clockwise text-brand"
 	RedoIcon         = "ph ph-arrow-u-down-right"

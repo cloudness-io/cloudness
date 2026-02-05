@@ -22,6 +22,7 @@ templ LoginForm(userSignupEnabled bool, demoUser *types.DemoUser) {
 			Label:       "Passowrd",
 			Placeholder: "Enter Password",
 			Value:       demoUser.Password,
+			Type:        "password",
 			Direction:   "vertical",
 			Attrs: templ.Attributes{
 				"type": "password",

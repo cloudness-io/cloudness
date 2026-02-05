@@ -28,7 +28,14 @@ func PopulateNavTeam() func(http.Handler) http.Handler {
 
 			ctx = request.NavItemsReset(ctx)
 			next.ServeHTTP(w, r.WithContext(
-				request.WithNavItem(ctx, &dto.NavItem{Title: tenant.Name, Icon: icons.TeamIcon, NavURL: routes.TenantCtx(ctx), DropdownActionURL: "/team/list", DropdownIdentifier: "team"}),
+				request.WithNavItem(ctx,
+					&dto.NavItem{
+						Title:              tenant.Name,
+						Icon:               icons.TeamIcon,
+						NavURL:             routes.TenantCtx(ctx),
+						DropdownActionURL:  "/team/list",
+						DropdownIdentifier: dto.DropdownIdentifierTeam,
+					}),
 			))
 		})
 	}
@@ -41,10 +48,11 @@ func PopulateNavProject() func(http.Handler) http.Handler {
 			project, _ := request.ProjectFrom(ctx)
 			next.ServeHTTP(w, r.WithContext(
 				request.WithNavItem(ctx, &dto.NavItem{
-					Title:  project.Name,
-					Icon:   icons.ProjectIcon,
-					NavURL: routes.ProjectCtx(ctx), DropdownActionURL: routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav,
-					DropdownIdentifier: "project",
+					Title:              project.Name,
+					Icon:               icons.ProjectIcon,
+					NavURL:             routes.ProjectCtx(ctx),
+					DropdownActionURL:  routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav,
+					DropdownIdentifier: dto.DropdownIdentifierProject,
 				}),
 			))
 		})

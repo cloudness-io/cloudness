@@ -35,6 +35,7 @@ templ RegisterForm() {
 		@shared.NewInput(&shared.NewInputProps{
 			Name:        "password",
 			Label:       "Password",
+			Type:        "password",
 			Placeholder: "Enter Password",
 			Direction:   "vertical",
 			Attrs: templ.Attributes{
@@ -44,6 +45,7 @@ templ RegisterForm() {
 		@shared.NewInput(&shared.NewInputProps{
 			Name:        "confirmPassword",
 			Label:       "Confirm Password",
+			Type:        "password",
 			Placeholder: "Confirm Password",
 			Direction:   "vertical",
 			Attrs: templ.Attributes{
