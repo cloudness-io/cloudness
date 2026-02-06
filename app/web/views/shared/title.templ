@@ -4,22 +4,24 @@ import (
 	"context"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/web/views"
+	"strings"
 )
 
 func getTitleText(ctx context.Context) string {
+	var builder strings.Builder
 	application, ok := request.ApplicationFrom(ctx)
 	if ok {
-		return application.Name
+		builder.WriteString(application.Name + " | ")
 	}
 	project, ok := request.ProjectFrom(ctx)
 	if ok {
-		return project.Name
+		builder.WriteString(project.Name + " | ")
 	}
 	tenant, ok := request.TenantFrom(ctx)
 	if ok {
-		return tenant.Name
+		builder.WriteString(tenant.Name)
 	}
-	return ""
+	return builder.String()
 }
 
 templ Title() {
