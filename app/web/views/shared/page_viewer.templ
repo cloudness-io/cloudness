@@ -12,6 +12,7 @@ type PageNavItem struct {
 	Class     string
 	Icon      string
 	ActionUrl string
+	Disabled  bool
 	Hide      bool
 }
 
@@ -23,6 +24,7 @@ templ PageView(props *PageViewProps) {
 			hx-replace-url="true"
 			hx-push-url="true"
 			hx-sync="#main:replace"
+			hx-indicator="#overlay-spinner"
 			class="grid grid-rows-[auto_minmax(0px,1fr)] md:grid-rows-none md:grid-cols-[auto_minmax(0px,1fr)] w-full h-full"
 		>
 			<aside class="hidden md:block relative border-r-1 m-0 w-40">
@@ -55,13 +57,17 @@ templ pageNavAside(props *PageViewProps) {
 						class="group/menu-item relative"
 					>
 						<a
+							if opt.Disabled {
+								disabled
+								data-disabled="true"
+							}
 							data-active={ opt.Name == props.ActiveName }
 							class="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md py-2 px-1.5
 							text-left outline-none transition-[width,height,padding] focus-visible:ring-2
 							active:bg-secondary-hover
 							active:text-foreground disabled:pointer-events-none disabled:opacity-50 pr-8
-							aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-secondary-hover
-							data-[active=true]:font-medium text-foreground-light data-[active=true]:text-foreground
+							data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[active=true]:bg-secondary-hover
+							data-[active=true]:font-medium text-foreground-lighter data-[active=true]:text-foreground
 							hover:bg-secondary-hover hover:text-foreground h-8 text-sm !px-2 [&>img]:size-5 [&>img]:shrink-0 [&>svg]:size-5 [&>svg]:shrink-0"
 							href={ opt.ActionUrl }
 						>
@@ -87,12 +93,16 @@ templ pageNavTab(props *PageViewProps) {
 					class="group/menu-item relative"
 				>
 					<a
+						if opt.Disabled {
+							disabled
+							data-disabled="true"
+						}
 						data-active={ opt.Name == props.ActiveName }
 						class="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md py-2 px-1.5
 							text-left outline-none transition-[width,height,padding] focus-visible:ring-2
 							active:bg-secondary-hover
 							active:text-foreground disabled:pointer-events-none disabled:opacity-50 pr-8
-							aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-secondary-hover
+							data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[active=true]:bg-secondary-hover
 							data-[active=true]:font-medium text-foreground-light data-[active=true]:text-foreground
 							hover:bg-secondary-hover hover:text-foreground h-8 text-sm !px-2 [&>img]:size-5 [&>img]:shrink-0 [&>svg]:size-5 [&>svg]:shrink-0"
 						href={ opt.ActionUrl }

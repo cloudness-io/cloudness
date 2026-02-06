@@ -1,18 +1,22 @@
 package shared
 
 templ UpdateDiv(patchUrl string) {
-	@updateDiv(templ.Attributes{"hx-patch": patchUrl})
+	@updateDiv("Save", templ.Attributes{"hx-patch": patchUrl})
 }
 
 templ UpdateDivPost(postUrl string) {
-	@updateDiv(templ.Attributes{"hx-post": postUrl})
+	@updateDiv("Save", templ.Attributes{"hx-post": postUrl})
 }
 
 templ UpdateDivNew() {
-	@updateDiv(templ.Attributes{})
+	@updateDiv("Save", templ.Attributes{})
 }
 
-templ updateDiv(buttonAttr templ.Attributes) {
+templ UpdateDivNewWithText(text string) {
+	@updateDiv(text, templ.Attributes{})
+}
+
+templ updateDiv(text string, buttonAttr templ.Attributes) {
 	<div
 		class="flex items-center justify-end space-x-2"
 		x-cloak
@@ -32,7 +36,7 @@ templ updateDiv(buttonAttr templ.Attributes) {
 				"x-on:click": "reset()",
 				":class":     "isModified() ? 'block' : 'hidden'",
 			})
-			@ButtonPrimary("Save", templ.Attributes{
+			@ButtonPrimary(text, templ.Attributes{
 				"type":      "submit",
 				":disabled": "JSON.stringify(form) == JSON.stringify(initial)",
 				"hx-swap":   "none",

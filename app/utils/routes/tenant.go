@@ -12,7 +12,7 @@ const (
 
 	TenantSettings      = "settings"
 	TenantMembers       = "members"
-	TenantLimits        = "limits"
+	TenantRestrictions  = "restrictions"
 	TenantDelete        = "delete"
 	TenantMembersAction = "/members"
 )

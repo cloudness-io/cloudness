@@ -18,39 +18,33 @@ templ Profile(user *types.User) {
 				<h1>Profile</h1>
 				<div class="heading-subSection text-foreground-light">Manage your account profile.</div>
 			}
-			@shared.PageHeaderShort() {
+			@shared.PageContentShort() {
 				@shared.CardContainer() {
 					<form
-						class="w-full"
+						class="form"
 						x-data={ xdata.ToFormData(&userCtrl.UpdateInput{DisplayName: user.DisplayName}) }
 						hx-push-url="false"
 						hx-swap="none"
 						hx-indicator="#overlay-spinner"
 						hx-patch={ routes.AccountProfile }
 					>
-						<div class="py-4 px-sm border-b last:border-none">
-							@shared.NewInput(&shared.NewInputProps{
-								Name:             "email",
-								Label:            "Email",
-								LabelDescription: "Your primary Email address, cannot be modified.",
-								Value:            user.Email,
-								Disabled:         true,
-							})
-						</div>
-						<div class="py-4 px-sm border-b last:border-none">
-							@shared.NewInput(&shared.NewInputProps{
-								Name:             "name",
-								Label:            "Name",
-								LabelDescription: "The name that will be displayed in the dashboard.",
-								Required:         true,
-								Attrs: templ.Attributes{
-									"x-model": "form.name",
-								},
-							})
-						</div>
-						<div class="py-4 px-sm border-b last:border-none">
-							@shared.UpdateDivNew()
-						</div>
+						@shared.NewInput(&shared.NewInputProps{
+							Name:             "email",
+							Label:            "Email",
+							LabelDescription: "Your primary Email address, cannot be modified.",
+							Value:            user.Email,
+							Disabled:         true,
+						})
+						@shared.NewInput(&shared.NewInputProps{
+							Name:             "name",
+							Label:            "Name",
+							LabelDescription: "The name that will be displayed in the dashboard.",
+							Required:         true,
+							Attrs: templ.Attributes{
+								"x-model": "form.name",
+							},
+						})
+						@shared.UpdateDivNew()
 					</form>
 				}
 			}

@@ -52,20 +52,22 @@ templ PageContentShort() {
 }
 
 templ PageSection(title string, description string) {
-	<div data-slot="page-section" data-orientation="vertical" class="pt-12 first:pt-2 last:pb-12 gap-6 flex flex-col">
-		<div class="@container">
-			<div data-slot="page-section-meta" class="flex flex-col @xl:flex-row @xl:justify-between @xl:items-center gap-4 [&amp;&gt;[data-slot=&quot;page-section-summary&quot;]]:flex-1 [&amp;&gt;[data-slot=&quot;page-section-summary&quot;]]:@xl:self-center [&amp;&gt;[data-slot=&quot;page-section-aside&quot;]]:shrink-0">
-				<div data-slot="page-section-summary" class="flex flex-col gap-1">
-					<h2 data-slot="page-section-title" class="heading-section">{ title }</h2>
-					<div
-						data-slot="page-section-description"
-						class="text-sm text-foreground-light"
-						style="text-box-trim:
+	<div data-slot="page-section" data-orientation="vertical" class="pt-12 first:pt-2 last:pb-12 gap-4 flex flex-col">
+		if title != "" {
+			<div class="@container">
+				<div data-slot="page-section-meta" class="flex flex-col @xl:flex-row @xl:justify-between @xl:items-center gap-4 [&amp;&gt;[data-slot=&quot;page-section-summary&quot;]]:flex-1 [&amp;&gt;[data-slot=&quot;page-section-summary&quot;]]:@xl:self-center [&amp;&gt;[data-slot=&quot;page-section-aside&quot;]]:shrink-0">
+					<div data-slot="page-section-summary" class="flex flex-col gap-1">
+						<h2 data-slot="page-section-title" class="heading-section">{ title }</h2>
+						<div
+							data-slot="page-section-description"
+							class="text-sm text-foreground-light"
+							style="text-box-trim:
 	trim-end;"
-					>{ description }</div>
+						>{ description }</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		}
 		<div data-slot="page-section-content" class="">
 			{ children... }
 		</div>

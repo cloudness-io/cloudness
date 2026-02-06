@@ -264,17 +264,16 @@ func setupTenant(r chi.Router,
 				// Admin routes
 				r.Route("/", func(r chi.Router) {
 					r.Use(middlewarerestrict.ToTeamAdmin())
-					r.Get("/settings", handlertenant.HandleGetSettings())
+					r.Get("/settings", handlertenant.HandleGetSettings(tenantCtrl))
 					r.Patch("/settings", handlertenant.HandlePatchGeneralSettings(tenantCtrl))
-					r.Get("/limits", handlertenant.HandleGetLimits(tenantCtrl))
-					r.Patch("/limits", handlertenant.HandlePatchLimits(tenantCtrl))
+					r.Get("/restrictions", handlertenant.HandleGetRestrictions(tenantCtrl))
+					r.Patch("/restrictions", handlertenant.HandlePatchRestrictions(tenantCtrl))
 					r.Route("/members", func(r chi.Router) {
 						r.Get("/", handlertenant.HandleListMembers(tenantCtrl))
 						r.Post("/", handlertenant.HandleAddMember(tenantCtrl))
 						r.Patch("/", handlertenant.HandlePatchMember(tenantCtrl))
 						r.Delete("/", handlertenant.HandleDeleteMember(tenantCtrl))
 					})
-					r.Get("/delete", handlertenant.HandleGetDelete())
 					r.Delete("/delete", handlertenant.HandleDeleteTeam(tenantCtrl))
 				})
 			})

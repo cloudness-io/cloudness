@@ -13,23 +13,19 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HandleGetLimits(tenantCtrl *tenant.Controller) http.HandlerFunc {
+func HandleGetRestrictions(tenantCtrl *tenant.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		tenant, _ := request.TenantFrom(ctx)
-		canEdit := false
 
 		restrictions := tenantCtrl.GetRestrctions(ctx, tenant)
 
-		if request.IsSuperAdmin(ctx) || (restrictions.AllowAdminToModify && request.IsTeamAdmin(ctx)) {
-			canEdit = true
-		}
-
-		render.Page(ctx, w, vtenant.Limits(tenant, restrictions, canEdit))
+		canEdit := canEdit(ctx, tenantCtrl, tenant)
+		render.Page(ctx, w, vtenant.Restrictions(tenant, restrictions, canEdit))
 	}
 }
 
-func HandlePatchLimits(tenantCtrl *tenant.Controller) http.HandlerFunc {
+func HandlePatchRestrictions(tenantCtrl *tenant.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		tenant, _ := request.TenantFrom(ctx)
@@ -44,11 +40,11 @@ func HandlePatchLimits(tenantCtrl *tenant.Controller) http.HandlerFunc {
 		restrictions, err := tenantCtrl.UpdateRestrictions(ctx, tenant, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating tenant restrictions")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
-		render.Page(ctx, w, vtenant.Limits(tenant, restrictions, true))
+		render.Page(ctx, w, vtenant.Restrictions(tenant, restrictions, true))
 		render.ToastSuccess(ctx, w, "Settings updated successfully")
 	}
 }

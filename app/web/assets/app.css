@@ -101,7 +101,7 @@
 
   /* status */
   --color-success: rgba(85, 163, 98, 1);
-  --color-error: rgb(212, 55, 50);
+  --color-error: #e54d2e;
   --color-warning: rgb(192, 144, 2);
   --color-pending: rgba(0, 120, 212, 1);
 

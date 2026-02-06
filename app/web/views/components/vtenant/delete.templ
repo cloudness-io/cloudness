@@ -2,70 +2,69 @@ package vtenant
 
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "fmt"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 
-templ Delete(tenant *types.Tenant) {
-	@header(tenant)
-	@shared.PageView(&shared.PageViewProps{
-		ActiveName: TenantNavDelete,
-		Content:    tenantDelete(tenant),
-		Options:    getTenantNav(tenant),
-	})
-}
-
-templ tenantDelete(tenant *types.Tenant) {
-	<div class="flex items-center gap-1">
-		<i class={ icons.DeleteIcon, "icon-2xl" }></i>
-		<h3>Delete Team</h3>
-	</div>
-	<div class="mt-2" x-data="{tenantDeleteModel: false}">
-		<div class="text-error mb-4">
-			Deleting this team will permanently delete all data components in the team including projects, environments,
-			applications and volumes. 
-			This cannot be undone.
-		</div>
-		<buton type="button" class="button-danger w-20" x-on:click="tenantDeleteModel = true">
-			Delete
-		</buton>
-		@shared.Modal("tenantDeleteModel", deleteTenantForm(tenant))
-	</div>
+templ dangerZone(tenant *types.Tenant) {
+	@shared.PageSection("Danger Zone", "") {
+		@shared.AlertCardContainer() {
+			<div class="mt-2" x-data="{tenantDeleteModel: false}">
+				<div class="mb-4 flex flex-col gap-1">
+					<span>
+						Deleting this team will permanently delete all data components in the team including projects, environments,
+						applications and volumes. 
+					</span>
+					<span class="text-foreground-light">
+						This cannot be undone.
+					</span>
+				</div>
+				@shared.ButtonDanger("Delete team", templ.Attributes{
+					"x-on:click": "tenantDeleteModel = true",
+				})
+				@shared.Modal("tenantDeleteModel", deleteTenantForm(tenant))
+			</div>
+		}
+	}
 }
 
 templ deleteTenantForm(tenant *types.Tenant) {
-	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{name:'%s', confirm:''}", tenant.Name) }>
-		<h2 class="text-xl font-semibold text-error">Delete Project</h2>
-		<p class="w-full max-w-full">
-			Are you sure you want to delete the team <span class="italic font-semibold">{ tenant.Name }</span> ? This
-			action is permanent and will delete all your team data. This includes all data in components for
-			all projects and environments.
-		</p>
-		<p class="text-foreground-light">
-			Type <span class="notranslate font-bold">{ tenant.Name }</span> to confirm.
-		</p>
-		@shared.Input(&shared.InputProps{
-			Name:       "confirm",
-			InputClass: "focus:border-error",
-			Attrs: templ.Attributes{
-				"x-model": "confirm",
-			},
-		})
-		<footer class="flex w-full">
-			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
-				<button type="button" class="button-neutral" x-on:click="tenantDeleteModel = false">
-					Close	
-				</button>
-				<button
-					type="submit"
-					class="button-danger"
-					:disabled="name != confirm"
-					hx-delete={ routes.TenantDelete }
-					hx-swap="none"
-				>
-					Delete
-				</button>
-			</div>
-		</footer>
+	<form
+		class="form"
+		x-data={ fmt.Sprintf("{name:'%s', confirm:''}", tenant.Name) }
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-delete={ routes.TenantDelete }
+	>
+		<div>
+			<h2 class="text-xl font-semibold">Delete Team</h2>
+		</div>
+		<div>
+			<p class="w-full max-w-full">
+				Are you sure you want to delete the team <span class="italic font-semibold">{ tenant.Name }</span> ? This
+				action is permanent and will delete all your team data. This includes all data in components for
+				all projects and environments.
+			</p>
+		</div>
+		<div class="flex flex-col gap-1">
+			<p class="text-foreground-light">
+				Type <span class="notranslate font-bold">{ tenant.Name }</span> to confirm.
+			</p>
+			@shared.NewInput(&shared.NewInputProps{
+				Name:      "confirm",
+				Direction: "vertical",
+				Attrs: templ.Attributes{
+					"x-model": "confirm",
+					":class":  "focus:border-error",
+				},
+			})
+		</div>
+		<div>
+			<footer class="flex w-full justify-center">
+				@shared.ButtonDanger("I understand, delete this team", templ.Attributes{
+					":disabled": "name != confirm",
+				})
+			</footer>
+		</div>
 	</form>
 }

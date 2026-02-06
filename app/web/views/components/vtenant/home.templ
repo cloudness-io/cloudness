@@ -6,27 +6,32 @@ import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vproject"
 
-templ Home(projects []*types.Project) {
-	@shared.PageContainer(shared.PageSizeMedium) {
-		@shared.PageHeaderShort() {
-			<div class="flex items-center justify-between gap-4">
-				<h1>Projects</h1>
-				<div class="flex items-center gap-2">
-					if request.IsTeamAdmin(ctx) {
-						@shared.AddButton("New Project", routes.ProjectNew())
-					}
+templ Home(tenant *types.Tenant, projects []*types.Project, canEdit bool) {
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: TenantNavProjects,
+		Options:    getTenantNav(tenant, canEdit),
+	}) {
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<div class="flex items-center justify-between gap-4">
+					<h1>Projects</h1>
+					<div class="flex items-center gap-2">
+						if request.IsTeamAdmin(ctx) {
+							@shared.AddButton("New Project", routes.ProjectNew())
+						}
+					</div>
 				</div>
-			</div>
-		}
-		@shared.PageContentShort() {
-			if len(projects) == 0 {
-				if request.IsTeamAdmin(ctx) {
-					@vproject.AddProjectCard()
+			}
+			@shared.PageContentShort() {
+				if len(projects) == 0 {
+					if request.IsTeamAdmin(ctx) {
+						@vproject.AddProjectCard()
+					} else {
+						@vproject.NoProjectAccessCard()
+					}
 				} else {
-					@vproject.NoProjectAccessCard()
+					@vproject.List(projects)
 				}
-			} else {
-				@vproject.List(projects)
 			}
 		}
 	}

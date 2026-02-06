@@ -24,3 +24,9 @@ templ CardHeader(title string, description string) {
 		</div>
 	</div>
 }
+
+templ AlertCardContainer() {
+	<div class="relative w-full text-sm rounded-lg border p-4 bg-error/5 border-error/50 overflow-hidden">
+		{ children... }
+	</div>
+}

@@ -142,7 +142,7 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 func Forbidden(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if request.HxIndicatorFrom(ctx) {
-		ToastErrorMsg(ctx, w, "Forbidden")
+		ToastErrorMsg(ctx, w, "You do not have permissions to perform this action")
 	} else {
 		currURL, _ := request.HxCallerUrlFrom(ctx)
 		_, ok := request.PrincipalFrom(ctx)

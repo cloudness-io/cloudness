@@ -12,6 +12,7 @@ const (
 	EnvironmentIcon = "ph ph-package"
 	ApplicationIcon = "ph ph-globe-simple"
 	OutIcon         = "ph ph-arrow-square-out"
+	HomeIcon        = "ph ph-house"
 
 	//Fav
 	ToFavIcon = "ph ph-star"

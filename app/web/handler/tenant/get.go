@@ -32,6 +32,7 @@ func HandleGet(tenantCtrl *tenant.Controller, projectCtrl *project.Controller) h
 			return
 		}
 
-		render.RootWithNav(ctx, w, vtenant.Home(projects), routes.TenantCtx(ctx))
+		canEdit := canEdit(ctx, tenantCtrl, tenant)
+		render.RootWithNav(ctx, w, vtenant.Home(tenant, projects, canEdit), routes.TenantCtx(ctx))
 	}
 }
