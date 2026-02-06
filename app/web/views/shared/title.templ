@@ -13,14 +13,22 @@ func getTitleText(ctx context.Context) string {
 	if ok {
 		builder.WriteString(application.Name + " | ")
 	}
+
 	project, ok := request.ProjectFrom(ctx)
 	if ok {
 		builder.WriteString(project.Name + " | ")
 	}
+
+	env, ok := request.EnvironmentFrom(ctx)
+	if ok {
+		builder.WriteString(env.Name + " | ")
+	}
+
 	tenant, ok := request.TenantFrom(ctx)
 	if ok {
 		builder.WriteString(tenant.Name)
 	}
+
 	return builder.String()
 }
 
