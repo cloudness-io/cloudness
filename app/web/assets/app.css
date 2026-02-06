@@ -86,6 +86,10 @@
   /* ring */
   --color-background-control: #242424;
 
+  /* overlay */
+  --color-overlay-default: #242424;
+  --color-overlay-hover: #2e2e2e;
+
   /* sidebar */
   --color-sidebar-active: #313131;
 
@@ -118,6 +122,9 @@
   --inset-shadow-tabbar: inset 0 -3px var(--link);
 
   --font-family: "Circular Std", sans-serif;
+
+  /*borders*/
+  --border-overlay: #333333
 }
 
 @layer base {

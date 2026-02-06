@@ -1,0 +1,79 @@
+package shared
+
+templ Popover(comp templ.Component) {
+	<div
+		x-data="{
+        popoverOpen: false,
+        popoverArrow: true,
+        popoverPosition: 'bottom',
+        popoverHeight: 0,
+        popoverOffset: 40,
+        isCalculating: false,
+        popoverHeightCalculate() {
+            this.isCalculating = true;
+            this.$refs.popover.classList.add('invisible'); 
+            this.popoverOpen=true; 
+            let that=this;
+            $nextTick(function(){ 
+                that.popoverHeight = that.$refs.popover.offsetHeight;
+                that.popoverOpen=false; 
+                that.$refs.popover.classList.remove('invisible');
+                that.$refs.popoverInner.setAttribute('x-transition', '');
+                that.popoverPositionCalculate();
+                that.isCalculating = false;
+            });
+        },
+        popoverPositionCalculate(){
+            if(window.innerHeight < (this.$refs.popoverButton.getBoundingClientRect().top + this.$refs.popoverButton.offsetHeight + this.popoverOffset + this.popoverHeight)){
+                this.popoverPosition = 'top';
+            } else {
+                this.popoverPosition = 'bottom';
+            }
+        }
+    }"
+		x-init="
+			window.addEventListener('resize', () => popoverPositionCalculate());
+			$watch('popoverOpen', (value) => {
+				if (value && !isCalculating) {
+					popoverPositionCalculate();
+					$nextTick(() => $dispatch('popover-opened'));
+				}
+			});
+		"
+		class="relative"
+	>
+		<button x-ref="popoverButton" @click="popoverOpen=!popoverOpen">
+			@comp
+		</button>
+		<div
+			x-ref="popover"
+			x-show="popoverOpen"
+			x-init="setTimeout(function(){ popoverHeightCalculate(); }, 100);"
+			@click.away="popoverOpen=false;"
+			@keydown.escape.window="popoverOpen=false"
+			:class="{ 'top-0 mt-10' : popoverPosition == 'bottom', 'bottom-0 mb-10' : popoverPosition == 'top' }"
+			class="absolute w-72 left-0"
+			x-cloak
+		>
+			<div x-ref="popoverInner" x-show="popoverOpen" class="w-full bg-overlay-default border rounded-md shadow-sm">
+				<div
+					x-show="popoverArrow && popoverPosition == 'bottom'"
+					class="absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5 left-3"
+				>
+					<div
+						class="w-2.5 h-2.5 origin-bottom-left transform rotate-45 bg-overlay-default border-t border-l rounded-sm"
+					></div>
+				</div>
+				<div
+					x-show="popoverArrow  && popoverPosition == 'top'"
+					class="absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5 left-3"
+				>
+					<div
+						class="w-2.5 h-2.5 origin-top-left transform -rotate-45 bg-overlay-default border-b border-l rounded-sm"
+					></div>
+				</div>
+				{ children... }
+			</div>
+		</div>
+	</div>
+}

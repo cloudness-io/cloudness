@@ -8,7 +8,7 @@ import "github.com/cloudness-io/cloudness/app/utils/routes"
 templ List(tenants []*types.TenantMembershipUser) {
 	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 		for _, t := range tenants {
-			<a href={ routes.Tenant(t.TenantUID) }>
+			<a href={ routes.TenantUID(t.TenantUID) }>
 				@shared.CardContainerClickable() {
 					<div class="relative flex items-start gap-3">
 						<div class="rounded-full bg-primary border w-8 h-8 flex items-center justify-center flex-shrink-0">

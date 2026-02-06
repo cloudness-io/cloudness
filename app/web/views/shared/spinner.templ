@@ -1,5 +1,9 @@
 package shared
 
 templ Spinner() {
-	<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border border-t-transparent border-solid rounded-full animate-spin"></div>
+	<div
+		class="animate-spin inline-block size-6 border-3 border-current border-t-transparent rounded-[999px] text-foreground-lighter"
+		role="status"
+		aria-label="loading"
+	></div>
 }

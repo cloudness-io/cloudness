@@ -7,7 +7,6 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/common"
-	"github.com/cloudness-io/cloudness/app/web/views/components/navigations"
 	"github.com/cloudness-io/cloudness/app/web/views/components/toast"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/layouts"
@@ -46,8 +45,7 @@ func HTML(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 }
 
 func HTMLWithBreadCrumb(ctx context.Context, w http.ResponseWriter, c templ.Component) {
-	shared.BreadCrumb(true).Render(ctx, w)
-	navigations.BreadCrumb().Render(ctx, w)
+	shared.BreadCrumb().Render(ctx, w)
 	HTML(ctx, w, c)
 }
 
@@ -56,9 +54,8 @@ func Page(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 		w.Header().Set("HX-Reswap", "innerHTML")
 		w.Header().Set("HX-Retarget", "#main")
 		shared.Title().Render(ctx, w)
-		navigations.BreadCrumb().Render(ctx, w)
+		shared.BreadCrumb().Render(ctx, w)
 		shared.BaseUrl().Render(ctx, w)
-		shared.BreadCrumb(false).Render(ctx, w)
 		if _, ok := request.ProjectFrom(ctx); ok {
 			common.RenderSSEStreamer().Render(ctx, w)
 		}

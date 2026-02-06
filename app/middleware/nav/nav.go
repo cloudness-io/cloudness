@@ -2,6 +2,7 @@ package breadcrumb
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
@@ -33,7 +34,7 @@ func PopulateNavTeam() func(http.Handler) http.Handler {
 						Title:              tenant.Name,
 						Icon:               icons.TeamIcon,
 						NavURL:             routes.TenantCtx(ctx),
-						DropdownActionURL:  "/team/list",
+						DropdownActionURL:  "/team/nav" + "/" + strconv.FormatInt(tenant.UID, 10),
 						DropdownIdentifier: dto.DropdownIdentifierTeam,
 					}),
 			))
@@ -51,7 +52,7 @@ func PopulateNavProject() func(http.Handler) http.Handler {
 					Title:              project.Name,
 					Icon:               icons.ProjectIcon,
 					NavURL:             routes.ProjectCtx(ctx),
-					DropdownActionURL:  routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav,
+					DropdownActionURL:  routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav + "/" + strconv.FormatInt(project.UID, 10),
 					DropdownIdentifier: dto.DropdownIdentifierProject,
 				}),
 			))

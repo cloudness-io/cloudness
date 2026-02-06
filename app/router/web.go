@@ -247,6 +247,7 @@ func setupTenant(r chi.Router,
 		r.Route("/team", func(r chi.Router) {
 			r.Use(middlewarenav.PopulateNavItemKey("Team"))
 			r.Get("/", handlertenant.HandleList(tenantCtrl))
+			r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlertenant.HandleListNavigation(tenantCtrl))
 			r.Route("/new", func(r chi.Router) {
 				r.Use(middlewarerestrict.ToSuperAdmin())
 				r.Use(middlewarenav.PopulateNavItemKey("New Team"))
@@ -303,7 +304,7 @@ func setupProject(r chi.Router,
 			r.Get("/", handlerproject.HandleNew())
 			r.Post("/", handlerproject.HandleAdd(projectCtrl))
 		})
-		r.Get("/nav", handlerproject.HandleListNavigation(projectCtrl))
+		r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlerproject.HandleListNavigation(projectCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamProjectUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectProject(projectCtrl))
 			r.Use(middlewarerestrict.ToProjectRole())

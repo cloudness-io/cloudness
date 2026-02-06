@@ -1,11 +1,22 @@
 package navigations
 
 import (
+	"context"
+	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 )
+
+func getBaseUrl(ctx context.Context) string {
+	if tenant, ok := request.TenantFrom(ctx); ok {
+		return routes.TenantUID(tenant.UID)
+	}
+
+	return routes.TenantBaseURL()
+
+}
 
 templ MainNav(dto *dto.NavBarOption) {
 	<header
@@ -16,12 +27,12 @@ templ MainNav(dto *dto.NavBarOption) {
 		<div class="flex items-center text-sm">
 			<a
 				class="flex items-center space-x-1.5 max-w-max cursor-pointer"
-				hx-get={ routes.TenantBaseURL() }
+				hx-get={ getBaseUrl(ctx) }
 			>
 				<img src={ views.Asset("logo.svg") } class="size-4 w-auto" alt="logo"/>
 			</a>
 			<div class="hidden md:block">
-				@breadCrumb(buildBreadcrumbProps(ctx), false)
+				@shared.BreadCrumbWithFlag(false)
 			</div>
 		</div>
 		<div class="flex items-center ml-auto space-x-2">
@@ -33,6 +44,6 @@ templ MainNav(dto *dto.NavBarOption) {
 	</header>
 	<!-- mobile set md:hidden-->
 	<div class="h-12 block md:hidden min-w-full border-b bg-primary flex items-center">
-		@breadCrumb(buildBreadcrumbProps(ctx), false)
+		@shared.BreadCrumbWithFlag(false)
 	</div>
 }

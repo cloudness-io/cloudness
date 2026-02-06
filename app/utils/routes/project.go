@@ -30,6 +30,10 @@ func ProjectNew() string {
 	return fmt.Sprintf("%s/new", ProjectBase)
 }
 
+func ProjectNewCtx(ctx context.Context) string {
+	return fmt.Sprintf("%s/%s", TenantCtx(ctx), ProjectNew())
+}
+
 func ProjectCtx(ctx context.Context) string {
 	project, _ := request.ProjectFrom(ctx)
 	return fmt.Sprintf("%s/project/%d", TenantCtx(ctx), project.UID)

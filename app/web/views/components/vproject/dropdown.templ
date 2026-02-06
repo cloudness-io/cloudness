@@ -1,0 +1,64 @@
+package vproject
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/request"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ Dropdown(projects []*types.Project, tenant *types.Tenant, selectedProject int64) {
+	<div
+		class="max-h-[300px] overflow-y-auto overflow-x-hidden"
+		role="listbox"
+		tabindex="-1"
+		aria-label="Suggestions"
+		hx-push-url="true"
+		hx-indicator="#overlay-spinner"
+	>
+		<div>
+			<div class="overflow-hidden p-1 text-foreground-light text-xs" role="presentation">
+				<div role="group">
+					<div class="relative overflow-hidden" style="position: relative;">
+						<div class="h-full w-full rounded-[inherit]" style="overflow: hidden scroll;">
+							<div class="min-w-full table">
+								for _, project := range projects {
+									<div
+										class="relative flex select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none hover:bg-overlay-hover hover:text-strong data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 cursor-pointer w-full"
+									>
+										<a class="w-full flex items-center justify-between" href={ routes.ProjectCtxUID(ctx, project.UID) }>
+											<span class="truncate max-w-60">{ project.Name }</span>
+											if project.UID == selectedProject {
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+											}
+										</a>
+									</div>
+								}
+								<div class="h-1 -mt-1"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="h-px bg-border -mx-1"></div>
+			<div class="overflow-hidden p-1 text-foreground-light" role="presentation">
+				<div role="group">
+					<div
+						class="relative flex select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none
+					hover:bg-overlay-hover hover:text-strong data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 cursor-pointer w-full"
+						role="option"
+						aria-disabled={ !request.IsSuperAdmin(ctx) }
+						data-disabled={ !request.IsTeamAdmin(ctx) }
+					>
+						<a
+							class="w-full flex items-center gap-2"
+							href={ routes.ProjectNewCtx(ctx) }
+							hx-push-url="true"
+							hx-indicator="#overlay-spinner"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+							<p>New project</p>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

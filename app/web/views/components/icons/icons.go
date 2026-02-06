@@ -35,7 +35,7 @@ const (
 	NavDownIcon   = "ph ph-caret-down"
 	NavUpDownIcon = "ph ph-caret-up-down"
 
-	SourceGitIcon      = "git.svg"
+	SourceGitIcon      = "ph ph-git-merge"
 	SourceDatabaseIcon = "ph ph-database"
 	SourceRegistryIcon = "container-registry.svg"
 	SourceOneclickIcon = "ph ph-hand-tap"

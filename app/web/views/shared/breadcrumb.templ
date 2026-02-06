@@ -1,181 +1,103 @@
 package shared
 
-import (
-	"context"
-	"fmt"
-	"github.com/cloudness-io/cloudness/app/request"
-	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/dto"
-)
+import "context"
+import "github.com/cloudness-io/cloudness/app/request"
+import "github.com/cloudness-io/cloudness/app/web/views/dto"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 
-type bcIdentifier string
-
-const (
-	bcIdentifierHome        bcIdentifier = "Home"
-	bcIdentifierProject     bcIdentifier = "Project"
-	bcIdentifierEnvironment bcIdentifier = "Environment"
-	bcIdentifierApplication bcIdentifier = "Application"
-	bcIdentifierDeployment  bcIdentifier = "Deployment"
-)
-
-type bcItem struct {
-	name       string
-	identifier bcIdentifier
-	url        string
-	listUrl    string
+func buildBreadcrumbProps(ctx context.Context) []*dto.NavItem {
+	navItems, _ := request.NavItemsFrom(ctx)
+	return navItems
 }
 
-func buildProps(ctx context.Context) []*bcItem {
-	props := []*bcItem{}
-	_, ok := request.TenantFrom(ctx)
-	if !ok {
-		return props
-	}
-
-	//project
-	p, ok := request.ProjectFrom(ctx)
-	if !ok {
-		return props
-	}
-	props = append(props, &bcItem{name: "Home", identifier: bcIdentifierHome, url: routes.TenantCtx(ctx)})
-	props = append(props, &bcItem{name: p.Name, identifier: bcIdentifierProject, url: routes.ProjectCtx(ctx), listUrl: routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav})
-
-	// environment
-	e, ok := request.EnvironmentFrom(ctx)
-	if !ok {
-		return props
-	}
-	props = append(props, &bcItem{
-		name:       e.Name,
-		identifier: bcIdentifierEnvironment,
-		url:        routes.EnvironmentCtx(ctx) + routes.EnvironmentApplication + routes.TargetMainQuery,
-		listUrl:    routes.ProjectCtx(ctx) + "/" + routes.EnvironmentBase + routes.EnvironmentNav,
-	})
-
-	// application
-	a, ok := request.ApplicationFrom(ctx)
-	if !ok {
-		return props
-	}
-	props = append(props, &bcItem{
-		name:       a.Name,
-		identifier: bcIdentifierApplication,
-		url:        routes.ApplicationCtx(ctx),
-		listUrl:    routes.EnvironmentCtx(ctx) + routes.EnvironmentApplication + routes.AppNav,
-	})
-
-	// deployment
-	d, ok := request.DeploymentFrom(ctx)
-	if !ok {
-		return props
-	}
-	props = append(props, &bcItem{name: fmt.Sprintf("%d", d.UID), identifier: bcIdentifierDeployment, url: routes.DeploymentCtx(ctx)})
-
-	return props
+templ BreadCrumb() {
+	@breadCrumb(buildBreadcrumbProps(ctx), true)
 }
 
-templ BreadCrumb(isHtmlRender bool) {
-	if len(buildProps(ctx)) > 0 {
-		@breadCrumb(buildProps(ctx), isHtmlRender)
-	}
+templ BreadCrumbWithFlag(doSwap bool) {
+	@breadCrumb(buildBreadcrumbProps(ctx), doSwap)
 }
 
-func getDropdownIdentifier(identifier bcIdentifier) string {
-	return fmt.Sprintf("is%sDropdownOpen", string(identifier))
-}
-
-templ breadCrumb(crumbs []*bcItem, isHTMLRender bool) {
+templ breadCrumb(crumbs []*dto.NavItem, doSwap bool) {
 	<div
 		id="breadcrumb"
-		class="pt-2 pl-1 md:pl-5"
-		if isHTMLRender {
+		class="flex items-center md:pl-1"
+		if doSwap {
 			hx-swap-oob="true"
 		}
-	>
-		<nav
-			class="font-medium text-substitute select-none"
-			aria-label="breadcrumb"
-			hx-push-url="true"
-			hx-target="#main"
-			hx-sync="#main:replace"
-			x-data="{
-				isProjectDropdownOpen:false, 
-				isEnvironmentDropdownOpen:false, 
-				isApplicationDropdownOpen:false, 
-				select(prop, value, onlyMe) {
-					if (onlyMe) {
-						this[prop] = value;
-						return;
-					}
+		x-data="{
+				dropdownState: {},
+				select(prop) {
 					this.closeAll()
-					this[prop] = value;
+					this.dropdownState[prop] = true 
 				},
 				closeAll() {
-					this.isProjectDropdownOpen = false;
-					this.isEnvironmentDropdownOpen = false;
-					this.isApplicationDropdownOpen = false;
+					this.dropdownState= {};
+				},
+				isOpen(prop) {
+					return this.dropdownState[prop]
 				}
 			}"
-			x-cloak
-		>
-			<ol class="flex items-center gap-2">
-				for _, crumb := range crumbs {
-					<li class="flex items-center justify-center gap-2">
-						@breadCrumbItem(crumb, crumb.identifier, getDropdownIdentifier(crumb.identifier))
-						<span class="text-neutral-700">/</span>
-					</li>
-				}
-			</ol>
-		</nav>
+		x-cloak
+	>
+		for _, crumb := range crumbs {
+			@breadCrumbDivider()
+			if crumb.NavURL != "" {
+				@breadCrumbItem(crumb)
+			} else {
+				@breadCrumbText(crumb)
+			}
+		}
 	</div>
 }
 
-templ breadCrumbItem(crumb *bcItem, identifier bcIdentifier, isDropDownOpen string) {
-	if crumb.listUrl != "" || crumb.identifier == bcIdentifierHome {
-		<span class="flex items-center gap-1">
-			<a
-				href={ crumb.url }
-				class="link cursor-pointer opacity-90"
-			>{ crumb.name }</a>
-			if crumb.listUrl != "" {
-				<span
-					class="text-disabled cursor-pointer hover:bg-secondary"
-					:class={ fmt.Sprintf("%s ? 'bg-secondary' : ''", isDropDownOpen) }
-					@click={ fmt.Sprintf("select('%[1]s', !%[1]s, false)", isDropDownOpen) }
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"></path>
-					</svg>
-				</span>
-				@breadCrumbDropdown(crumb, identifier, isDropDownOpen)
-			}
-		</span>
-	} else {
-		<span class="text-foreground-light">{ crumb.name }</span>
+templ breadCrumbText(item *dto.NavItem) {
+	<span class="text-foreground">{ item.Title }</span>
+}
+
+templ breadCrumbItem(item *dto.NavItem) {
+	<a href={ item.NavURL } class="flex items-center gap-2 flex-shrink-0 text-sm">
+		if item.Icon != "" {
+			@Icon(item.Icon, "text-foreground-lighter hidden md:block")
+		}
+		@breadCrumbText(item)
+	</a>
+	if item.DropdownActionURL != "" {
+		@Popover(dropdownIcon()) {
+			@dropdownPopover(item)
+		}
 	}
 }
 
-templ breadCrumbDropdown(crumb *bcItem, identifier bcIdentifier, isDropDownOpen string) {
-	<div
-		x-show={ isDropDownOpen }
-		x-on:click.away={ fmt.Sprintf("select('%[1]s', false, true)", isDropDownOpen) }
-		x-on:keydown.escape.window={ fmt.Sprintf("select('%[1]s', false, true)", isDropDownOpen) }
-		class="absolute top-8 z-10 w-56 min-h-max divide-y divide-divider overflow-hidden rounded border border-divider bg-primary shadow-sm"
+templ dropdownIcon() {
+	<span
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular
+			ease-out duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+			focus-visible:outline-offset-1 border text-foreground hover:bg-overlay-default shadow-none
+			focus-visible:outline-border-strong border-transparent text-xs h-[26px] px-1.5 py-4 ml-1"
 	>
-		<div
-			x-effect={ fmt.Sprintf("if (%s) $el.dispatchEvent(new Event('show'))", isDropDownOpen) }
-			hx-get={ crumb.listUrl }
-			hx-trigger="show"
-			hx-swap="innerHTML"
-			hx-target="this"
-			hx-indicator={ "#" + identifier + "Indicator" }
-			hx-push-url="false"
-		>
-			<div id={ identifier + "Indicator" } class="flex items-center justify-center align-middle min-h-14">
-				<div class="size-6">
-					<span class="spinner"></span>
-				</div>
-			</div>
+		@Icon(icons.NavUpDownIcon, "text-foreground-light size-4")
+	</span>
+}
+
+templ breadCrumbDivider() {
+	<span class="text-border-strong px-1">
+		<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision"><path d="M16 3.549L7.12 20.600"></path></svg>
+	</span>
+}
+
+templ dropdownPopover(crumb *dto.NavItem) {
+	<div
+		class="border-overlay border min-h-14 w-72"
+		hx-get={ crumb.DropdownActionURL }
+		hx-trigger="popover-opened from:closest [x-data] once"
+		hx-swap="innerHTML"
+		hx-target="this"
+		hx-push-url="false"
+		hx-indicator="none"
+	>
+		<div id={ string(crumb.DropdownIdentifier) + "Indicator" } class="flex items-center justify-center align-middle h-14">
+			@Spinner()
 		</div>
 	</div>
 }

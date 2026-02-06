@@ -21,8 +21,8 @@ func TenantBaseURL() string {
 	return "/" + TenantBase
 }
 
-func Tenant(uid int64) string {
-	return fmt.Sprintf("%s/%d", TenantBase, uid)
+func TenantUID(uid int64) string {
+	return fmt.Sprintf("/%s/%d", TenantBase, uid)
 }
 
 func TenantNew() string {

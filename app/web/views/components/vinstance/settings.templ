@@ -69,7 +69,7 @@ templ fqdnForm(instance *types.Instance, server *types.Server) {
 				Attrs: templ.Attributes{
 					"x-model":   "form.dns_provider",
 					":disabled": "form.fqdn === ''",
-					":class":    "capitalize",
+					"class":     "capitalize",
 				},
 			})
 			@shared.NewInput(&shared.NewInputProps{
