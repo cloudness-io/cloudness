@@ -27,111 +27,118 @@ templ Members(tenant *types.Tenant, session *auth.Session, members []*types.Tena
 				<div class="heading-subSection text-foreground-light">Manage team members.</div>
 			}
 			@shared.PageContentShort() {
-				@shared.PageSection("", "") {
-					@shared.CardContainer() {
-						<div class="overflow-x-auto w-full">
-							<table class="min-w-full divide-y text-left">
-								<thead>
-									<tr class="text-foreground-light">
-										<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Name</th>
-										<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Email</th>
-										<th class="whitespace-nowrap px-4 py-2 font-medium w-[15%]">Role</th>
-										<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Action</th>
-									</tr>
-								</thead>
-								<tbody class="divide-y overflow-y-visible">
-									for _,member:= range members {
-										<tr
-											class="hover:bg-secondary group"
-											x-data={ xdata.ToFormData(&tenantCtrl.TenantMembershipModel{
+				@tenantMembershipListTable(tenant, session, members)
+				@tenantAddMembersSection()
+			}
+		}
+	}
+}
+
+templ tenantMembershipListTable(tenant *types.Tenant, session *auth.Session, members []*types.TenantMembershipUser) {
+	@shared.PageSection("", "") {
+		@shared.CardContainer() {
+			<div class="overflow-x-auto w-full">
+				<table class="min-w-full divide-y text-left">
+					<thead>
+						<tr class="text-foreground-light">
+							<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Name</th>
+							<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Email</th>
+							<th class="whitespace-nowrap px-4 py-2 font-medium w-[15%]">Role</th>
+							<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Action</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y overflow-y-visible">
+						for _,member:= range members {
+							<tr
+								class="hover:bg-secondary group"
+								x-data={ xdata.ToFormData(&tenantCtrl.TenantMembershipModel{
 										Email: member.Email,
 										Role:  member.Role,
 									}) }
-											x-cloak
+								x-cloak
+							>
+								<td class="whitespace-nowrap px-4 py-2 max-w-32 overflow-hidden">{ member.DisplayName }</td>
+								<td class="whitespace-nowrap px-4 py-2">
+									@shared.NewInput(&shared.NewInputProps{
+										Name:      "email",
+										Disabled:  true,
+										Direction: "vertical",
+										Class:     "min-w-2xs xl:min-w-max",
+										Attrs: templ.Attributes{
+											"x-model": "form.email",
+										},
+									})
+								</td>
+								<td class="whitespace-nowrap px-4 py-2 capitalize">
+									@shared.NewDropdown(&shared.NewDropdownProps{
+										SelectedOption: string(member.Role),
+										Options:        enum.TenantRolesStr,
+										Disabled:       session.Principal.ID == member.PrincipalID,
+										Direction:      "vertical",
+										Class:          "min-w-2xs xl:min-w-max capitalize",
+										Attrs: templ.Attributes{
+											"x-model": "form.role",
+										},
+									})
+								</td>
+								<td class="whitespace-nowrap px-4 py-2">
+									if session.Principal.ID == member.PrincipalID {
+										YOU
+									} else {
+										<form
+											class="flex gap-1 text-xs"
+											hx-push-url="false"
+											hx-swap="none"
+											hx-indicator="#overlay-spinner"
 										>
-											<td class="whitespace-nowrap px-4 py-2 max-w-32 overflow-hidden">{ member.DisplayName }</td>
-											<td class="whitespace-nowrap px-4 py-2">
-												@shared.Input(&shared.InputProps{
-													Name:       "email",
-													HideLabel:  true,
-													Disabled:   true,
-													AllowCopy:  true,
-													InputClass: "min-w-xs",
-													Attrs: templ.Attributes{
-														"x-model": "form.email",
-													},
-												})
-											</td>
-											<td class="whitespace-nowrap px-4 py-2 capitalize">
-												@shared.Dropdown(&shared.DropdownProps{
-													HideLabel:     true,
-													Value:         string(member.Role),
-													Options:       enum.TenantRolesStr,
-													DropdownClass: "min-w-52 capitalize",
-													Disabled:      session.Principal.ID == member.PrincipalID,
-													Attrs: templ.Attributes{
-														"x-model": "form.role",
-													},
-												})
-											</td>
-											<td class="whitespace-nowrap px-4 py-2">
-												if session.Principal.ID == member.PrincipalID {
-													YOU
-												} else {
-													<form
-														class="flex gap-1 text-xs"
-														hx-push-url="false"
-														hx-swap="none"
-														hx-indicator="#overlay-spinner"
-													>
-														<input type="hidden" class="hidden" name="email" x-model="form.email"/>
-														<input type="hidden" class="hidden" name="role" x-model="form.role"/>
-														@shared.ButtonNeutral("Reset", templ.Attributes{"x-on:click": "reset()"})
-														@shared.ButtonPrimary("Update", templ.Attributes{":class": "isModified() ? '' : 'disabled'", "hx-patch": routes.TenantMembers})
-														@shared.ButtonDanger("Remove", templ.Attributes{"hx-delete": routes.TenantMembers})
-													</form>
-												}
-											</td>
-										</tr>
+											<input type="hidden" class="hidden" name="email" x-model="form.email"/>
+											<input type="hidden" class="hidden" name="role" x-model="form.role"/>
+											@shared.ButtonNeutral("Reset", templ.Attributes{"type": "button", "x-on:click": "reset()"})
+											@shared.ButtonPrimary("Update", templ.Attributes{":class": "isModified() ? '' : 'disabled'", "hx-patch": routes.TenantMembers})
+											@shared.ButtonDanger("Remove", templ.Attributes{"hx-delete": routes.TenantMembers})
+										</form>
 									}
-								</tbody>
-							</table>
-						</div>
-					}
-				}
-				@shared.PageSection("Add Members", "Make sure you have oauth enabled, since we do not support invite link generation yet.") {
-					@shared.CardContainer() {
-						<form
-							class="form"
-							x-data={ xdata.ToFormData(&tenantCtrl.TenantMembershipModel{}) }
-							hx-push-url="false"
-							hx-swap="none"
-							hx-indicator="#overlay-spinner"
-							hx-post={ routes.TenantMembersUrl(ctx) }
-						>
-							@shared.NewInput(&shared.NewInputProps{
-								Name:        "email",
-								Label:       "Email",
-								Placeholder: "Email Address",
-								Required:    true,
-								Attrs: templ.Attributes{
-									"x-model": "form.email",
-								},
-							})
-							@shared.NewDropdown(&shared.NewDropdownProps{
-								Name:    "role",
-								Label:   "Role",
-								Options: enum.TenantRolesStr,
-								Attrs: templ.Attributes{
-									"x-model": "form.role",
-									"class":   "capitalize",
-								},
-							})
-							@shared.UpdateDivNewWithText("Add")
-						</form>
-					}
-				}
-			}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	}
+}
+
+templ tenantAddMembersSection() {
+	@shared.PageSection("Add Members", "Make sure you have oauth enabled, since we do not support invite link generation yet.") {
+		@shared.CardContainer() {
+			<form
+				class="form"
+				x-data={ xdata.ToFormData(&tenantCtrl.TenantMembershipModel{}) }
+				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-post={ routes.TenantMembersUrl(ctx) }
+			>
+				@shared.NewInput(&shared.NewInputProps{
+					Name:        "email",
+					Label:       "Email",
+					Placeholder: "Email Address",
+					Required:    true,
+					Attrs: templ.Attributes{
+						"x-model": "form.email",
+					},
+				})
+				@shared.NewDropdown(&shared.NewDropdownProps{
+					Name:    "role",
+					Label:   "Role",
+					Options: enum.TenantRolesStr,
+					Class:   "capitalize",
+					Attrs: templ.Attributes{
+						"x-model": "form.role",
+					},
+				})
+				@shared.UpdateDivNewWithText("Add")
+			</form>
 		}
 	}
 }

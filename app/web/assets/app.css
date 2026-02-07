@@ -124,7 +124,10 @@
   --font-family: "Circular Std", sans-serif;
 
   /*borders*/
-  --border-overlay: #333333
+  --border-overlay: #333333;
+
+  /*containers*/
+  --container-2xs: 16rem;
 }
 
 @layer base {

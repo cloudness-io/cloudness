@@ -314,7 +314,6 @@ func setupProject(r chi.Router,
 				r.Get("/overview", handlerproject.HandleGet(projectCtrl, envCtrl, appCtrl))
 				r.Get("/settings", handlerproject.HandleGetSettingsGeneral(projectCtrl))
 				r.Patch("/settings", handlerproject.HandleUpdateSettingsGeneral(projectCtrl))
-				r.Get("/delete", handlerproject.HandleGetDeleteView(projectCtrl))
 				r.Delete("/delete", handlerproject.HandleDelete(projectCtrl))
 			})
 			r.Get("/events", handlerproject.HandleEvents(appCtx, projectCtrl))

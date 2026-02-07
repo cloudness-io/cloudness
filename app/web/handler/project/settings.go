@@ -36,7 +36,7 @@ func HandleUpdateSettingsGeneral(projectCtrl *project.Controller) http.HandlerFu
 		p, err := projectCtrl.Update(ctx, p.ID, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating project")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

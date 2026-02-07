@@ -15,7 +15,6 @@ const (
 	ProjectNavSource       string = "Source"
 	ProjectNavMembers      string = "Members"
 	ProjectNavSettings     string = "Settings"
-	ProjectNavDelete       string = "Danger"
 )
 
 func getProjectPageNav(ctx context.Context) []*shared.PageNavItem {
@@ -45,11 +44,6 @@ func getProjectPageNav(ctx context.Context) []*shared.PageNavItem {
 			Name:      ProjectNavSettings,
 			Icon:      icons.SettingsIcon,
 			ActionUrl: routes.ProjectSettings,
-		},
-		{
-			Name:      ProjectNavDelete,
-			Icon:      icons.DeleteIcon,
-			ActionUrl: routes.ProjectDelete,
 		},
 	}
 }

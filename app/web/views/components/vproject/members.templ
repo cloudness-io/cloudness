@@ -4,7 +4,6 @@ import (
 	"github.com/cloudness-io/cloudness/app/auth"
 	projectCtrl "github.com/cloudness-io/cloudness/app/controller/project"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/app/web/views/xdata"
 	"github.com/cloudness-io/cloudness/types"
@@ -12,24 +11,34 @@ import (
 )
 
 templ Members(session *auth.Session, project *types.Project, members []*types.ProjectMembershipUser) {
-	@projectHeader(project)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: ProjectNavMembers,
 		Options:    getProjectPageNav(ctx),
 	}) {
-		<div class="max-w-7xl flex flex-col gap-2">
-			<div class="flex items-center gap-1">
-				<i class={ icons.MembersIcon, "icon-2xl" }></i>
-				<h3>Members</h3>
-			</div>
-			@shared.InfoAlert("Team admins are owners of all projects in the team by default", "")
-			if len(members) == 0 {
-				@shared.NoData("No members found!", nil)
-			} else {
-				<div class="overflow-x-auto">
-					<table class="min-w-full divide-y bg-primary text-left">
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Members</h1>
+				<div class="heading-subSection text-foreground-light">Manage project members.</div>
+			}
+			@shared.PageContentShort() {
+				@membershipListTable(project, members)
+				@projectAddMembersSection()
+			}
+		}
+	}
+}
+
+templ membershipListTable(project *types.Project, members []*types.ProjectMembershipUser) {
+	@shared.PageSection("", "") {
+		@shared.CardContainer() {
+			<div class="flex flex-col gap-2 w-full">
+				@shared.InfoAlert("Team admins are owners of all projects in the team by default", "")
+				if len(members) == 0 {
+					@shared.NoData("No members found!", nil)
+				} else {
+					<table class="min-w-full divide-y text-left">
 						<thead>
-							<tr>
+							<tr class="text-foreground-light">
 								<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%]">Name</th>
 								<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Email</th>
 								<th class="whitespace-nowrap px-4 py-2 font-medium w-[15%]">Role</th>
@@ -48,23 +57,22 @@ templ Members(session *auth.Session, project *types.Project, members []*types.Pr
 								>
 									<td class="whitespace-nowrap px-4 py-2 max-w-32 overflow-hidden">{ member.DisplayName }</td>
 									<td class="whitespace-nowrap px-4 py-2">
-										@shared.Input(&shared.InputProps{
-											Name:       "email",
-											HideLabel:  true,
-											Disabled:   true,
-											AllowCopy:  true,
-											InputClass: "min-w-xs",
+										@shared.NewInput(&shared.NewInputProps{
+											Name:      "email",
+											Disabled:  true,
+											Direction: "vertical",
+											Class:     "min-w-2xs xl:min-w-max",
 											Attrs: templ.Attributes{
 												"x-model": "form.email",
 											},
 										})
 									</td>
 									<td class="whitespace-nowrap px-4 py-2 capitalize">
-										@shared.Dropdown(&shared.DropdownProps{
-											HideLabel:     true,
-											Value:         string(member.Role),
-											Options:       enum.ProjectRolesStr,
-											DropdownClass: "min-w-52 capitalize",
+										@shared.NewDropdown(&shared.NewDropdownProps{
+											SelectedOption: string(member.Role),
+											Options:        enum.ProjectRolesStr,
+											Direction:      "vertical",
+											Class:          "min-w-2xs xl:min-w-max capitalize",
 											Attrs: templ.Attributes{
 												"x-model": "form.role",
 											},
@@ -75,65 +83,72 @@ templ Members(session *auth.Session, project *types.Project, members []*types.Pr
 											class="flex gap-1 text-xs"
 											hx-push-url="false"
 											hx-swap="none"
+											hx-indicator="#overlay-spinner"
 										>
 											<input type="hidden" class="hidden" name="email" x-model="form.email"/>
 											<input type="hidden" class="hidden" name="role" x-model="form.role"/>
-											<button class="button-neutral" x-on:click="reset()">Reset</button>
-											<button
-												type="submit"
-												class="button-primary"
-												:class="isModified() ? '' :	'disabled'"
-												hx-patch={ routes.ProjectMembers }
-											>
-												Update
-											</button>
-											<button type="submit" class="button-danger" hx-delete={ routes.ProjectMembers }>Remove</button>
+											@shared.ButtonNeutral("Reset", templ.Attributes{
+												"type":       "button",
+												"x-on:click": "reset()",
+											})
+											@shared.ButtonPrimary("Update", templ.Attributes{
+												":class":   "isModified() ? '': 'disabled'",
+												"hx-patch": routes.ProjectMembers,
+											})
+											@shared.ButtonDanger("Remove", templ.Attributes{
+												"hx-delete": routes.ProjectMembers,
+											})
 										</form>
 									</td>
 								</tr>
 							}
 						</tbody>
 					</table>
-				</div>
-			}
-			<div class="flex items-center gap-2 mt-2">
-				<i class={ icons.AddIcon, "icon-xl text-brand" }></i>
-				<h3>Add Members</h3>
+				}
 			</div>
+		}
+	}
+}
+
+templ projectAddMembersSection() {
+	@shared.PageSection("Add Members", "") {
+		@shared.CardContainer() {
 			<form
-				class="flex flex-col gap-4 w-full my-2"
-				hx-swap="none"
+				class="form"
+				x-data={ xdata.ToFormData(&projectCtrl.ProjectMembershipAddModel{}) }
 				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
 				hx-post={ routes.ProjectMembers }
 			>
-				@shared.Dropdown(&shared.DropdownProps{
-					Name:              "new_email",
-					Label:             "Member",
-					DefaultOptionText: "Select a member",
-					SpinnerId:         "spinner-member",
+				@shared.CardHeader("Add a new member", "All members in the team will be available to be selected")
+				@shared.NewDropdown(&shared.NewDropdownProps{
+					Name:          "new_email",
+					Label:         "Member",
+					DefaultOption: "Select a member",
+					SpinnerID:     "spinner-member",
 					Attrs: templ.Attributes{
 						"hx-get":          routes.ProjectMembers + "/list-nonmembers",
 						"hx-trigger":      "click once",
-						"hx-target":       "#new_email",
+						"hx-target":       "this",
 						"hx-swap":         "innerHTML",
 						"hx-indicator":    "#spinner-member",
 						"hx-disabled-elt": "#role",
+						"x-model":         "form.new_email",
 					},
 				})
-				@shared.Dropdown(&shared.DropdownProps{
-					Name:          "role",
-					Label:         "Role",
-					Options:       enum.ProjectRolesStr,
-					DropdownClass: "capitalize",
+				@shared.NewDropdown(&shared.NewDropdownProps{
+					Name:    "role",
+					Label:   "Role",
+					Options: enum.ProjectRolesStr,
+					Class:   "capitalize",
+					Attrs: templ.Attributes{
+						"x-model": "form.role",
+					},
 				})
-				<button
-					type="submit"
-					class="button-primary max-w-fit"
-				>
-					Add	
-				</button>
+				@shared.UpdateDivNewWithText("Add")
 			</form>
-		</div>
+		}
 	}
 }
 

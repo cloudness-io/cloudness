@@ -1,6 +1,8 @@
 package shared
 
-templ Popover(comp templ.Component) {
+import "github.com/cloudness-io/cloudness/app/web/views/dto"
+
+templ Popover(comp templ.Component, align dto.PopoverAlign) {
 	<div
 		x-data="{
         popoverOpen: false,
@@ -52,13 +54,23 @@ templ Popover(comp templ.Component) {
 			@click.away="popoverOpen=false;"
 			@keydown.escape.window="popoverOpen=false"
 			:class="{ 'top-0 mt-10' : popoverPosition == 'bottom', 'bottom-0 mb-10' : popoverPosition == 'top' }"
-			class="absolute w-72 left-0"
+			class={
+				"absolute w-72",
+				templ.KV("left-0", align == "" || align == "start"),
+				templ.KV("left-1/2 -translate-x-1/2", align == "center"),
+				templ.KV("right-0", align == "end"),
+			}
 			x-cloak
 		>
 			<div x-ref="popoverInner" x-show="popoverOpen" class="w-full bg-overlay-default border rounded-md shadow-sm">
 				<div
 					x-show="popoverArrow && popoverPosition == 'bottom'"
-					class="absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5 left-3"
+					class={
+						"absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5",
+						templ.KV("left-3", align == "" || align == "start"),
+						templ.KV("left-1/2 -translate-x-1/2", align == "center"),
+						templ.KV("right-3", align == "end"),
+					}
 				>
 					<div
 						class="w-2.5 h-2.5 origin-bottom-left transform rotate-45 bg-overlay-default border-t border-l rounded-sm"
@@ -66,7 +78,12 @@ templ Popover(comp templ.Component) {
 				</div>
 				<div
 					x-show="popoverArrow  && popoverPosition == 'top'"
-					class="absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5 left-3"
+					class={
+						"absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5",
+						templ.KV("left-3", align == "" || align == "start"),
+						templ.KV("left-1/2 -translate-x-1/2", align == "center"),
+						templ.KV("right-3", align == "end"),
+					}
 				>
 					<div
 						class="w-2.5 h-2.5 origin-top-left transform -rotate-45 bg-overlay-default border-b border-l rounded-sm"

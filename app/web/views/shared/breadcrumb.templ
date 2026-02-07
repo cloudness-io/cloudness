@@ -63,7 +63,7 @@ templ breadCrumbItem(item *dto.NavItem) {
 		@breadCrumbText(item)
 	</a>
 	if item.DropdownActionURL != "" {
-		@Popover(dropdownIcon()) {
+		@Popover(dropdownIcon(), item.PopoverPositionMobile) {
 			@dropdownPopover(item)
 		}
 	}

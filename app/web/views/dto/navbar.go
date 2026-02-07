@@ -14,10 +14,19 @@ const (
 	DropdownIdentifierEnvironment DropdownIdentifier = "environment"
 )
 
+type PopoverAlign string
+
+const (
+	PopoverAlignStart  PopoverAlign = "start"
+	PopoverAlignCenter PopoverAlign = "center"
+	PopoverAlignEnd    PopoverAlign = "end"
+)
+
 type NavItem struct {
-	Title              string
-	Icon               string
-	NavURL             string
-	DropdownIdentifier DropdownIdentifier
-	DropdownActionURL  string
+	Title                 string
+	Icon                  string
+	NavURL                string
+	DropdownIdentifier    DropdownIdentifier
+	DropdownActionURL     string
+	PopoverPositionMobile PopoverAlign
 }

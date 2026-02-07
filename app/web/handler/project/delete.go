@@ -7,17 +7,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
-	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
 )
-
-func HandleGetDeleteView(projectCtrl *project.Controller) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		project, _ := request.ProjectFrom(ctx)
-
-		render.Page(ctx, w, vproject.ProjectDelete(project))
-	}
-}
 
 func HandleDelete(projectCtrl *project.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

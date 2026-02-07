@@ -17,6 +17,8 @@ type NewDropdownProps struct {
 	Placeholder       string
 	Attrs             templ.Attributes
 	Direction         string
+	SpinnerID         string
+	Class             string
 
 	//action params
 	Disabled bool
@@ -49,13 +51,13 @@ templ NewDropdown(props *NewDropdownProps) {
 							required
 							aria-required="true"
 						}
-						class="flex w-full rounded-md
+						class={ `flex w-full rounded-md
 					border border-control read-only:border-button bg-secondary file:border-0 file:bg-transparent
 					file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light
 					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control
 					focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed
-					disabled:text-foreground-muted text-sm leading-4 px-3 py-2 h-[34px] capitalize
-					[&>option]:bg-secondary [&>option]:text-foreground"
+					disabled:text-foreground-muted text-sm leading-4 px-3 py-2 h-[34px] [&>option]:bg-secondary
+					[&>option]:text-foreground`, props.Class }
 						value={ props.SelectedOption }
 						{ props.Attrs... }
 					>
@@ -94,6 +96,9 @@ templ NewDropdown(props *NewDropdownProps) {
 							}
 						}
 					</select>
+					<div id={ props.SpinnerID } class="htmx-indicator size-5 -ml-12" x-cloak>
+						<span class="spinner"></span>
+					</div>
 				</div>
 				<div id={ props.Name + "-error" }></div>
 				if props.OptionDescription!= "" {

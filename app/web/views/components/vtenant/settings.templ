@@ -28,7 +28,7 @@ templ teamSettingsSection(tenant *types.Tenant) {
 		@shared.CardContainer() {
 			<form
 				class="form"
-				x-data={ xdata.ToFormData(&tenantCtrl.TenantGeneralUpdateModel{tenant.Name, tenant.Description}) }
+				x-data={ xdata.ToFormData(&tenantCtrl.TenantGeneralUpdateModel{Name: tenant.Name, Description: tenant.Description}) }
 				hx-push-url="false"
 				hx-swap="none"
 				hx-indicator="#overlay-spinner"

@@ -65,10 +65,10 @@ templ fqdnForm(instance *types.Instance, server *types.Server) {
 				LabelDescription: "If your domain in behind a DNS Provider",
 				Options:          enum.DNSProvidersStr,
 				SelectedOption:   string(instance.DNSProvider),
+				Class:            "capitalize",
 				Attrs: templ.Attributes{
 					"x-model":   "form.dns_provider",
 					":disabled": "form.fqdn === ''",
-					"class":     "capitalize",
 				},
 			})
 			@shared.NewInput(&shared.NewInputProps{

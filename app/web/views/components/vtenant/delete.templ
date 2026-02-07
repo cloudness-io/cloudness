@@ -55,16 +55,14 @@ templ deleteTenantForm(tenant *types.Tenant) {
 				Direction: "vertical",
 				Attrs: templ.Attributes{
 					"x-model": "confirm",
-					":class":  "focus:border-error",
+					"class":   "focus:border-error",
 				},
 			})
 		</div>
-		<div>
-			<footer class="flex w-full justify-center">
-				@shared.ButtonDanger("I understand, delete this team", templ.Attributes{
-					":disabled": "name != confirm",
-				})
-			</footer>
+		<div class="flex w-full justify-center">
+			@shared.ButtonDanger("I understand, delete this team", templ.Attributes{
+				":disabled": "name != confirm",
+			})
 		</div>
 	</form>
 }
