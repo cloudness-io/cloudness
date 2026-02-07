@@ -31,7 +31,7 @@ templ Settings(instance *types.Instance, server *types.Server) {
 }
 
 templ fqdnForm(instance *types.Instance, server *types.Server) {
-	@shared.PageSection("Instance FQDN", "Configure your instance ingress FQDN")
+	@shared.PageSection("Instance FQDN", "Configure your instance ingress FQDN", templ.NopComponent)
 	@shared.CardContainer() {
 		<form
 			class="form"
@@ -93,7 +93,7 @@ templ fqdnForm(instance *types.Instance, server *types.Server) {
 }
 
 templ dnsConfigForm(instance *types.Instance) {
-	@shared.PageSection("DNS Configuration", "") {
+	@shared.PageSection("DNS Configuration", "", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"
@@ -130,7 +130,7 @@ templ dnsConfigForm(instance *types.Instance) {
 }
 
 templ scriptsForm(instance *types.Instance) {
-	@shared.PageSection("Scripts", "Scripts to be loaded in the dashboard") {
+	@shared.PageSection("Scripts", "Scripts to be loaded in the dashboard", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

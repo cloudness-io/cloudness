@@ -37,6 +37,7 @@ import (
 	accounthandler "github.com/cloudness-io/cloudness/app/web/handler/account"
 	handlerapplication "github.com/cloudness-io/cloudness/app/web/handler/application"
 	authhandler "github.com/cloudness-io/cloudness/app/web/handler/auth"
+	handlerConn "github.com/cloudness-io/cloudness/app/web/handler/connections"
 	handlercreate "github.com/cloudness-io/cloudness/app/web/handler/create"
 	handlerdeployment "github.com/cloudness-io/cloudness/app/web/handler/deployment"
 	handlerenvironment "github.com/cloudness-io/cloudness/app/web/handler/environment"
@@ -45,14 +46,11 @@ import (
 	handlerLogs "github.com/cloudness-io/cloudness/app/web/handler/logs"
 	handlerproject "github.com/cloudness-io/cloudness/app/web/handler/project"
 	handlerserver "github.com/cloudness-io/cloudness/app/web/handler/server"
-	handlersource "github.com/cloudness-io/cloudness/app/web/handler/source"
 	handlertenant "github.com/cloudness-io/cloudness/app/web/handler/tenant"
 	handlervariable "github.com/cloudness-io/cloudness/app/web/handler/variable"
 	handlervolume "github.com/cloudness-io/cloudness/app/web/handler/volume"
-	webhookhandler "github.com/cloudness-io/cloudness/app/web/handler/webhook"
 	"github.com/cloudness-io/cloudness/app/web/public"
 	"github.com/cloudness-io/cloudness/app/web/render"
-	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/enum"
 
@@ -183,11 +181,8 @@ func setupRoutesV1WithAuth(r chi.Router,
 
 func setupWebhooks(r chi.Router, tenantCtrl *tenant.Controller, projectCtrl *project.Controller, ghAppCtrl *githubapp.Controller) {
 	r.Route("/webhooks", func(r chi.Router) {
-		r.Route("/source", func(r chi.Router) {
-			r.Route("/github", func(r chi.Router) {
-				r.Get("/redirect", webhookhandler.HandleGithubRedirect(tenantCtrl, projectCtrl, ghAppCtrl))
-				r.Get("/install", webhookhandler.HandleGithubInstall(tenantCtrl, projectCtrl, ghAppCtrl))
-			})
+		r.Route("/github", func(r chi.Router) {
+			// r.Post("/events", handlerConn.HandleGithubEvent())
 		})
 	})
 }
@@ -318,7 +313,7 @@ func setupProject(r chi.Router,
 			})
 			r.Get("/events", handlerproject.HandleEvents(appCtx, projectCtrl))
 			setupEnvionment(r, appCtx, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
-			setupProjectSource(r, ghAppCtrl, gitPublicCtrl)
+			setupProjectConnections(r, ghAppCtrl, gitPublicCtrl)
 
 			// Admin/Owner routes
 			r.Route("/members", func(r chi.Router) {
@@ -429,11 +424,11 @@ func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment
 
 func setupApplicationCreate(r chi.Router, appCtrl *application.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, templCtrl *template.Controller) {
 	r.Route("/new", func(r chi.Router) {
-		r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
+		//r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
 		r.Route("/git", func(r chi.Router) {
-			r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
+			//r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
 			r.Route("/github", func(r chi.Router) {
-				r.Get("/", handlercreate.HandleListGithubApps(ghAppCtrl))
+				// r.Get("/", handlercreate.HandleListGithubApps(ghAppCtrl))
 				r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
 					r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
 					r.Get("/", handlercreate.HandleGetGithubView(appCtrl))
@@ -479,25 +474,30 @@ func setupDeployment(r chi.Router, appCtx context.Context, appCtrl *application.
 	})
 }
 
-func setupProjectSource(r chi.Router, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller) {
-	r.Route("/source", func(r chi.Router) {
-		r.Get("/", handlersource.HandleListConfigurableSource())
-		r.Route("/git-public", func(r chi.Router) {
-			r.Get("/list-branches", handlersource.HandleListGitpublicBranches(gitPublicCtrl))
-		})
+func setupProjectConnections(r chi.Router, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller) {
+	r.Route("/connections", func(r chi.Router) {
+		r.Get("/", handlerConn.HandleListForProject(ghAppCtrl))
 		r.Route("/github", func(r chi.Router) {
-			r.Get("/", handlersource.HandleListGithubApps(ghAppCtrl))
-			r.Post("/", handlersource.HandleAddGithubApp(ghAppCtrl))
+			r.Route("/new", func(r chi.Router) {
+				r.Use(middlewarerestrict.ToProjectOwner())
+				r.Get("/", handlerConn.HandleNewGithubApp())
+				r.Post("/", handlerConn.HandleAddGithubApp(ghAppCtrl))
+			})
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
 				r.Route("/", func(r chi.Router) {
 					r.Use(middlewarerestrict.ToProjectOwner())
-					r.Get("/", handlersource.HandleGetGithubApp(ghAppCtrl))
-					r.Delete("/", handlersource.HandleDeleteGithubApp(ghAppCtrl))
+					r.Get("/", handlerConn.HandleGetGithubApp(ghAppCtrl))
+					r.Get("/callback", handlerConn.HandleGithubCallback(ghAppCtrl))
+					r.Get("/install", handlerConn.HandleGithubInstall(ghAppCtrl))
+					r.Delete("/", handlerConn.HandleDeleteGithubApp(ghAppCtrl))
 				})
-				r.Get("/list-repos", handlersource.HandleListGithubRepos(ghAppCtrl))
-				r.Get("/list-branches", handlersource.HandleListGithubBranches(ghAppCtrl))
+				r.Get("/list-repos", handlerConn.HandleListGithubRepos(ghAppCtrl))
+				r.Get("/list-branches", handlerConn.HandleListGithubBranches(ghAppCtrl))
 			})
+		})
+		r.Route("/git-public", func(r chi.Router) {
+			r.Get("/list-branches", handlerConn.HandleListGitpublicBranches(gitPublicCtrl))
 		})
 	})
 }

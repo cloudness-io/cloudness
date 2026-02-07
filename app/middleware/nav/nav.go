@@ -31,12 +31,13 @@ func PopulateNavTeam() func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(
 				request.WithNavItem(ctx,
 					&dto.NavItem{
-						Title:                 tenant.Name,
-						Icon:                  icons.TeamIcon,
-						NavURL:                routes.TenantCtx(ctx),
-						DropdownActionURL:     "/team/nav" + "/" + strconv.FormatInt(tenant.UID, 10),
-						DropdownIdentifier:    dto.DropdownIdentifierTeam,
-						PopoverPositionMobile: dto.PopoverAlignStart,
+						Title:                  tenant.Name,
+						Icon:                   icons.TeamIcon,
+						NavURL:                 routes.TenantCtx(ctx),
+						DropdownActionURL:      "/team/nav" + "/" + strconv.FormatInt(tenant.UID, 10),
+						DropdownIdentifier:     dto.DropdownIdentifierTeam,
+						PopoverPositionMobile:  dto.PopoverAlignStart,
+						PopoverPositionDesktop: dto.PopoverAlignStart,
 					}),
 			))
 		})
@@ -50,12 +51,13 @@ func PopulateNavProject() func(http.Handler) http.Handler {
 			project, _ := request.ProjectFrom(ctx)
 			next.ServeHTTP(w, r.WithContext(
 				request.WithNavItem(ctx, &dto.NavItem{
-					Title:                 project.Name,
-					Icon:                  icons.ProjectIcon,
-					NavURL:                routes.ProjectCtx(ctx),
-					DropdownActionURL:     routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav + "/" + strconv.FormatInt(project.UID, 10),
-					DropdownIdentifier:    dto.DropdownIdentifierProject,
-					PopoverPositionMobile: dto.PopoverAlignCenter,
+					Title:                  project.Name,
+					Icon:                   icons.ProjectIcon,
+					NavURL:                 routes.ProjectCtx(ctx),
+					DropdownActionURL:      routes.TenantCtx(ctx) + "/" + routes.ProjectBase + routes.ProjectNav + "/" + strconv.FormatInt(project.UID, 10),
+					DropdownIdentifier:     dto.DropdownIdentifierProject,
+					PopoverPositionMobile:  dto.PopoverAlignCenter,
+					PopoverPositionDesktop: dto.PopoverAlignStart,
 				}),
 			))
 		})

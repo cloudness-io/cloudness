@@ -1,4 +1,4 @@
-package source
+package connections
 
 import (
 	"net/http"
@@ -14,29 +14,21 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HandleListConfigurableSource() http.HandlerFunc {
+func HandleListForProject(ghAppCtrl *githubapp.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		project, _ := request.ProjectFrom(ctx)
 
-		render.Page(ctx, w, vproject.ListOptions(project, GetConfirableSources()))
-	}
-}
-
-func HandleListGithubApps(ghCtrl *githubapp.Controller) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
 		tenant, _ := request.TenantFrom(ctx)
 		project, _ := request.ProjectFrom(ctx)
 
-		ghApps, err := ghCtrl.List(ctx, tenant.ID, project.ID)
+		ghApps, err := ghAppCtrl.List(ctx, tenant.ID, project.ID)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error listing github apps")
 			render.ToastError(ctx, w, err)
 			return
 		}
 
-		render.Page(ctx, w, vproject.ListGithubApps(tenant, project, GetConfirableSources(), Github, ghApps, nil))
+		render.Page(ctx, w, vproject.ListConnections(project, ghApps))
 	}
 }
 

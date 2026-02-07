@@ -1,10 +1,97 @@
 package vgithubapp
 
 import (
+	"context"
 	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
+
+func getGHAppButtonComp(ctx context.Context) templ.Component {
+	if request.IsProjectOwner(ctx) {
+		return shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
+	}
+	return templ.NopComponent
+}
+
+templ ListGHApps(ghApps []*types.GithubApp) {
+	@shared.PageSection("Github Apps", ghAppDescription, getGHAppButtonComp(ctx)) {
+		if len(ghApps) == 0 {
+			if request.IsProjectOwner(ctx) {
+				@addGithubCard()
+			} else {
+				@noGithubAppCard()
+			}
+		} else {
+			@listGHApps(ghApps, request.IsProjectOwner(ctx))
+		}
+	}
+}
+
+templ listGHApps(ghApps []*types.GithubApp, canEdit bool) {
+	@shared.Table() {
+		@shared.TableHead() {
+			@shared.TableHeadRow() {
+				@shared.TableHeadCell() {
+					Name
+				}
+				@shared.TableHeadCell() {
+					Organization
+				}
+				@shared.TableHeadCell() {
+					Status
+				}
+			}
+		}
+		@shared.TableBody() {
+			for _, ghApp := range ghApps {
+				@shared.TableBodyRow(templ.Attributes{
+					"hx-get":        routes.ProjectConnectionGithubUID(ghApp.UID),
+					"data-disabled": fmt.Sprintf("%t", !canEdit),
+				}) {
+					@shared.TableBodyCell() {
+						<span>{ ghApp.Name }</span>
+					}
+					@shared.TableBodyCell() {
+						<span class="text-foreground-lighter italic">
+							if ghApp.Organization != "" {
+								{ ghApp.Organization }
+							} else {
+								Personal
+							}
+						</span>
+					}
+					@shared.TableBodyCell() {
+						<div>
+							if ghApp.AppID == 0 {
+								<p class="text-xs text-error">Registration pending</p>
+							} else if ghApp.InstallationID == 0 {
+								<p class="text-xs text-error">Installation pending</p>
+							} else {
+								<p class="text-xs text-success">Connected</p>
+							}
+						</div>
+					}
+				}
+			}
+		}
+	}
+}
+
+templ addGithubCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.SourceGithubIcon, "icon-lg size-6 text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h3>Create a new Github App</h3>
+			</div>
+		</div>
+		@shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
+	</div>
+}
 
 templ List(ghApps []*types.GithubApp, selected *types.GithubApp, urlPathPattern string) {
 	<hr class="w-full border-t border-dotted"/>

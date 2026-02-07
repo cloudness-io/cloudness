@@ -26,7 +26,7 @@ templ ProjectGeneral(project *types.Project) {
 }
 
 templ projectGeneralSettings(project *types.Project) {
-	@shared.PageSection("Project Details", "") {
+	@shared.PageSection("Project Details", "", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

@@ -10,7 +10,7 @@ import (
 const (
 	TenantNavProjects     string = "Projects"
 	TenantNavSettings     string = "Team Settings"
-	TenantNavMembers      string = "Members"
+	TenantNavMembers      string = "Team"
 	TenantNavRestrictions string = "Restrictions"
 	TenantNavDelete       string = "Danger"
 )
@@ -24,7 +24,7 @@ func getTenantNav(tenant *types.Tenant, canEdit bool) []*shared.PageNavItem {
 		},
 		{
 			Name:      TenantNavMembers,
-			Icon:      icons.MembersIcon,
+			Icon:      icons.TeamMembersIcon,
 			ActionUrl: routes.TenantMembers,
 			Disabled:  !canEdit,
 		},

@@ -8,7 +8,7 @@ import (
 )
 
 templ limits(server *types.Server) {
-	@shared.PageSection("Server Limits", "") {
+	@shared.PageSection("Server Limits", "", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

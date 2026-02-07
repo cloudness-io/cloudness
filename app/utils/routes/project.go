@@ -6,20 +6,19 @@ import (
 	"strings"
 
 	"github.com/cloudness-io/cloudness/app/request"
-	"github.com/cloudness-io/cloudness/types"
 )
 
 const (
 	ProjectBase        = "project"
 	ProjectOverview    = "overview"
 	ProjectEnvironment = "environment"
-	ProjectSource      = "source"
+	ProjectConnections = "connections"
 	ProjectMembers     = "members"
 	ProjectSettings    = "settings"
 	ProjectDelete      = "delete"
 	ProjectNav         = "/nav"
 
-	ProjectSourceGithub = "source/github"
+	ProjectConnectionGithub = "connections/github"
 )
 
 func Project(uid int64) string {
@@ -43,12 +42,12 @@ func ProjectCtxUID(ctx context.Context, projectUID int64) string {
 	return fmt.Sprintf("%s/project/%d", TenantCtx(ctx), projectUID)
 }
 
-func ProjectGithubCtx(ctx context.Context, ghApp *types.GithubApp) string {
-	base := fmt.Sprintf("%s/%s", ProjectCtx(ctx), ProjectSourceGithub)
-	if ghApp != nil {
-		return fmt.Sprintf("%s/%d", base, ghApp.UID)
-	}
-	return base
+func ProjectConnectionGithubUID(ghAppUID int64) string {
+	return fmt.Sprintf("%s/%d", ProjectConnectionGithub, ghAppUID)
+}
+
+func ProjectConnectionGithubUIDCtx(ctx context.Context, ghAppUID int64) string {
+	return fmt.Sprintf("%s/%s/%d", ProjectCtx(ctx), ProjectConnectionGithub, ghAppUID)
 }
 
 func IsProjectUrl(url string) bool {

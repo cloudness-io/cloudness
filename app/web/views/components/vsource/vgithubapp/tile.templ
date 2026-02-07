@@ -2,8 +2,24 @@ package vgithubapp
 
 import (
 	"fmt"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
+
+templ githubAppTile(ghApp *types.GithubApp, canView bool, canEdit bool) {
+	@shared.CardContainer() {
+		<div class="flex flex-row gap-1">
+			<div>{ ghApp.Name }</div>
+			<div>
+				if ghApp.AppID == 0 {
+					<p class="text-xs text-error">Registration pending</p>
+				} else if ghApp.InstallationID == 0 {
+					<p class="text-xs text-error">Installation pending</p>
+				}
+			</div>
+		</div>
+	}
+}
 
 templ GithubTile(ghApp *types.GithubApp) {
 	<div

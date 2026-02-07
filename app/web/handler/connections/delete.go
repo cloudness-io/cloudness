@@ -1,4 +1,4 @@
-package source
+package connections
 
 import (
 	"net/http"
@@ -24,6 +24,6 @@ func HandleDeleteGithubApp(ghCtrl *githubapp.Controller) http.HandlerFunc {
 			return
 		}
 
-		render.Redirect(w, routes.ProjectCtx(ctx)+"/"+routes.ProjectSourceGithub)
+		render.Redirect(w, routes.ProjectCtx(ctx)+"/"+routes.ProjectConnections)
 	}
 }

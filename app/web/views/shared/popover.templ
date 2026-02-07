@@ -2,7 +2,7 @@ package shared
 
 import "github.com/cloudness-io/cloudness/app/web/views/dto"
 
-templ Popover(comp templ.Component, align dto.PopoverAlign) {
+templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop dto.PopoverAlign) {
 	<div
 		x-data="{
         popoverOpen: false,
@@ -56,9 +56,14 @@ templ Popover(comp templ.Component, align dto.PopoverAlign) {
 			:class="{ 'top-0 mt-10' : popoverPosition == 'bottom', 'bottom-0 mb-10' : popoverPosition == 'top' }"
 			class={
 				"absolute w-72",
-				templ.KV("left-0", align == "" || align == "start"),
-				templ.KV("left-1/2 -translate-x-1/2", align == "center"),
-				templ.KV("right-0", align == "end"),
+				// Mobile alignment
+				templ.KV("left-0", alignMobile == "" || alignMobile == dto.PopoverAlignStart),
+				templ.KV("left-1/2 -translate-x-1/2", alignMobile == dto.PopoverAlignCenter),
+				templ.KV("right-0", alignMobile == dto.PopoverAlignEnd),
+				// Desktop alignment (md breakpoint)
+				templ.KV("md:left-0 md:right-auto md:translate-x-0", alignDesktop == "" || alignDesktop == dto.PopoverAlignStart),
+				templ.KV("md:left-1/2 md:-translate-x-1/2 md:right-auto", alignDesktop == dto.PopoverAlignCenter),
+				templ.KV("md:right-0 md:left-auto md:translate-x-0", alignDesktop == dto.PopoverAlignEnd),
 			}
 			x-cloak
 		>
@@ -67,9 +72,14 @@ templ Popover(comp templ.Component, align dto.PopoverAlign) {
 					x-show="popoverArrow && popoverPosition == 'bottom'"
 					class={
 						"absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5",
-						templ.KV("left-3", align == "" || align == "start"),
-						templ.KV("left-1/2 -translate-x-1/2", align == "center"),
-						templ.KV("right-3", align == "end"),
+						// Mobile arrow
+						templ.KV("left-3", alignMobile == "" || alignMobile == dto.PopoverAlignStart),
+						templ.KV("left-1/2 -translate-x-1/2", alignMobile == dto.PopoverAlignCenter),
+						templ.KV("right-3 left-auto", alignMobile == dto.PopoverAlignEnd),
+						// Desktop arrow
+						templ.KV("md:left-3 md:right-auto md:translate-x-0", alignDesktop == "" || alignDesktop == dto.PopoverAlignStart),
+						templ.KV("md:left-1/2 md:-translate-x-1/2 md:right-auto", alignDesktop == dto.PopoverAlignCenter),
+						templ.KV("md:right-3 md:left-auto md:translate-x-0", alignDesktop == dto.PopoverAlignEnd),
 					}
 				>
 					<div
@@ -80,9 +90,14 @@ templ Popover(comp templ.Component, align dto.PopoverAlign) {
 					x-show="popoverArrow  && popoverPosition == 'top'"
 					class={
 						"absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5",
-						templ.KV("left-3", align == "" || align == "start"),
-						templ.KV("left-1/2 -translate-x-1/2", align == "center"),
-						templ.KV("right-3", align == "end"),
+						// Mobile arrow
+						templ.KV("left-3", alignMobile == "" || alignMobile == dto.PopoverAlignStart),
+						templ.KV("left-1/2 -translate-x-1/2", alignMobile == dto.PopoverAlignCenter),
+						templ.KV("right-3 left-auto", alignMobile == dto.PopoverAlignEnd),
+						// Desktop arrow
+						templ.KV("md:left-3 md:right-auto md:translate-x-0", alignDesktop == "" || alignDesktop == dto.PopoverAlignStart),
+						templ.KV("md:left-1/2 md:-translate-x-1/2 md:right-auto", alignDesktop == dto.PopoverAlignCenter),
+						templ.KV("md:right-3 md:left-auto md:translate-x-0", alignDesktop == dto.PopoverAlignEnd),
 					}
 				>
 					<div

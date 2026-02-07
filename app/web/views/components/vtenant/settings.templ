@@ -24,7 +24,7 @@ templ Settings(tenant *types.Tenant, canEdit bool) {
 }
 
 templ teamSettingsSection(tenant *types.Tenant) {
-	@shared.PageSection("Team Details", "") {
+	@shared.PageSection("Team Details", "", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

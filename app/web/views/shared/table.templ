@@ -1,0 +1,73 @@
+package shared
+
+templ Table() {
+	<div class="overflow-hidden rounded-lg border text-foreground shadow-sm bg-secondary">
+		<table class="group/table w-full caption-bottom text-sm w-full overflow-auto">
+			{ children... }
+		</table>
+	</div>
+}
+
+templ TableHead() {
+	<thead class="border-b bg-primary">
+		{ children... }
+	</thead>
+}
+
+templ TableHeadRow() {
+	<tr class="border-b bg-primary">
+		{ children... }
+	</tr>
+}
+
+templ TableHeadCell() {
+	<th class="h-10 px-4 text-left align-middle heading-meta whitespace-nowrap text-foreground-lighter [:has([role=checkbox])]:pr-0 transition-colors">
+		{ children... }
+	</th>
+}
+
+templ TableBody() {
+	<tbody class="[&_tr:last-child]:border-0">
+		{ children... }
+	</tbody>
+}
+
+templ TableBodyRow(attr templ.Attributer) {
+	<tr
+		class="border-b hover:bg-secondary-hover cursor-pointer data-[disabled=true]:pointer-events-none"
+		style="opacity: 1; height:	auto;"
+		{ attr... }
+	>
+		{ children... }
+	</tr>
+}
+
+templ TableBodyCell() {
+	<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2">
+		{ children... }
+	</td>
+}
+
+templ TableSample() {
+	<table class="group/table w-full caption-bottom text-sm">
+		<thead class="[&amp;_tr]:border-b [&amp;&gt;tr]:bg-200">
+			<tr class="border-b [&amp;&gt;td]:hover:bg-surface-200 data-[state=selected]:bg-muted bg-200">
+				<th class="h-10 px-4 text-left align-middle heading-meta whitespace-nowrap text-foreground-lighter [&amp;:has([role=checkbox])]:pr-0 transition-colors">Name</th>
+				<th class="h-10 px-4 text-left align-middle heading-meta whitespace-nowrap text-foreground-lighter [&amp;:has([role=checkbox])]:pr-0 transition-colors">API Key</th>
+				<th class="h-10 px-4 text-left align-middle heading-meta whitespace-nowrap text-foreground-lighter [&amp;:has([role=checkbox])]:pr-0 transition-colors"></th>
+			</tr>
+		</thead>
+		<tbody class="[&amp;_tr:last-child]:border-0">
+			<tr class="border-b [&amp;&gt;td]:hover:bg-surface-200 data-[state=selected]:bg-muted" style="opacity: 1; height: auto;">
+				<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2 w-56"><div class="flex flex-col"><span class="font-medium">default</span><div class="text-sm text-foreground-lighter"><span class="text-foreground-muted">No description</span></div></div></td>
+				<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2"><div class="flex flex-row gap-2"><div class="flex border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-muted aria-[] aria-[invalid=true]:bg-destructive-200 aria-[invalid=true]:border-destructive-400 aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:border-destructive text-xs px-2.5 py-1 h-[26px] w-[100px] sm:w-[140px] md:w-[180px] lg:w-[340px] gap-0 font-mono rounded-full ring-0 ring-opacity-0 transition-all cursor-text relative" style="user-select: all;"><span title="sb_publishable_CFz0o3vlkc20POKQr4Nf9Q_BghUtYPn" class="truncate">sb_publishable_CFz0o3vlkc20POKQr4Nf9Q_BghUtYPn</span></div><button data-size="tiny" type="button" class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out duration-200 outline-none transition-all outline-0 focus-visible:outline-4 focus-visible:outline-offset-1 border text-foreground bg-alternative dark:bg-muted hover:bg-selection border-strong hover:border-stronger focus-visible:outline-brand-600 data-[state=open]:bg-selection data-[state=open]:outline-brand-600 data-[state=open]:border-button-hover text-xs py-1 h-[26px] rounded-full px-2 pointer-events-auto" data-state="closed" tabindex="0"><div class="[&amp;_svg]:h-[14px] [&amp;_svg]:w-[14px] text-foreground-lighter"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></div> </button></div></td>
+				<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2"><div class="flex justify-end"><button data-size="tiny" type="button" id="radix-:rct:" aria-haspopup="menu" aria-expanded="false" data-state="closed" class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4 focus-visible:outline-offset-1 border text-foreground hover:bg-surface-300 shadow-none focus-visible:outline-border-strong data-[state=open]:bg-surface-300 data-[state=open]:outline-border-strong border-transparent text-xs py-1 h-[26px] px-1 focus-visible:outline-none" tabindex="0"><div class="[&amp;_svg]:h-[14px] [&amp;_svg]:w-[14px] text-foreground-lighter"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-vertical text-foreground-light hover:text-foreground"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div> </button></div></td>
+			</tr>
+		</tbody>
+		<tfoot class="font-medium border-t">
+			<tr class="[&amp;&gt;td]:hover:bg-surface-200 data-[state=selected]:bg-muted border-b-0">
+				<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2" colspan="3"><p class="text-xs text-foreground-lighter font-normal">Publishable keys can be safely shared publicly</p></td>
+			</tr>
+		</tfoot>
+	</table>
+}

@@ -23,10 +23,11 @@ const (
 )
 
 type NavItem struct {
-	Title                 string
-	Icon                  string
-	NavURL                string
-	DropdownIdentifier    DropdownIdentifier
-	DropdownActionURL     string
-	PopoverPositionMobile PopoverAlign
+	Title                  string
+	Icon                   string
+	NavURL                 string
+	DropdownIdentifier     DropdownIdentifier
+	DropdownActionURL      string
+	PopoverPositionMobile  PopoverAlign
+	PopoverPositionDesktop PopoverAlign
 }

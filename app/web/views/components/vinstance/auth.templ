@@ -30,7 +30,7 @@ templ Auth(instance *types.Instance, auths map[enum.AuthProvider]*types.AuthSett
 
 templ PasswordAuth(instance *types.Instance, authSettings *types.AuthSetting) {
 	if authSettings != nil {
-		@shared.PageSection("Password Authentication", "Configure your instance password authentication") {
+		@shared.PageSection("Password Authentication", "Configure your instance password authentication", templ.NopComponent) {
 			@shared.CardContainer() {
 				<form
 					class="form"
@@ -74,7 +74,7 @@ templ PasswordAuth(instance *types.Instance, authSettings *types.AuthSetting) {
 }
 
 templ DemoUser(instance *types.Instance) {
-	@shared.PageSection("Demo User", "Configure your instance demo user") {
+	@shared.PageSection("Demo User", "Configure your instance demo user", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"
@@ -107,7 +107,7 @@ templ DemoUser(instance *types.Instance) {
 
 templ GithubOath(instance *types.Instance, authSettings *types.AuthSetting) {
 	if authSettings != nil {
-		@shared.PageSection("Github OAuth", `Configure your instance Github OAuth.We suggest an FQDN to be setup for the instance before configuring OAuth`) {
+		@shared.PageSection("Github OAuth", `Configure your instance Github OAuth.We suggest an FQDN to be setup for the instance before configuring OAuth`, templ.NopComponent) {
 			@shared.CardContainer() {
 				<form
 					class="form"

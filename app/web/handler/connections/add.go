@@ -1,4 +1,4 @@
-package source
+package connections
 
 import (
 	"encoding/json"
@@ -8,9 +8,17 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgithubapp"
 
 	"github.com/rs/zerolog/log"
 )
+
+func HandleNewGithubApp() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		render.Page(ctx, w, vgithubapp.AddGithubAppPage())
+	}
+}
 
 func HandleAddGithubApp(ghCtrl *githubapp.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -33,10 +41,10 @@ func HandleAddGithubApp(ghCtrl *githubapp.Controller) http.HandlerFunc {
 		ghApp, err := ghCtrl.Create(ctx, session, tenant.ID, int64(projectID), in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error creating github app")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
-		render.Redirect(w, routes.ProjectGithubCtx(ctx, ghApp)+routes.TargetMainQuery)
+		render.RedirectWithRefresh(w, routes.ProjectConnectionGithubUIDCtx(ctx, ghApp.UID))
 	}
 }

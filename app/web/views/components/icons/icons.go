@@ -29,6 +29,7 @@ const (
 	UserSessionIcon = "ph ph-notebook"
 	UserSignoutIcon = "ph ph-sign-out"
 	MembersIcon     = "ph ph-user-list"
+	TeamMembersIcon = "ph ph-users"
 	LimitsIcon      = "ph ph-prohibit"
 	SwitchIcon      = "ph ph-arrows-left-right"
 

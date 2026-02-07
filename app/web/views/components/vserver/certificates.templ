@@ -6,7 +6,7 @@ import "fmt"
 import "github.com/cloudness-io/cloudness/app/web/views/components/common"
 
 templ listCertificatesContainer() {
-	@shared.PageSection("Certificates", "") {
+	@shared.PageSection("Certificates", "", templ.NopComponent) {
 		@shared.LazyLoader("server-certificates", "/settings/server/certificates")
 	}
 }

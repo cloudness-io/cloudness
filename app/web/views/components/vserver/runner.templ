@@ -8,7 +8,7 @@ import (
 )
 
 templ runnerSettings(server *types.Server) {
-	@shared.PageSection("Build/Runner Settings", "") {
+	@shared.PageSection("Build/Runner Settings", "", templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

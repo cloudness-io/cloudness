@@ -8,12 +8,12 @@ import (
 )
 
 templ dangerZone(project *types.Project) {
-	@shared.PageSection("Danger Zone", "") {
+	@shared.PageSection("Danger Zone", "", templ.NopComponent) {
 		@shared.AlertCardContainer() {
 			<div class="mt-2" x-data="{projectDeleteModel: false}">
 				<div class="mb-4 flex flex-col gap-1">
 					<span>
-						Deleting this project will permanently delete all data components in the project for all environments.
+						Deleting this project will permanently delete along with all the data components in the project for all environments.
 						This cannot be undone.
 					</span>
 					<span class="text-foreground-light">

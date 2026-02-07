@@ -19,7 +19,7 @@ templ Registry(instance *types.Instance) {
 			}
 			@shared.PageContentShort() {
 				<div class="flex flex-col gap-3 mb-2">
-					@shared.PageSection("Registry Settings", "") {
+					@shared.PageSection("Registry Settings", "", templ.NopComponent) {
 						@shared.CardContainer() {
 							<form
 								class="form"
