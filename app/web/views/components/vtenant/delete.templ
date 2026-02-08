@@ -40,7 +40,7 @@ templ deleteTenantForm(tenant *types.Tenant) {
 			<h2 class="text-xl font-semibold">Delete Team</h2>
 		</div>
 		<div>
-			<p class="w-full max-w-full">
+			<p class="w-full text-wrap">
 				Are you sure you want to delete the team <span class="italic font-semibold">{ tenant.Name }</span> ? This
 				action is permanent and will delete all your team data. This includes all data in components for
 				all projects and environments.
@@ -53,9 +53,9 @@ templ deleteTenantForm(tenant *types.Tenant) {
 			@shared.NewInput(&shared.NewInputProps{
 				Name:      "confirm",
 				Direction: "vertical",
+				Class:     "focus:border-error",
 				Attrs: templ.Attributes{
 					"x-model": "confirm",
-					"class":   "focus:border-error",
 				},
 			})
 		</div>

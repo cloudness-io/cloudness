@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
@@ -79,18 +78,6 @@ templ listGHApps(ghApps []*types.GithubApp, canEdit bool) {
 			}
 		}
 	}
-}
-
-templ addGithubCard() {
-	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
-		<div class="flex flex-col gap-y-3 items-center">
-			@shared.Icon(icons.SourceGithubIcon, "icon-lg size-6 text-foreground-lighter")
-			<div class="flex flex-col items-center text-center">
-				<h3>Create a new Github App</h3>
-			</div>
-		</div>
-		@shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
-	</div>
 }
 
 templ List(ghApps []*types.GithubApp, selected *types.GithubApp, urlPathPattern string) {

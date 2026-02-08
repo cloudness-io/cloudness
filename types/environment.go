@@ -7,6 +7,7 @@ type Environment struct {
 	TenantID  int64  `db:"environment_tenant_id"    json:"-"`
 	ProjectID int64  `db:"environment_project_id"   json:"-"`
 	UID       int64  `db:"environment_uid"          json:"uid"`
+	Seq       int64  `db:"environment_sequence"     json:"seq"`
 	Name      string `db:"environment_name"         json:"name"`
 	CreateBy  int64  `db:"environment_created_by"   json:"-"`
 

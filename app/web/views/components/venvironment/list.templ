@@ -3,10 +3,19 @@ package venvironment
 import (
 	"context"
 	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
+
+func getEnvAddButtonComp(ctx context.Context) templ.Component {
+	if request.IsProjectOwner(ctx) {
+		return shared.AddButtonNeutral("New Environment", fmt.Sprintf("%s/new", routes.ProjectEnvironment))
+	}
+	return templ.NopComponent
+}
 
 templ List(envs []*types.Environment, selected *types.Environment, urlPathPattern string) {
 	<div class="flex flex-col gap-3" x-data="{openAddEnvironmentModal: false}">
@@ -55,12 +64,25 @@ func getEnvMenuDropdownProps(ctx context.Context, env *types.Environment) []*sha
 	return props
 }
 
+templ ListEnvironments(envs []*types.Environment) {
+	@shared.PageSection("Manage your Environments", "", getEnvAddButtonComp(ctx)) {
+		if len(envs) == 0 {
+			if request.IsProjectOwner(ctx) {
+				@addEnvironmentCard()
+			} else {
+				@noEnvironmentCard()
+			}
+		} else {
+			@ListEdit(envs, nil)
+		}
+	}
+}
+
 templ ListEdit(envs []*types.Environment, selected *types.Environment) {
-	<div x-data="{openAddEnvironmentModal: false}">
-		@Header(true)
-		<div class="flex flex-col gap-2 mt-2 mb-4">
+	<div class="w-full" x-data="{openAddEnvironmentModal: false}">
+		<div class="flex flex-col gap-2 mt-2 mb-4 w-full">
 			for _,env := range envs {
-				<div class="flex items-center place-content-between max-w-md px-4 py-2 border rounded-md" x-data="{environmentEditModel: false, environmentDeleteModel: false}">
+				<div class="flex items-center place-content-between mx-w-lg px-4 py-2 border rounded-md" x-data="{environmentEditModel: false, environmentDeleteModel: false}">
 					<div class="whitespace-nowrap text-left">{ env.Name }</div>
 					<div class="whitespace-nowrap cursor-pointer">
 						@shared.MenuDropDown(getEnvMenuDropdownProps(ctx, env))

@@ -337,14 +337,20 @@ func setupEnvionment(r chi.Router,
 	templCtrl *template.Controller, favCtrl *favorite.Controller,
 ) {
 	r.Route("/environment", func(r chi.Router) {
+		r.Route("/new", func(r chi.Router) {
+			r.Use(middlewarerestrict.ToProjectOwner())
+			r.Use(middlewarenav.PopulateNavItemKey("New Environment"))
+			r.Get("/", handlerenvironment.HandleNew())
+			r.Post("/", handlerenvironment.HandleAdd(envCtrl))
+		})
 		r.Get("/", handlerenvironment.HandleList(envCtrl))
-		r.Post("/create", handlerenvironment.HandleAdd(envCtrl))
 		r.Get("/nav", handlerenvironment.HandleListNavigation(envCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamEnvironmentUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectEnvironment(envCtrl))
 			r.Route("/", func(r chi.Router) {
 				r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
-				r.Patch("/settings", handlerenvironment.HandleUpdate(envCtrl))
+				r.Patch("/", handlerenvironment.HandleUpdate(envCtrl))
+				r.Delete("/", handlerenvironment.HandleDelete(envCtrl))
 				r.Route("/volumes", func(r chi.Router) {
 					r.Get("/", handlervolume.HandleListUnattached(volumeCtrl))
 					r.Route(fmt.Sprintf("/{%s}", request.PathParamVolumeUID), func(r chi.Router) {
@@ -352,7 +358,6 @@ func setupEnvionment(r chi.Router,
 						r.Delete("/", handlervolume.HandleDelete(volumeCtrl))
 					})
 				})
-				r.Delete("/delete", handlerenvironment.HandleDelete(envCtrl))
 			})
 			setupApplication(r, appCtx, envCtrl, appCtrl, varCtrl, ghAppCtrl, gitPublicCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
 		})

@@ -3,6 +3,7 @@ CREATE TABLE environments (
 ,environment_uid          INTEGER NOT NULL
 ,environment_tenant_id    INTEGeR NOT NULL
 ,environment_project_id   INTEGER NOT NULL
+,environment_sequence     INTEGER
 ,environment_name         TEXT NOT NULL
 ,environment_created_by   INTEGER NOT NULL
 ,environment_created      BIGINT NOT NULL
@@ -10,6 +11,7 @@ CREATE TABLE environments (
 ,environment_deleted      BIGINT DEFAULT NULL
 
 ,UNIQUE(environment_uid)
+,UNIQUE(environment_tenant_id, environment_project_id, environment_deleted, environment_sequence)
 
 ,CONSTRAINT fk_environment_project_id FOREIGN KEY (environment_project_id)
     REFERENCES projects (project_id) MATCH SIMPLE

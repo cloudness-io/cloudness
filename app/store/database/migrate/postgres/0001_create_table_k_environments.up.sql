@@ -10,5 +10,11 @@ CREATE TABLE environments (
     environment_deleted BIGINT DEFAULT NULL,
     UNIQUE (
         environment_uid
-    )
+    ),
+	 UNIQUE (
+		  environment_tenant_id,
+		  environment_project_id,
+          environment_deleted,
+		  environment_sequence		  
+	 )
 );

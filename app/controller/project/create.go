@@ -65,7 +65,7 @@ func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *
 			return err
 		}
 		_, err = c.envCtrl.Create(ctx, session, tenant, project, &environment.CreateEnvironmentInput{
-			Name: "Development",
+			Name: "Production",
 		})
 		return err
 	})

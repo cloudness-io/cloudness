@@ -1,10 +1,6 @@
 package venvironment
 
-import (
-	"github.com/cloudness-io/cloudness/app/controller/environment"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
-	"github.com/cloudness-io/cloudness/app/web/views/shared"
-)
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 
 templ Header(showCreate bool) {
 	<div class="flex items-center gap-1">
@@ -13,6 +9,5 @@ templ Header(showCreate bool) {
 		if showCreate {
 			@createButton()
 		}
-		@shared.Modal("openAddEnvironmentModal", add(&environment.CreateEnvironmentInput{}, map[string]string{}))
 	</div>
 }
