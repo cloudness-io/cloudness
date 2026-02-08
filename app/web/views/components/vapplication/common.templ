@@ -2,6 +2,10 @@ package vapplication
 
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/request"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
 
 func getArtifactsOption(artifacts []*types.Artifact) []*shared.DropdownOption {
 	opt := make([]*shared.DropdownOption, 0)
@@ -20,4 +24,32 @@ templ artifactSelector(app *types.Application, artifacts []*types.Artifact) {
 		Label:    "Instance",
 		Options2: getArtifactsOption(artifacts),
 	})
+}
+
+templ AddApplicationCard(env *types.Environment) {
+	if request.IsProjectOwner(ctx) {
+		<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+			<div class="flex flex-col gap-y-3 items-center">
+				@shared.Icon(icons.ApplicationIcon, "icon-lg size-6 text-foreground-lighter")
+				<div class="flex flex-col items-center text-center">
+					<h3>Create a new Application</h3>
+				</div>
+			</div>
+			@shared.AddButtonNeutral("New Application", fmt.Sprintf("%s/new", routes.ApplicationNew(env.UID)))
+		</div>
+	} else {
+		@noApplicationCard()
+	}
+}
+
+templ noApplicationCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.ApplicationIcon, "icon-lg size-6 text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h4>No Applications found</h4>
+				<p class="text-foreground-light text-sm max-w-[640px]">Please ask your project owner to create one.</p>
+			</div>
+		</div>
+	</div>
 }

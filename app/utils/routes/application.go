@@ -50,7 +50,7 @@ func Application(envUID, appUID int64) string {
 	return fmt.Sprintf("environment/%d/%s/%d", envUID, ApplicationBase, appUID)
 }
 
-func ApplicationCreate(envUID int64) string {
+func ApplicationNew(envUID int64) string {
 	return fmt.Sprintf("environment/%d/%s/new/git", envUID, ApplicationBase)
 }
 

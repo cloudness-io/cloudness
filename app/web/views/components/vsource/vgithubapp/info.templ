@@ -12,16 +12,7 @@ import (
 templ GHAppInfoPage(tenant *types.Tenant, project *types.Project, ghApp *types.GithubApp) {
 	@shared.PageContainer(shared.PageSizeSmall) {
 		@shared.PageHeaderShort() {
-			<div
-				id="back-button"
-				class="text-foreground-lighter hover:text-foreground-light cursor-pointer mb-2"
-				hx-push-url="true"
-				hx-get={ routes.ProjectConnections }
-				hx-indicator="#overlay-spinner"
-				hx-swap="none"
-			>
-				<i class="ph ph-arrow-left"></i> Back to Connections 
-			</div>
+			@backToConnectionsLink()
 		}
 		@shared.PageContentShort() {
 			@shared.PageSection("Github App", "", shared.ButtonDanger("Delete", templ.Attributes{

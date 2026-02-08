@@ -13,6 +13,9 @@ const (
 
 templ AddGithubAppPage() {
 	@shared.PageContainer(shared.PageSizeSmall) {
+		@shared.PageHeaderShort() {
+			@backToConnectionsLink()
+		}
 		@shared.PageContentShort() {
 			@shared.CardContainer() {
 				@add()

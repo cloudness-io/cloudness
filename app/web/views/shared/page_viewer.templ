@@ -28,14 +28,12 @@ templ PageView(props *PageViewProps) {
 			class="grid grid-rows-[auto_minmax(0px,1fr)] md:grid-rows-none md:grid-cols-[auto_minmax(0px,1fr)] w-full h-full"
 		>
 			<aside class="hidden md:block relative border-r-1 m-0 w-40">
-				@pageNavAside(props)
+				@pageNavDesktop(props)
 			</aside>
 			<div
-				class="flex items-center header-tabs space-x-3 md:space-x-8 md:min-h-[39px] w-full max-w-screen md:pb-0
-			overflow-x-auto
-	border-b md:border-transparent md:!hidden pl-1 py-3"
+				class="flex items-center header-tabs space-x-3 md:space-x-8 md:min-h-[39px] w-full max-w-screen md:pb-0 overflow-x-auto	border-b md:border-transparent md:!hidden px-1 py-2"
 			>
-				@pageNavTab(props)
+				@pageNavMobile(props)
 			</div>
 			if props.Header != nil {
 				@props.Header
@@ -48,7 +46,7 @@ templ PageView(props *PageViewProps) {
 	</div>
 }
 
-templ pageNavAside(props *PageViewProps) {
+templ pageNavDesktop(props *PageViewProps) {
 	<ul class="w-full min-w-0 flex flex-col gap-1 items-start">
 		<div class="relative flex w-full min-w-0 flex-col p-2 gap-0.5">
 			for _, opt := range props.Options {
@@ -85,7 +83,7 @@ templ pageNavAside(props *PageViewProps) {
 	</ul>
 }
 
-templ pageNavTab(props *PageViewProps) {
+templ pageNavMobile(props *PageViewProps) {
 	<ul class="m-0 flex flex-row space-x-1">
 		for _, opt := range props.Options {
 			if !opt.Hide {
@@ -103,7 +101,7 @@ templ pageNavTab(props *PageViewProps) {
 							active:bg-secondary-hover
 							active:text-foreground disabled:pointer-events-none disabled:opacity-50 pr-8
 							data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[active=true]:bg-secondary-hover
-							data-[active=true]:font-medium text-foreground-light data-[active=true]:text-foreground
+							data-[active=true]:font-medium text-foreground-light data-[active=true]:text-foreground-light
 							hover:bg-secondary-hover hover:text-foreground h-8 text-sm !px-2 [&>img]:size-5 [&>img]:shrink-0 [&>svg]:size-5 [&>svg]:shrink-0"
 						href={ opt.ActionUrl }
 					>

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/cloudness-io/cloudness/app/store"
+	"github.com/cloudness-io/cloudness/helpers"
 	baseStore "github.com/cloudness-io/cloudness/store"
 	"github.com/cloudness-io/cloudness/store/database"
 	"github.com/cloudness-io/cloudness/store/database/dbtx"
@@ -207,7 +208,7 @@ func (s *EnvironmentStore) Update(ctx context.Context, environment *types.Enviro
 
 func (s *EnvironmentStore) SoftDelete(ctx context.Context, environment *types.Environment, deletedAt int64) error {
 	environment.Deleted = &deletedAt
-	environment.Seq = deletedAt
+	environment.Seq = helpers.RandomNum(9000, 9999)
 	_, err := s.Update(ctx, environment)
 	return err
 }
@@ -274,6 +275,8 @@ func (s *EnvironmentStore) applySortFilter(stmt squirrel.SelectBuilder, filter *
 		stmt = stmt.OrderBy("environment_updated " + filter.Order.String())
 	case enum.EnvironmentAttrDeleted:
 		stmt = stmt.OrderBy("environment_deleted " + filter.Order.String())
+	case enum.EnvironmentAttrSequence:
+		stmt = stmt.OrderBy("environment_sequence " + filter.Order.String())
 	}
 
 	return stmt

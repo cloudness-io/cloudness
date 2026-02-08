@@ -12,7 +12,6 @@ import (
 
 templ Overview(
 	project *types.Project,
-	envs []*types.Environment,
 	selected *types.Environment,
 	apps []*types.Application,
 ) {
@@ -20,28 +19,42 @@ templ Overview(
 		ActiveName: ProjectNavOverview,
 		Options:    getProjectPageNav(ctx),
 	}) {
-		@shared.PageContainer(shared.PageSizeLarge) {
-			<div
-				hx-sync="#appslist:replace"
-				hx-target="#appslist"
-				hx-push-url="true"
-				hx-indicator="#appslist-loader"
-			>
-				@venvironment.List(envs, selected, routes.EnvironmentBase+"/%d/application")
-				<div class="relative mt-3" x-cloak>
-					if len(envs) > 0 && selected == nil {
-						@shared.NoData("Please select an environment to continue", nil)
+		if selected == nil {
+			@shared.PageContainer(shared.PageSizeMedium) {
+				@shared.PageContentShort() {
+					@shared.PageSection("No Environments", "No environments found in this project", templ.NopComponent) {
+						@venvironment.AddEnvironmentCard()
 					}
-					@shared.PartialPageLoader("appslist-loader")
-					<div id="appslist" class="mt-3">
-						if selected != nil {
-							@vapplication.List(selected, apps)
-						}
+				}
+			}
+		} else if len(apps) == 0 {
+			@shared.PageContainer(shared.PageSizeMedium) {
+				@shared.PageContentShort() {
+					@shared.PageSection("No Applications", "No applications found in this environment", templ.NopComponent) {
+						@vapplication.AddApplicationCard(selected)
+					}
+				}
+			}
+		} else {
+			@shared.PageContainer(shared.PageSizeMedium) {
+				<div
+					hx-sync="#appslist:replace"
+					hx-target="#appslist"
+					hx-push-url="true"
+					hx-indicator="#appslist-loader"
+				>
+					<div class="relative mt-3" x-cloak>
+						@shared.PartialPageLoader("appslist-loader")
+						<div id="appslist" class="mt-3">
+							if selected != nil {
+								@vapplication.List(selected, apps)
+							}
+						</div>
 					</div>
 				</div>
-			</div>
-			if views.HasEnvironment(ctx) {
-				@vvolume.ListUnattachedContainer(routes.EnvironmentCtx(ctx) + routes.EnvironmentVolumes)
+				if views.HasEnvironment(ctx) {
+					@vvolume.ListUnattachedContainer(routes.EnvironmentCtx(ctx) + routes.EnvironmentVolumes)
+				}
 			}
 		}
 	}

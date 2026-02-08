@@ -2,6 +2,7 @@ package venvironment
 
 import (
 	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
@@ -26,7 +27,7 @@ templ add() {
 		hx-swap="none"
 		hx-indicator="#overlay-spinner"
 		hx-push-url="false"
-		hx-post={ routes.ProjectEnvironment + "/new" }
+		hx-post={ routes.EnvironmentNew() }
 	>
 		@shared.CardHeader("Create a new Environment", EnvironmentDescription)
 		@shared.NewInput(&shared.NewInputProps{
@@ -50,14 +51,18 @@ templ add() {
 	</form>
 }
 
-templ addEnvironmentCard() {
-	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
-		<div class="flex flex-col gap-y-3 items-center">
-			@shared.Icon(icons.EnvironmentIcon, "icon-lg size-6 text-foreground-lighter")
-			<div class="flex flex-col items-center text-center">
-				<h3>Create a new Environment</h3>
+templ AddEnvironmentCard() {
+	if request.IsProjectOwner(ctx) {
+		<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+			<div class="flex flex-col gap-y-3 items-center">
+				@shared.Icon(icons.EnvironmentIcon, "icon-lg size-6 text-foreground-lighter")
+				<div class="flex flex-col items-center text-center">
+					<h3>Create a new Environment</h3>
+				</div>
 			</div>
+			@shared.AddButtonNeutral("New Environment", fmt.Sprintf("%s/new", routes.ProjectEnvironment))
 		</div>
-		@shared.AddButtonNeutral("New Environment", fmt.Sprintf("%s/new", routes.ProjectEnvironment))
-	</div>
+	} else {
+		@noEnvironmentCard()
+	}
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vapplication"
-	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
@@ -51,7 +50,7 @@ func RenderAppList(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 			return
 		}
 	}
-	render.Page(ctx, w, vproject.Overview(project, envs, env, apps))
+	// render.Page(ctx, w, vproject.Overview(project, envs, env, apps))
 }
 
 func HandleListNavigation(appctrl *application.Controller) http.HandlerFunc {

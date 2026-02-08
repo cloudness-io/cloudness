@@ -63,3 +63,23 @@ func PopulateNavProject() func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func PopulateNavEnvironment() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			env, _ := request.EnvironmentFrom(ctx)
+			next.ServeHTTP(w, r.WithContext(
+				request.WithNavItem(ctx, &dto.NavItem{
+					Title:                  env.Name,
+					Icon:                   icons.EnvironmentIcon,
+					NavURL:                 routes.EnvironmentCtx(ctx),
+					DropdownActionURL:      routes.ProjectCtx(ctx) + "/" + routes.EnvironmentBase + routes.EnvironmentNav + "/" + strconv.FormatInt(env.UID, 10),
+					DropdownIdentifier:     dto.DropdownIdentifierEnvironment,
+					PopoverPositionMobile:  dto.PopoverAlignCenter,
+					PopoverPositionDesktop: dto.PopoverAlignStart,
+				}),
+			))
+		})
+	}
+}

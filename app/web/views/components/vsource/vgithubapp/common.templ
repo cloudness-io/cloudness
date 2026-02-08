@@ -2,6 +2,20 @@ package vgithubapp
 
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ backToConnectionsLink() {
+	<div
+		id="back-button"
+		class="text-foreground-lighter hover:text-foreground-light cursor-pointer mb-2"
+		hx-push-url="true"
+		hx-get={ routes.ProjectConnections }
+		hx-indicator="#overlay-spinner"
+		hx-swap="none"
+	>
+		<i class="ph ph-arrow-left"></i> Back to Connections 
+	</div>
+}
 
 templ noGithubAppCard() {
 	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">

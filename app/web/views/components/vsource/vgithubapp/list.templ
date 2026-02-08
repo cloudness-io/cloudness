@@ -11,7 +11,7 @@ import (
 
 func getGHAppButtonComp(ctx context.Context) templ.Component {
 	if request.IsProjectOwner(ctx) {
-		return shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
+		return shared.AddButton("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
 	}
 	return templ.NopComponent
 }

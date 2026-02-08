@@ -8,9 +8,9 @@ import (
 	"github.com/cloudness-io/cloudness/app/controller/project"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	handlerapplication "github.com/cloudness-io/cloudness/app/web/handler/application"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
+	"github.com/cloudness-io/cloudness/types"
 
 	"github.com/rs/zerolog/log"
 )
@@ -20,6 +20,8 @@ func HandleGet(projectCtrl *project.Controller, envCtrl *environment.Controller,
 		ctx := r.Context()
 		tenant, _ := request.TenantFrom(ctx)
 		project, _ := request.ProjectFrom(ctx)
+		var env *types.Environment
+		var apps []*types.Application
 
 		envs, err := envCtrl.List(ctx, tenant.ID, project.ID)
 		if err != nil {
@@ -28,13 +30,24 @@ func HandleGet(projectCtrl *project.Controller, envCtrl *environment.Controller,
 			return
 		}
 		if len(envs) > 0 {
-			var selectedEnv = envs[0]
-			ctx = request.WithEnvironment(ctx, selectedEnv)
-			ctx = request.WithTargetElement(ctx, routes.TargetMain)
-			w.Header().Set("HX-Push-Url", routes.EnvironmentCtx(ctx)+routes.EnvironmentApplication)
-			handlerapplication.RenderAppList(ctx, w, r, envs, envCtrl, appCtrl)
+			env = envs[0]
+			// ctx = request.WithTargetElement(ctx, routes.TargetMain)
+			// w.Header().Set("HX-Push-Url", routes.EnvironmentCtx(ctx)+routes.EnvironmentApplication)
+			// handlerapplication.RenderAppList(ctx, w, r, envs, envCtrl, appCtrl)
+			// return
+			render.RedirectWithRefresh(w, routes.EnvironmentCtxUID(ctx, env.UID))
 			return
 		}
-		render.Page(ctx, w, vproject.Overview(project, envs, nil, nil))
+
+		if env != nil {
+			apps, err = appCtrl.List(ctx, tenant.ID, project.ID, env.ID)
+			if err != nil {
+				log.Error().Err(err).Msg("error listing applications")
+				render.ToastError(ctx, w, err)
+				return
+			}
+		}
+
+		render.Page(ctx, w, vproject.Overview(project, env, apps))
 	}
 }

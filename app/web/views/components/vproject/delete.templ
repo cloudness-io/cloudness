@@ -52,9 +52,10 @@ templ deleteProjectForm(p *types.Project) {
 			<p class="text-foreground-light">
 				Type <span class="notranslate font-bold">{ p.Name }</span> to confirm.
 			</p>
-			@shared.Input(&shared.InputProps{
-				Name:       "confirm",
-				InputClass: "focus:border-error",
+			@shared.NewInput(&shared.NewInputProps{
+				Name:      "confirm",
+				Direction: "vertical",
+				Class:     "focus:border-error",
 				Attrs: templ.Attributes{
 					"x-model": "confirm",
 				},

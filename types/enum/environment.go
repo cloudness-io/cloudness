@@ -12,6 +12,7 @@ const (
 	EnvironmentAttrCreated
 	EnvironmentAttrUpdated
 	EnvironmentAttrDeleted
+	EnvironmentAttrSequence
 )
 
 // ParseEnvironmentAttr parses the space attribute string and returns the equivalent enumeration.
@@ -25,6 +26,8 @@ func ParseEnvironmentAttr(s string) EnvironmentAttr {
 		return EnvironmentAttrUpdated
 	case deleted, deletedAt:
 		return EnvironmentAttrDeleted
+	case sequence:
+		return EnvironmentAttrSequence
 	default:
 		return EnvironmentAttrNone
 	}
@@ -41,6 +44,8 @@ func (a EnvironmentAttr) String() string {
 		return updated
 	case EnvironmentAttrDeleted:
 		return deleted
+	case EnvironmentAttrSequence:
+		return sequence
 	case EnvironmentAttrNone:
 		return ""
 	default:

@@ -312,8 +312,8 @@ func setupProject(r chi.Router,
 				r.Delete("/delete", handlerproject.HandleDelete(projectCtrl))
 			})
 			r.Get("/events", handlerproject.HandleEvents(appCtx, projectCtrl))
-			setupEnvionment(r, appCtx, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
 			setupProjectConnections(r, ghAppCtrl, gitPublicCtrl)
+			setupEnvionment(r, appCtx, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
 
 			// Admin/Owner routes
 			r.Route("/members", func(r chi.Router) {
@@ -344,11 +344,13 @@ func setupEnvionment(r chi.Router,
 			r.Post("/", handlerenvironment.HandleAdd(envCtrl))
 		})
 		r.Get("/", handlerenvironment.HandleList(envCtrl))
-		r.Get("/nav", handlerenvironment.HandleListNavigation(envCtrl))
+		r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlerenvironment.HandleListNavigation(envCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamEnvironmentUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectEnvironment(envCtrl))
+			r.Use(middlewarenav.PopulateNavEnvironment())
 			r.Route("/", func(r chi.Router) {
 				r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
+				r.Get("/", handlerenvironment.HandleGet(envCtrl, appCtrl))
 				r.Patch("/", handlerenvironment.HandleUpdate(envCtrl))
 				r.Delete("/", handlerenvironment.HandleDelete(envCtrl))
 				r.Route("/volumes", func(r chi.Router) {
@@ -484,6 +486,7 @@ func setupProjectConnections(r chi.Router, ghAppCtrl *githubapp.Controller, gitP
 		r.Get("/", handlerConn.HandleListForProject(ghAppCtrl))
 		r.Route("/github", func(r chi.Router) {
 			r.Route("/new", func(r chi.Router) {
+				r.Use(middlewarenav.PopulateNavItemKey("New Github App"))
 				r.Use(middlewarerestrict.ToProjectOwner())
 				r.Get("/", handlerConn.HandleNewGithubApp())
 				r.Post("/", handlerConn.HandleAddGithubApp(ghAppCtrl))
