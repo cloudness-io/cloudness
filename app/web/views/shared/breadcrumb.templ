@@ -14,14 +14,14 @@ templ BreadCrumb() {
 	@breadCrumb(buildBreadcrumbProps(ctx), true)
 }
 
-templ BreadCrumbWithFlag(doSwap bool) {
-	@breadCrumb(buildBreadcrumbProps(ctx), doSwap)
+templ BreadCrumbWithoutSwap() {
+	@breadCrumb(buildBreadcrumbProps(ctx), false)
 }
 
 templ breadCrumb(crumbs []*dto.NavItem, doSwap bool) {
 	<div
 		id="breadcrumb"
-		class="flex items-center md:pl-1"
+		class="flex items-center md:pl-1 overflow-x-auto scrollbar-hide"
 		if doSwap {
 			hx-swap-oob="true"
 		}
@@ -94,7 +94,7 @@ templ dropdownPopover(crumb *dto.NavItem) {
 		hx-swap="innerHTML"
 		hx-target="this"
 		hx-push-url="false"
-		hx-indicator="none"
+		hx-indicator={ string(crumb.DropdownIdentifier) + "Indicator" }
 	>
 		<div id={ string(crumb.DropdownIdentifier) + "Indicator" } class="flex items-center justify-center align-middle h-14">
 			@Spinner()

@@ -10,7 +10,12 @@ templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop d
         popoverPosition: 'bottom',
         popoverHeight: 0,
         popoverOffset: 40,
+        popoverWidth: 288,
         isCalculating: false,
+        popoverStyle: '',
+        arrowStyle: '',
+        alignMobile: $el.dataset.alignMobile || 'start',
+        alignDesktop: $el.dataset.alignDesktop || 'start',
         popoverHeightCalculate() {
             this.isCalculating = true;
             this.$refs.popover.classList.add('invisible'); 
@@ -25,16 +30,43 @@ templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop d
                 that.isCalculating = false;
             });
         },
+        getAlignment() {
+            return window.innerWidth >= 768 ? this.alignDesktop : this.alignMobile;
+        },
         popoverPositionCalculate(){
-            if(window.innerHeight < (this.$refs.popoverButton.getBoundingClientRect().top + this.$refs.popoverButton.offsetHeight + this.popoverOffset + this.popoverHeight)){
+            const rect = this.$refs.popoverButton.getBoundingClientRect();
+            const align = this.getAlignment();
+            let leftPos;
+            let arrowLeft;
+            
+            if (align === 'center') {
+                leftPos = rect.left + (rect.width / 2) - (this.popoverWidth / 2);
+                arrowLeft = '50%';
+            } else if (align === 'end') {
+                leftPos = rect.right - this.popoverWidth;
+                arrowLeft = 'auto';
+            } else {
+                leftPos = rect.left;
+                arrowLeft = '12px';
+            }
+            
+            // Ensure popover doesn't go off-screen
+            leftPos = Math.max(8, Math.min(leftPos, window.innerWidth - this.popoverWidth - 8));
+            
+            this.arrowStyle = align === 'end' ? 'right: 12px; left: auto;' : (align === 'center' ? 'left: 50%; transform: translateX(-50%);' : 'left: 12px;');
+            
+            if(window.innerHeight < (rect.top + rect.height + this.popoverOffset + this.popoverHeight)){
                 this.popoverPosition = 'top';
+                this.popoverStyle = `bottom: ${window.innerHeight - rect.top + 10}px; left: ${leftPos}px;`;
             } else {
                 this.popoverPosition = 'bottom';
+                this.popoverStyle = `top: ${rect.bottom + 10}px; left: ${leftPos}px;`;
             }
         }
     }"
 		x-init="
 			window.addEventListener('resize', () => popoverPositionCalculate());
+			window.addEventListener('scroll', () => { if(popoverOpen) popoverPositionCalculate(); }, true);
 			$watch('popoverOpen', (value) => {
 				if (value && !isCalculating) {
 					popoverPositionCalculate();
@@ -43,6 +75,8 @@ templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop d
 			});
 		"
 		class="relative"
+		data-align-mobile={ string(alignMobile) }
+		data-align-desktop={ string(alignDesktop) }
 	>
 		<button x-ref="popoverButton" @click="popoverOpen=!popoverOpen">
 			@comp
@@ -53,34 +87,15 @@ templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop d
 			x-init="setTimeout(function(){ popoverHeightCalculate(); }, 100);"
 			@click.away="popoverOpen=false;"
 			@keydown.escape.window="popoverOpen=false"
-			:class="{ 'top-0 mt-10' : popoverPosition == 'bottom', 'bottom-0 mb-10' : popoverPosition == 'top' }"
-			class={
-				"absolute w-72",
-				// Mobile alignment
-				templ.KV("left-0", alignMobile == "" || alignMobile == dto.PopoverAlignStart),
-				templ.KV("left-1/2 -translate-x-1/2", alignMobile == dto.PopoverAlignCenter),
-				templ.KV("right-0", alignMobile == dto.PopoverAlignEnd),
-				// Desktop alignment (md breakpoint)
-				templ.KV("md:left-0 md:right-auto md:translate-x-0", alignDesktop == "" || alignDesktop == dto.PopoverAlignStart),
-				templ.KV("md:left-1/2 md:-translate-x-1/2 md:right-auto", alignDesktop == dto.PopoverAlignCenter),
-				templ.KV("md:right-0 md:left-auto md:translate-x-0", alignDesktop == dto.PopoverAlignEnd),
-			}
+			:style="popoverStyle"
+			class="fixed w-72 z-50"
 			x-cloak
 		>
 			<div x-ref="popoverInner" x-show="popoverOpen" class="w-full bg-overlay-default border rounded-md shadow-sm">
 				<div
 					x-show="popoverArrow && popoverPosition == 'bottom'"
-					class={
-						"absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5",
-						// Mobile arrow
-						templ.KV("left-3", alignMobile == "" || alignMobile == dto.PopoverAlignStart),
-						templ.KV("left-1/2 -translate-x-1/2", alignMobile == dto.PopoverAlignCenter),
-						templ.KV("right-3 left-auto", alignMobile == dto.PopoverAlignEnd),
-						// Desktop arrow
-						templ.KV("md:left-3 md:right-auto md:translate-x-0", alignDesktop == "" || alignDesktop == dto.PopoverAlignStart),
-						templ.KV("md:left-1/2 md:-translate-x-1/2 md:right-auto", alignDesktop == dto.PopoverAlignCenter),
-						templ.KV("md:right-3 md:left-auto md:translate-x-0", alignDesktop == dto.PopoverAlignEnd),
-					}
+					:style="arrowStyle"
+					class="absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5"
 				>
 					<div
 						class="w-2.5 h-2.5 origin-bottom-left transform rotate-45 bg-overlay-default border-t border-l rounded-sm"
@@ -88,17 +103,8 @@ templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop d
 				</div>
 				<div
 					x-show="popoverArrow  && popoverPosition == 'top'"
-					class={
-						"absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5",
-						// Mobile arrow
-						templ.KV("left-3", alignMobile == "" || alignMobile == dto.PopoverAlignStart),
-						templ.KV("left-1/2 -translate-x-1/2", alignMobile == dto.PopoverAlignCenter),
-						templ.KV("right-3 left-auto", alignMobile == dto.PopoverAlignEnd),
-						// Desktop arrow
-						templ.KV("md:left-3 md:right-auto md:translate-x-0", alignDesktop == "" || alignDesktop == dto.PopoverAlignStart),
-						templ.KV("md:left-1/2 md:-translate-x-1/2 md:right-auto", alignDesktop == dto.PopoverAlignCenter),
-						templ.KV("md:right-3 md:left-auto md:translate-x-0", alignDesktop == dto.PopoverAlignEnd),
-					}
+					:style="arrowStyle"
+					class="absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5"
 				>
 					<div
 						class="w-2.5 h-2.5 origin-top-left transform -rotate-45 bg-overlay-default border-b border-l rounded-sm"
