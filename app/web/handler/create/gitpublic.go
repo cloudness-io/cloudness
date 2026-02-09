@@ -15,11 +15,26 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HandleGetGitPublicView() http.HandlerFunc {
+func HandleNewGit(appCtrl *application.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		repoURL := r.URL.Query().Get("repoURL")
 
-		render.Page(ctx, w, vcreate.GitPublicLoad())
+		//on new page render
+		if repoURL == "" {
+			render.Page(ctx, w, vcreate.GitPublicPage())
+			return
+		}
+
+		//on load
+		appIn, err := appCtrl.GetGitpublicIn(ctx, repoURL)
+		if err != nil {
+			log.Ctx(ctx).Error().Err(err).Msg("Error getting git repository info")
+			render.ToastError(ctx, w, err)
+			return
+		}
+
+		render.Page(ctx, w, vcreate.GitPublicLoadedPage(appIn))
 	}
 }
 
@@ -40,7 +55,7 @@ func HandleLoadGitPublicRepo(appCtrl *application.Controller) http.HandlerFunc {
 			return
 		}
 
-		render.Page(ctx, w, vcreate.GitPublicForm(appIn))
+		render.Page(ctx, w, vcreate.GitPublicLoadedPage(appIn))
 	}
 }
 
@@ -61,7 +76,7 @@ func HandleCreateGitPublic(appCtrl *application.Controller) http.HandlerFunc {
 
 		app, err := appCtrl.Create(ctx, session.Principal.DisplayName, tenant, project, env, in)
 		if err != nil {
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		ctx = request.WithApplication(ctx, app)

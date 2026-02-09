@@ -35,7 +35,7 @@ func HandleGet(projectCtrl *project.Controller, envCtrl *environment.Controller,
 			// w.Header().Set("HX-Push-Url", routes.EnvironmentCtx(ctx)+routes.EnvironmentApplication)
 			// handlerapplication.RenderAppList(ctx, w, r, envs, envCtrl, appCtrl)
 			// return
-			render.RedirectWithRefresh(w, routes.EnvironmentCtxUID(ctx, env.UID))
+			render.Redirect(w, routes.EnvironmentCtxUID(ctx, env.UID))
 			return
 		}
 

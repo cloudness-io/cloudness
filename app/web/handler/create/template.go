@@ -68,6 +68,6 @@ func HandleTemplateCreate(templCtrl *template.Controller) http.HandlerFunc {
 			return
 		}
 
-		render.RedirectWithRefresh(w, routes.EnvironmentApplicationCtx(ctx))
+		render.Redirect(w, routes.ProjectCtx(ctx))
 	}
 }

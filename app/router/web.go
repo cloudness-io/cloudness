@@ -425,27 +425,24 @@ func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment
 			r.Delete("/delete", handlerapplication.HandleDeleteApplication(appCtrl))
 			setupDeployment(r, appCtx, appCtrl, deploymentCtrl, logsCtrl)
 		})
-		setupApplicationCreate(r, appCtrl, ghAppCtrl, gitPublicCtrl, templCtrl)
+		setupApplicationNew(r, appCtrl, ghAppCtrl, gitPublicCtrl, templCtrl)
 	})
 }
 
-func setupApplicationCreate(r chi.Router, appCtrl *application.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, templCtrl *template.Controller) {
+func setupApplicationNew(r chi.Router, appCtrl *application.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, templCtrl *template.Controller) {
 	r.Route("/new", func(r chi.Router) {
-		//r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
-		r.Route("/git", func(r chi.Router) {
-			//r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
-			r.Route("/github", func(r chi.Router) {
-				// r.Get("/", handlercreate.HandleListGithubApps(ghAppCtrl))
-				r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
-					r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
-					r.Get("/", handlercreate.HandleGetGithubView(appCtrl))
-					r.Post("/", handlercreate.HandleCreateGithub(appCtrl))
-				})
-			})
-			r.Route("/git-public", func(r chi.Router) {
-				r.Get("/", handlercreate.HandleGetGitPublicView())
-				r.Post("/load-repo", handlercreate.HandleLoadGitPublicRepo(appCtrl))
-				r.Post("/", handlercreate.HandleCreateGitPublic(appCtrl))
+		r.Use(middlewarenav.PopulateNavItemKey("New Application"))
+		r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
+		r.Route("/git-public", func(r chi.Router) {
+			r.Get("/", handlercreate.HandleNewGit(appCtrl))
+			r.Post("/", handlercreate.HandleCreateGitPublic(appCtrl))
+		})
+		r.Route("/github", func(r chi.Router) {
+			r.Get("/", handlercreate.HandleListGithubApps(ghAppCtrl))
+			r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
+				r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
+				r.Get("/", handlercreate.HandleGetGithubView(appCtrl))
+				r.Post("/", handlercreate.HandleCreateGithub(appCtrl))
 			})
 		})
 		r.Route("/registry", func(r chi.Router) {
@@ -455,15 +452,15 @@ func setupApplicationCreate(r chi.Router, appCtrl *application.Controller, ghApp
 		r.Route("/database", func(r chi.Router) {
 			r.Get("/", handlercreate.HandleGetDatabaseView(templCtrl))
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTemplateID), func(r chi.Router) {
+				r.Get("/", handlercreate.HandleTemplatePreview(templCtrl, "database"))
 				r.Post("/", handlercreate.HandleTemplateCreate(templCtrl))
-				r.Get("/preview", handlercreate.HandleTemplatePreview(templCtrl, "database"))
 			})
 		})
 		r.Route("/oneclick", func(r chi.Router) {
 			r.Get("/", handlercreate.HandleGetOnelickTemplate(templCtrl))
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTemplateID), func(r chi.Router) {
+				r.Get("/", handlercreate.HandleTemplatePreview(templCtrl, "oneclick"))
 				r.Post("/", handlercreate.HandleTemplateCreate(templCtrl))
-				r.Get("/preview", handlercreate.HandleTemplatePreview(templCtrl, "oneclick"))
 			})
 		})
 	})

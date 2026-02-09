@@ -10,9 +10,8 @@ import (
 const (
 	ApplicationBase = "application"
 
-	AppNewGit       = "application/new/git"
-	AppNewGithub    = "application/new/git/github"
-	AppNewGitPublic = "application/new/git/git-public"
+	AppNewGitPublic = "application/new/git-public"
+	AppNewGithub    = "application/new/github"
 	AppNewRegistry  = "application/new/registry"
 	AppNewDatabase  = "application/new/database"
 	AppNewOneclick  = "application/new/oneclick"
@@ -51,7 +50,7 @@ func Application(envUID, appUID int64) string {
 }
 
 func ApplicationNew(envUID int64) string {
-	return fmt.Sprintf("environment/%d/%s/new/git", envUID, ApplicationBase)
+	return fmt.Sprintf("environment/%d/%s", envUID, AppNewGitPublic)
 }
 
 func ApplicationCtx(ctx context.Context) string {

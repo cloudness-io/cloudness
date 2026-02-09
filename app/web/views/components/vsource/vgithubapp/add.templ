@@ -73,6 +73,6 @@ templ addGithubCard() {
 				<h3>Create a new Github App</h3>
 			</div>
 		</div>
-		@shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
+		@shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/%s/new", routes.ProjectCtx(ctx), routes.ProjectConnectionGithub))
 	</div>
 }

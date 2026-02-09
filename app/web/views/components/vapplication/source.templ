@@ -1,8 +1,6 @@
 package vapplication
 
 import (
-	"fmt"
-	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgithubapp"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgitpublic"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
@@ -11,7 +9,7 @@ import (
 
 templ SourceSettings(app *types.Application, ghApp *types.GithubApp) {
 	if app.GetGithubAppID() > 0 {
-		@vgithubapp.GithubSourceForm(ghApp, fmt.Sprintf("%s/source/github/%d", routes.ProjectCtx(ctx), ghApp.UID), app.Spec.ToInput())
+		@vgithubapp.GithubSourceForm(ghApp, app.Spec.ToInput())
 	} else if app.Spec.IsGit() {
 		@vgitpublic.GitPublicSourceFrom(app.Spec.ToInput())
 	} else if app.Spec.IsRegistry() {

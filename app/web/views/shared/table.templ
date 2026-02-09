@@ -1,11 +1,23 @@
 package shared
 
 templ Table() {
-	<div class="overflow-hidden rounded-lg border text-foreground shadow-sm bg-secondary">
-		<table class="group/table w-full caption-bottom text-sm w-full overflow-auto">
+	<div class="overflow-x-auto rounded-lg border text-foreground shadow-sm bg-secondary">
+		<table class="group/table w-full caption-bottom text-sm">
 			{ children... }
 		</table>
 	</div>
+}
+
+templ TableHeadFull(headers ...string) {
+	@TableHead() {
+		@TableHeadRow() {
+			for _, header := range headers {
+				@TableHeadCell() {
+					{ header }
+				}
+			}
+		}
+	}
 }
 
 templ TableHead() {
@@ -21,7 +33,7 @@ templ TableHeadRow() {
 }
 
 templ TableHeadCell() {
-	<th class="h-10 px-4 text-left align-middle heading-meta whitespace-nowrap text-foreground-lighter [:has([role=checkbox])]:pr-0 transition-colors">
+	<th class="h-10 px-4 text-left align-middle heading-meta whitespace-nowrap text-foreground-lighter [:has([role=checkbox])]:pr-0 transition-colors w-0">
 		{ children... }
 	</th>
 }
@@ -43,7 +55,7 @@ templ TableBodyRow(attr templ.Attributer) {
 }
 
 templ TableBodyCell() {
-	<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2">
+	<td class="transition-colors p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 py-2 whitespace-nowrap">
 		{ children... }
 	</td>
 }

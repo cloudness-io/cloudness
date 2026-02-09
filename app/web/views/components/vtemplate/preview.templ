@@ -6,71 +6,79 @@ import "fmt"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 
 templ Preview(template *types.Template, actionUrl string) {
-	<div class="flex space-x-3 items-center">
-		@icon(template.Icon)
-		<div class="flex flex-col">
-			<p class="text-semibold">{ template.Name }</p>
-			<p class="text-xs text-disabled">
-				@templ.Raw(template.ReadMe)
-			</p>
-		</div>
-	</div>
-	<div class="mt-2 grid gap-4">
-		for _, service := range template.Spec.Services {
-			<div class="border rounded-xl overflow-hidden py-2">
-				<header class="flex items-center justify-between gap-4 px-6 py-2">
-					<div class="flex items-center gap-4">
-						<div class="text-current icon-container icon-xl text-2xl relative flex-shrink-0">
-							@icon(service.Icon)
+	@shared.PageContainer(shared.PageSizeMedium) {
+		@shared.PageHeaderShort() {
+			<div class="flex space-x-3 items-center">
+				@icon(template.Icon)
+				<div class="flex flex-col">
+					<h1 class="text-semibold">{ template.Name }</h1>
+					<p class="heading-susbection text-foreground-light">
+						@templ.Raw(template.ReadMe)
+					</p>
+				</div>
+			</div>
+		}
+		@shared.PageContentShort() {
+			for _, service := range template.Spec.Services {
+				<div class="border rounded-xl overflow-hidden py-2">
+					<header class="flex items-center justify-between gap-4 px-6 py-2">
+						<div class="flex items-center gap-4">
+							<div class="text-current icon-container icon-xl text-2xl relative flex-shrink-0">
+								@icon(service.Icon)
+							</div>
+							<div class="text-sm">
+								<p class="font-semibold">{ service.Name }</p>
+								<p>{ service.Build.GetSource() }</p>
+							</div>
 						</div>
-						<div class="text-sm">
-							<p class="font-semibold">{ service.Name }</p>
-							<p>{ service.Build.GetSource() }</p>
-						</div>
-					</div>
-				</header>
-				<div class="w-full" x-data="{open:false}">
-					<button
-						type="button"
-						class="focus-visible:outline-none focus-visible:ring-2 rounded group flex items-center gap-x-2 px-6 py-2 text-disabled cursor-pointer"
-						x-on:click="open = !open"
-					>
-						<i
-							class="ph ph-caret-right icon-base transition-transform"
-							:class="open ? 'rotate-90' : 'rotate-0'"
-						></i>
-						{ fmt.Sprintf("%d pre-configured variables", len(service.Variables)) }
-					</button>
-					<div class="flex flex-col space-y-2 my-2 px-6" x-show="open" x-cloak x-transition>
-						for _, v := range service.Variables {
-							<div
-								class="py-2 rounded-md gap-1 group grid
+					</header>
+					<div class="w-full" x-data="{open:false}">
+						<button
+							type="button"
+							class="focus-visible:outline-none focus-visible:ring-2 rounded group flex items-center gap-x-2 px-6 py-2 text-disabled cursor-pointer"
+							x-on:click="open = !open"
+						>
+							<i
+								class="ph ph-caret-right icon-base transition-transform"
+								:class="open ? 'rotate-90' : 'rotate-0'"
+							></i>
+							{ fmt.Sprintf("%d pre-configured variables", len(service.Variables)) }
+						</button>
+						<div class="flex flex-col space-y-2 my-2 px-6" x-show="open" x-cloak x-transition>
+							for _, v := range service.Variables {
+								<div
+									class="py-2 rounded-md gap-1 group grid
 		grid-cols-[minmax(0,2fr)_minmax(0,3fr)] justify-items-stretch min-h-[2.25rem] px-4 items-center
 		font-mono"
-							>
-								<div>
-									{ v.Key }
+								>
+									<div class="text-foreground-light">
+										{ v.Key }
+									</div>
+									<div>
+										@shared.Input(&shared.InputProps{
+											HideLabel: true,
+											Name:      v.Key,
+											Value:     v.Value,
+											Disabled:  true,
+										})
+									</div>
 								</div>
-								<div>
-									@shared.Input(&shared.InputProps{
-										HideLabel: true,
-										Name:      v.Key,
-										Value:     v.Value,
-										Disabled:  true,
-									})
-								</div>
-							</div>
-						}
+							}
+						</div>
+					</div>
+				</div>
+			}
+			<div class="flex h-12 items-center px-sm">
+				<div class="grid grid-cols-12 w-full gap-4 items-center">
+					<div class="col-span-4"></div>
+					<div class="flex items-end col-span-8 space-x-2 ml-auto">
+						@shared.ButtonPrimary("Deploy Template", templ.Attributes{
+							"type":    "submit",
+							"hx-post": fmt.Sprintf("%s/%d", actionUrl, template.ID),
+						})
 					</div>
 				</div>
 			</div>
 		}
-		<button
-			type="button"
-			class="button-primary w-max"
-			hx-post={ fmt.Sprintf("%s/%d", actionUrl, template.ID) }
-			hx-swap="none"
-			hx-push-url="false"
-		>Deploy Template </button>
-	</div>
+	}
 }

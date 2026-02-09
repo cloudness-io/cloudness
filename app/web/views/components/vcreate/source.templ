@@ -5,23 +5,12 @@ import (
 	"github.com/cloudness-io/cloudness/app/web/views/components/vsource"
 	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
-	"github.com/cloudness-io/cloudness/types"
 )
 
 templ ListSourceOptions(category dto.SourceCategory, opts []*dto.SourceOptions) {
-	@createHeader()
 	@shared.PageView(&shared.PageViewProps{
-		ActiveName: navGit,
+		ActiveName: navGitPublic,
 		Content:    listSources(category, opts, ""),
-		Options:    getCreatePageNavs(),
-	})
-}
-
-templ ListGithubApps(tenant *types.Tenant, project *types.Project, category dto.SourceCategory, opts []*dto.SourceOptions, selectedOpt string, ghApps []*types.GithubApp) {
-	@createHeader()
-	@shared.PageView(&shared.PageViewProps{
-		ActiveName: navGit,
-		Content:    vsource.ListGithubApps(tenant, project, ghApps, nil, routes.AppNewGithub+"/%d", false),
 		Options:    getCreatePageNavs(),
 	})
 }
@@ -31,6 +20,6 @@ templ listSources(category dto.SourceCategory, opts []*dto.SourceOptions, select
 		if len(category) > 0 {
 			<h3 class="capitalize">{ string(category) } Sources</h3>
 		}
-		@vsource.ListSources(opts, selectedOpt, routes.AppNewGit)
+		@vsource.ListSources(opts, selectedOpt, routes.AppNewGithub)
 	</div>
 }

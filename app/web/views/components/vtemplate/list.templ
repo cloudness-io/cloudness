@@ -8,7 +8,7 @@ templ List(templates []*types.Template, actionUrl string) {
 		for _, template := range templates {
 			<li
 				class="block cursor-pointer border bg-primary col-span-full sm:col-span-3 lg:col-span-2 xl:col-span-1 shadow-xs rounded-sm transition-all duration-150 hover:border-b-link overflow-ellipsis overflow-hidden hover:scale-105"
-				hx-get={ fmt.Sprintf("%s/%d/preview", actionUrl, template.ID) }
+				hx-get={ fmt.Sprintf("%s/%d", actionUrl, template.ID) }
 			>
 				<div class="flex space-x-3 items-center first:mt-0 mt-1.5 py-3 pl-6 pr-3 rounded-md hover:bg-secondary">
 					<div class="text-current icon-container icon-xl text-2xl relative flex-shrink-0">

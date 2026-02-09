@@ -3,7 +3,6 @@ package vcreate
 import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vnetwork"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgithubapp"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
@@ -12,40 +11,58 @@ import (
 	"github.com/cloudness-io/cloudness/types/enum"
 )
 
-templ Github(ghApp *types.GithubApp, in *types.ApplicationInput) {
-	<div class="max-w-7xl mx-auto flex flex-col gap-2 mt-1 pl-1 md:pl-5">
-		<div id="back-button" class="flex items-center gap-1 text-xs" hx-push-url="true">
-			<button
-				class="button-link self-center"
-				hx-get={ routes.AppNewGit }
-			>
-				<i class="ph ph-arrow-left"></i>
-				Back to source
-			</button>
-		</div>
-		<div class="flex place-items-baseline align-middle gap-1">
-			@shared.Icon(icons.SourceGithubIcon, ``)
-			<h3>Github Apps</h3>
-		</div>
-		@githubSourceForm(ghApp, in)
-	</div>
+templ ListGithubApps(tenant *types.Tenant, project *types.Project, ghApps []*types.GithubApp) {
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navGitHub,
+		Options:    getCreatePageNavs(),
+		BackUrl:    routes.EnvironmentCtx(ctx),
+		BackText:   "Applications",
+	}) {
+		@shared.PageContainer(shared.PageSizeSmall) {
+			@shared.PageContentShort() {
+				@vgithubapp.ListGHApps(ghApps, routes.AppNewGithub)
+			}
+		}
+	}
 }
 
-templ githubSourceForm(ghApp *types.GithubApp, input *types.ApplicationInput) {
-	<form class="flex flex-col gap-4 w-full" x-data={ xdata.ToFormData(input) }>
-		@vgithubapp.GithubSourceForm(ghApp, fmt.Sprintf("%s/source/github/%d", routes.ProjectCtx(ctx), ghApp.UID), input)
-		<div class="w-full" x-show={ fmt.Sprintf("form.builder === '%s' ? false : (form.builder === '%s' && form.isStaticSite === true) ?false :true ", enum.BuilderTypeStatic, enum.BuilderTypeNixpacks) }>
-			@vnetwork.NetworkCreate()
-		</div>
-		<div class="flex h-full space-x-2 max-w-sm w-full mt-2" x-cloak>
-			<button
-				type="submit"
-				class="button-primary"
-				hx-post={ fmt.Sprintf("%s/%d", routes.AppNewGithub, ghApp.UID) }
-				hx-swap="none"
-			>
-				Create	
-			</button>
-		</div>
-	</form>
+templ Github(ghApp *types.GithubApp, in *types.ApplicationInput) {
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: navGitHub,
+		Options:    getCreatePageNavs(),
+		BackUrl:    routes.EnvironmentCtx(ctx),
+		BackText:   "Applications",
+	}) {
+		@shared.PageContainer(shared.PageSizeSmall) {
+			@shared.PageHeaderShort() {
+				<h1>Github Apps</h1>
+				<div class="heading-susbection text-foreground-light">Deploy from a private github repository.</div>
+			}
+			@shared.PageContentShort() {
+				@shared.CardContainer() {
+					<form
+						class="form"
+						x-data={ xdata.ToFormData(in) }
+						hx-post={ fmt.Sprintf("%s/%d", routes.AppNewGithub, ghApp.UID) }
+						hx-push-url="false"
+						hx-swap="none"
+						hx-indicator="#overlay-spinner"
+					>
+						@vgithubapp.GithubSourceForm(ghApp, in)
+						<div class="w-full" x-show={ fmt.Sprintf("form.builder === '%s' ? false : (form.builder === '%s' && form.isStaticSite === true) ?false :true ", enum.BuilderTypeStatic, enum.BuilderTypeNixpacks) }>
+							@vnetwork.NetworkCreate()
+						</div>
+						<div class="flex h-12 items-center px-sm">
+							<div class="grid grid-cols-12 w-full gap-4 items-center">
+								<div class="col-span-4"></div>
+								<div class="flex items-end col-span-8 space-x-2 ml-auto">
+									@shared.ButtonPrimary("Create", templ.Attributes{"type": "submit"})
+								</div>
+							</div>
+						</div>
+					</form>
+				}
+			}
+		}
+	}
 }

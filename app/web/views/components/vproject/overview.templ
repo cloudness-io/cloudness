@@ -1,11 +1,8 @@
 package vproject
 
 import (
-	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vapplication"
 	"github.com/cloudness-io/cloudness/app/web/views/components/venvironment"
-	"github.com/cloudness-io/cloudness/app/web/views/components/vvolume"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
@@ -37,6 +34,10 @@ templ Overview(
 			}
 		} else {
 			@shared.PageContainer(shared.PageSizeMedium) {
+				@shared.PageContentShort() {
+					@vapplication.List(selected, apps)
+				}
+				<!--
 				<div
 					hx-sync="#appslist:replace"
 					hx-target="#appslist"
@@ -55,6 +56,7 @@ templ Overview(
 				if views.HasEnvironment(ctx) {
 					@vvolume.ListUnattachedContainer(routes.EnvironmentCtx(ctx) + routes.EnvironmentVolumes)
 				}
+				-->
 			}
 		}
 	}

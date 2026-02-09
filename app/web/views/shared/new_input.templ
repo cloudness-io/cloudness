@@ -14,14 +14,23 @@ type NewInputProps struct {
 	Type             string
 	Class            string
 
+	WrapperAttrs templ.Attributes
+
 	//action params
 	Disabled bool
+	Hidden   bool
 	Required bool
 }
 
 templ NewInput(props *NewInputProps) {
-	<div>
-		<div class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction == "vertical") }>
+	<div
+		class={ templ.KV("hidden", props.Hidden) }
+		{ props.WrapperAttrs... }
+	>
+		<div
+			class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction ==
+		"vertical") }
+		>
 			if props.Label != "" {
 				<div class={ "transition-all duration-500 ease-in-out col-span-4 flex flex-col gap-2",templ.KV("col-span-12",props.Direction == "vertical") }>
 					<label class="text peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm transition-colors text-foreground flex gap-2 items-center break-all leading-normal">

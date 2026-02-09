@@ -11,12 +11,12 @@ import (
 
 func getGHAppButtonComp(ctx context.Context) templ.Component {
 	if request.IsProjectOwner(ctx) {
-		return shared.AddButton("New Github App", fmt.Sprintf("%s/new", routes.ProjectConnectionGithub))
+		return shared.AddButton("New Github App", fmt.Sprintf("%s/%s/new", routes.ProjectCtx(ctx), routes.ProjectConnectionGithub))
 	}
 	return templ.NopComponent
 }
 
-templ ListGHApps(ghApps []*types.GithubApp) {
+templ ListGHApps(ghApps []*types.GithubApp, selectedURL string) {
 	@shared.PageSection("Github Apps", ghAppDescription, getGHAppButtonComp(ctx)) {
 		if len(ghApps) == 0 {
 			if request.IsProjectOwner(ctx) {
@@ -25,30 +25,25 @@ templ ListGHApps(ghApps []*types.GithubApp) {
 				@noGithubAppCard()
 			}
 		} else {
-			@listGHApps(ghApps, request.IsProjectOwner(ctx))
+			@listGHApps(ghApps, selectedURL, request.IsProjectOwner(ctx))
 		}
 	}
 }
 
-templ listGHApps(ghApps []*types.GithubApp, canEdit bool) {
+func getGHAppActionURL(ctx context.Context, ghApp *types.GithubApp, param string) string {
+	if ghApp.AppID == 0 || ghApp.InstallationID == 0 {
+		return fmt.Sprintf("%s/%s", routes.ProjectCtx(ctx), routes.ProjectConnectionGithubUID(ghApp.UID))
+	}
+	return fmt.Sprintf("%s/%d", param, ghApp.UID)
+}
+
+templ listGHApps(ghApps []*types.GithubApp, selectedURL string, canEdit bool) {
 	@shared.Table() {
-		@shared.TableHead() {
-			@shared.TableHeadRow() {
-				@shared.TableHeadCell() {
-					Name
-				}
-				@shared.TableHeadCell() {
-					Organization
-				}
-				@shared.TableHeadCell() {
-					Status
-				}
-			}
-		}
+		@shared.TableHeadFull("Name", "Organization", "Status")
 		@shared.TableBody() {
 			for _, ghApp := range ghApps {
 				@shared.TableBodyRow(templ.Attributes{
-					"hx-get":        routes.ProjectConnectionGithubUID(ghApp.UID),
+					"hx-get":        getGHAppActionURL(ctx, ghApp, selectedURL),
 					"data-disabled": fmt.Sprintf("%t", !canEdit),
 				}) {
 					@shared.TableBodyCell() {
@@ -64,7 +59,7 @@ templ listGHApps(ghApps []*types.GithubApp, canEdit bool) {
 						</span>
 					}
 					@shared.TableBodyCell() {
-						<div>
+						<span>
 							if ghApp.AppID == 0 {
 								<p class="text-xs text-error">Registration pending</p>
 							} else if ghApp.InstallationID == 0 {
@@ -72,7 +67,7 @@ templ listGHApps(ghApps []*types.GithubApp, canEdit bool) {
 							} else {
 								<p class="text-xs text-success">Connected</p>
 							}
-						</div>
+						</span>
 					}
 				}
 			}

@@ -39,7 +39,7 @@ templ NewDropdown(props *NewDropdownProps) {
 				</div>
 			}
 			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
-				<div class="">
+				<div class="relative">
 					<select
 						name={ props.Name }
 						placeholder={ props.Placeholder }
@@ -96,8 +96,8 @@ templ NewDropdown(props *NewDropdownProps) {
 							}
 						}
 					</select>
-					<div id={ props.SpinnerID } class="htmx-indicator size-5 -ml-12" x-cloak>
-						<span class="spinner"></span>
+					<div id={ props.SpinnerID } class="htmx-indicator absolute right-8 top-1/2 -translate-y-1/2 size-5" x-cloak>
+						@Spinner()
 					</div>
 				</div>
 				<div id={ props.Name + "-error" }></div>
