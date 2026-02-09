@@ -20,6 +20,7 @@ type NewInputProps struct {
 	Disabled bool
 	Hidden   bool
 	Required bool
+	Readonly bool
 }
 
 templ NewInput(props *NewInputProps) {
@@ -62,6 +63,10 @@ templ NewInput(props *NewInputProps) {
 						if props.Required {
 							required
 							aria-required="true"
+						}
+						if props.Readonly {
+							readonly
+							aria-disabled="true"
 						}
 						class={ "flex w-full rounded-md border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-light text-sm leading-4 px-3 py-2 h-[34px]",
 						props.Class,

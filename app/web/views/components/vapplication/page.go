@@ -51,14 +51,14 @@ func getAppPageNav(app *types.Application) []*shared.PageNavItem {
 			ActionUrl: routes.AppVolume,
 		},
 		{
-			Name:      AppNavSettings,
-			Icon:      icons.SettingsIcon,
-			ActionUrl: routes.AppSettings,
-		},
-		{
 			Name:      AppNavEnvvars,
 			Icon:      icons.EnvironmentVariablesIcon,
 			ActionUrl: routes.AppVariables,
+		},
+		{
+			Name:      AppNavSettings,
+			Icon:      icons.SettingsIcon,
+			ActionUrl: routes.AppSettings,
 		},
 		{
 			Name:      AppNavDelete,

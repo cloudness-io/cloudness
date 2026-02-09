@@ -50,7 +50,7 @@ templ ContentViewer(props *ContentViewerProps) {
 				for _,section := range props.Sections {
 					<li class="text-substitute">
 						<a
-							class="cursor-pointer hover:text-brand"
+							class="cursor-pointer text-foreground-light hover:text-foreground"
 							href={ templ.SafeURL(fmt.Sprintf("%s#%s", routes.AppSettings, strings.ToLower(section.Name))) }
 						>{ section.Name }</a>
 					</li>

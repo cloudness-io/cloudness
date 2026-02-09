@@ -83,3 +83,23 @@ func PopulateNavEnvironment() func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func PopulateNavApplication() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			app, _ := request.ApplicationFrom(ctx)
+			next.ServeHTTP(w, r.WithContext(
+				request.WithNavItem(ctx, &dto.NavItem{
+					Title:                  app.Name,
+					Icon:                   icons.EnvironmentIcon,
+					NavURL:                 routes.ApplicationCtx(ctx),
+					DropdownActionURL:      routes.EnvironmentCtx(ctx) + "/" + routes.ApplicationBase + routes.AppNav + "/" + strconv.FormatInt(app.UID, 10),
+					DropdownIdentifier:     dto.DropdownIdentifierApplication,
+					PopoverPositionMobile:  dto.PopoverAlignEnd,
+					PopoverPositionDesktop: dto.PopoverAlignStart,
+				}),
+			))
+		})
+	}
+}

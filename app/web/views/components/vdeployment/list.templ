@@ -9,8 +9,7 @@ import (
 )
 
 templ List(app *types.Application, deployments []*types.Deployment) {
-	<div class="flex flex-col gap-3">
-		@header()
+	<div class="flex flex-col gap-3 text-foreground-light">
 		if len(deployments) == 0 {
 			@shared.NoData("No deployment found", nil)
 		} else {

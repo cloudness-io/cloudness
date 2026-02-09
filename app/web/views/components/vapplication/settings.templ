@@ -10,20 +10,29 @@ import (
 )
 
 templ Settings(project *types.Project, app *types.Application, ghApp *types.GithubApp, restrictions *types.ApplicationRestrction) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavSettings,
-		Header:     shared.CommandBar(getCommandButtons()),
-		Content:    settingsForm(project, app, ghApp, restrictions),
 		Options:    getAppPageNav(app),
-	})
+	}) {
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@shared.PageSection("", templ.NopComponent, templ.NopComponent) {
+					@settingsForm(project, app, ghApp, restrictions)
+				}
+			}
+		}
+	}
 }
 
 templ settingsForm(project *types.Project, app *types.Application, ghApp *types.GithubApp, restrictions *types.ApplicationRestrction) {
 	<form
 		x-data={ xdata.ToFormData(app.Spec.ToInput()) }
 		x-cloak
-		class="mt-3"
+		class="form"
 		hx-push-url="false"
 		hx-patch={ routes.AppSettings }
 		hx-swap="none"

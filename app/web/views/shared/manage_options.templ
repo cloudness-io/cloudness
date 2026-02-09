@@ -43,7 +43,7 @@ templ ManageButton(sections []*ManageButtonSection) {
 				<ul class="flex flex-col py-1.5 px-1.5" role="none">
 					for _, option := range section.Options {
 						<li
-							class={ `flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg hover:text-brand hover:bg-primary`, option.CssClass }
+							class={ `flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg text-foreground-light hover:text-foreground hover:bg-primary`, option.CssClass }
 							{ option.Attrs... }
 							role="menuitem"
 							tabindex="0"

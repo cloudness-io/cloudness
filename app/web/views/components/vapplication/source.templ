@@ -13,16 +13,14 @@ templ SourceSettings(app *types.Application, ghApp *types.GithubApp) {
 	} else if app.Spec.IsGit() {
 		@vgitpublic.GitPublicSourceFrom(app.Spec.ToInput())
 	} else if app.Spec.IsRegistry() {
-		<div class="flex flex-wrap gap-1 sm:gap-2 md:gap-4 ">
-			@shared.Input(&shared.InputProps{
-				Name:        "image",
-				Label:       "Image",
-				Placeholder: "nginx:latest",
-				Required:    true,
-				Attrs: templ.Attributes{
-					"x-model": "form.image",
-				},
-			})
-		</div>
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "image",
+			Label:       "Image",
+			Placeholder: "nginx:latest",
+			Required:    true,
+			Attrs: templ.Attributes{
+				"x-model": "form.image",
+			},
+		})
 	}
 }

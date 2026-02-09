@@ -2,6 +2,7 @@ package vlog
 
 import (
 	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/enum"
 )
@@ -59,11 +60,11 @@ templ LogViewer(logs []*types.LogLine) {
 templ logContainer(withSpinner bool, initMsg string) {
 	<div
 		id="logcontainer"
-		class={ logContainerClass }
+		class={ logContainerClass, "text-foreground-light" }
 	>
 		if withSpinner {
 			<div class="log-spinner mx-auto mt-16">
-				<span class="spinner w-12 h-12"></span>
+				@shared.Spinner()
 			</div>
 		} else {
 			<div class="text-foreground-light p-1">{ initMsg }</div>

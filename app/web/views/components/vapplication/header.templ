@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
-	"github.com/cloudness-io/cloudness/app/web/views/components/vfavorite"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
 
 templ appHeader(app *types.Application) {
-	<header class="relative h-16 shrink-0 box-border pl-1 md:pl-4">
+	<header class="relative h-16 shrink-0 box-border">
 		<div
 			id="header-content"
-			class="flex box-border h-full py-2"
+			class="flex box-border h-full py-2 text-foreground-light"
 			x-data="{updateIconModel: false, updateNameModel: false}"
 		>
 			@shared.Modal("updateIconModel", updateIconForm(app))
@@ -39,7 +38,7 @@ templ appHeader(app *types.Application) {
 						class="flex basis-auto items-center jusify-center cursor-pointer relative group"
 						x-on:click="updateNameModel = true"
 					>
-						<h2 class="font-semibold text-xl hover:bg-secondary">
+						<h2 class="text-foreground hover:bg-secondary">
 							{ app.Name }
 						</h2>
 						<span class="absolute top-[-0.2rem] right-[-0.5rem] hidden group-hover:block">
@@ -51,13 +50,12 @@ templ appHeader(app *types.Application) {
 							@shared.Icon(icons.OutIcon, "cursor-pointer")
 						</a>
 					}
-					@vfavorite.SymbolPlaceHolder(app)
-					@AppStatus(app, false)
 				</div>
-				<div id="subtitle" class="flex h-4">
-					<span class="text-xs leading-4 text-foreground-light">
-						Application	
-					</span>
+				<div id="subtitle" class="flex flex-row items-center gap-1 text-xs leading-4 h-4">
+					<!--TODO: Add application type here-->
+					<div>Application |</div>
+					<div>Deployment Status:</div>
+					@AppStatus(app, false)
 				</div>
 			</div>
 		</div>
@@ -65,60 +63,48 @@ templ appHeader(app *types.Application) {
 }
 
 templ updateIconForm(app *types.Application) {
-	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{old:'%[1]s', icon:'%[1]s'}", app.Spec.Icon) }>
-		<h2 class="text-xl font-semibold">Update Icon</h2>
-		<p class="w-full max-w-full">
-			Icon should be an URL to an image file.
-		</p>
-		@shared.Input(&shared.InputProps{
-			Name: "icon",
+	<form
+		class="form"
+		x-data={ fmt.Sprintf("{old:'%[1]s', icon:'%[1]s'}", app.Spec.Icon) }
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-patch={ routes.AppIcon }
+	>
+		<div>
+			<h2 class="text-xl font-semibold">Update Icon</h2>
+		</div>
+		@shared.NewInput(&shared.NewInputProps{
+			Name:             "icon",
+			Label:            "Icon URL",
+			LabelDescription: "Icon should be an URL to an image file.",
 			Attrs: templ.Attributes{
 				"x-model": "icon",
 			},
 		})
-		<footer class="flex w-full">
-			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
-				<button type="button" class="button-neutral" x-on:click="updateIconModel= false">
-					Close	
-				</button>
-				<button
-					type="submit"
-					class="button-primary"
-					:disabled="icon == old"
-					hx-patch={ routes.AppIcon }
-					hx-swap="none"
-				>
-					Update	
-				</button>
-			</div>
-		</footer>
+		@shared.UpdateDivNew()
 	</form>
 }
 
 templ updateNameForm(app *types.Application) {
-	<form class="flex flex-col gap-2" x-data={ fmt.Sprintf("{old:'%[1]s', name:'%[1]s'}", app.Name) }>
-		<h2 class="text-xl font-semibold">Update Application Name</h2>
-		@shared.Input(&shared.InputProps{
-			Name: "name",
+	<form
+		class="form"
+		x-data={ fmt.Sprintf("{old:'%[1]s', name:'%[1]s'}", app.Name) }
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-patch={ routes.AppName }
+	>
+		<div>
+			<h2 class="text-xl font-semibold">Update Application Name</h2>
+		</div>
+		@shared.NewInput(&shared.NewInputProps{
+			Name:  "name",
+			Label: "Name",
 			Attrs: templ.Attributes{
 				"x-model": "name",
 			},
 		})
-		<footer class="flex w-full">
-			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
-				<button type="button" class="button-neutral" x-on:click="updateNameModel= false">
-					Close	
-				</button>
-				<button
-					type="submit"
-					class="button-primary"
-					:disabled="name== old"
-					hx-patch={ routes.AppName }
-					hx-swap="none"
-				>
-					Update	
-				</button>
-			</div>
-		</footer>
+		@shared.UpdateDivNew()
 	</form>
 }

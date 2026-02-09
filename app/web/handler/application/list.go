@@ -10,8 +10,6 @@ import (
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vapplication"
-	"github.com/cloudness-io/cloudness/app/web/views/dto"
-	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 
 	"github.com/rs/zerolog/log"
@@ -59,6 +57,7 @@ func HandleListNavigation(appctrl *application.Controller) http.HandlerFunc {
 		tenant, _ := request.TenantFrom(ctx)
 		project, _ := request.ProjectFrom(ctx)
 		env, _ := request.EnvironmentFrom(ctx)
+		selectedUID, _ := request.GetSelectedUIDFromPath(r)
 
 		apps, err := appctrl.List(ctx, tenant.ID, project.ID, env.ID)
 		if err != nil {
@@ -67,14 +66,6 @@ func HandleListNavigation(appctrl *application.Controller) http.HandlerFunc {
 			return
 		}
 
-		listItems := make([]*dto.BreadCrumbListItem, 0)
-		for _, app := range apps {
-			listItems = append(listItems, &dto.BreadCrumbListItem{
-				Name: app.Name,
-				Link: routes.ApplicationCtxUID(ctx, app.UID),
-			})
-		}
-
-		render.HTML(ctx, w, shared.BreadCrumbDropdownList(listItems))
+		render.HTML(ctx, w, vapplication.Dropdown(apps, selectedUID))
 	}
 }

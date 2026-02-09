@@ -51,7 +51,7 @@ templ getRegistryLink(imageName string, imageUrl string) {
 		href={ templ.SafeURL(imageUrl) }
 		target="_blank"
 		hx-on:click="event.stopPropagation()"
-		class="flex gap-1	hover:text-link"
+		class="flex gap-1 hover:text-foreground"
 	>
 		<p>{ imageName }</p>
 	</a>
@@ -62,7 +62,7 @@ templ gitLink(name string, httpURL string, branch string, commit string, commitU
 		href={ templ.SafeURL(httpURL) }
 		target="_blank"
 		hx-on:click="event.stopPropagation()"
-		class="text-foreground-light hover:text-brand flex gap-1"
+		class="text-foreground-light hover:text-foreground flex gap-1"
 	>
 		<p>{ name }</p>
 		<p class="italic">{ branch }</p>
@@ -72,7 +72,7 @@ templ gitLink(name string, httpURL string, branch string, commit string, commitU
 			href={ templ.SafeURL(commitUrl) }
 			target="_blank"
 			hx-on:click="event.stopPropagation()"
-			class="text-foreground-light hover:text-brand bg-secondary hover:bg-primary rounded-sm"
+			class="text-foreground-light hover:text-foreground bg-secondary hover:bg-primary rounded-sm"
 		>{ commit[0:5] }</a>
 	}
 }

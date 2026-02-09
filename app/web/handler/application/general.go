@@ -28,7 +28,7 @@ func HandleUpdateIcon(appCtrl *application.Controller) http.HandlerFunc {
 		_, err := appCtrl.UpdateIcon(ctx, app, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating icon")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -52,7 +52,7 @@ func HandleUpdateName(appCtrl *application.Controller) http.HandlerFunc {
 		_, err := appCtrl.UpdateName(ctx, app, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating name")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

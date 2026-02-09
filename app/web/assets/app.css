@@ -337,7 +337,7 @@
 }
 
 @utility link {
-  @apply text-link hover:text-link-hover cursor-pointer disabled:text-link-disabled hover:underline disabled:hover:no-underline;
+  @apply hover:text-foreground cursor-pointer disabled:text-link-disabled hover:underline disabled:hover:no-underline;
 }
 
 .button-link {

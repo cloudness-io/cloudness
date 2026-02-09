@@ -3,10 +3,23 @@ package shared
 templ NoData(message string, button templ.Component) {
 	<div class="grid px-6 py-14 lg:px-8">
 		<div class="flex flex-col text-center space-y-2">
-			<p>{ message }</p>
+			<p class="text-foreground-light">{ message }</p>
 			if button != nil {
 				@button
 			}
 		</div>
 	</div>
+}
+
+templ NoDataCard(message string, button templ.Component) {
+	@CardContainer() {
+		<div class="flex mx-auto">
+			<div class="flex flex-col text-center space-y-2">
+				<p class="text-foreground-light">{ message }</p>
+				if button != nil {
+					@button
+				}
+			</div>
+		</div>
+	}
 }

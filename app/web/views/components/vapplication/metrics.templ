@@ -9,13 +9,20 @@ import (
 )
 
 templ Metrics(app *types.Application, metrics *types.AppMetricsViewModel, span enum.MetricsSpan) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavMetrics,
-		Header:     shared.CommandBar(getCommandButtons()),
-		Content:    metricsContent(metrics, span),
 		Options:    getAppPageNav(app),
-	})
+	}) {
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@metricsContent(metrics, span)
+			}
+		}
+	}
 }
 
 templ metricsContent(metrics *types.AppMetricsViewModel, span enum.MetricsSpan) {

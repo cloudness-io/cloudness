@@ -27,7 +27,7 @@ templ PageContainer(size PageSize) {
 			<div class="h-full overflow-y-auto">
 				<div class="flex w-full flex-col">
 					<div
-						class="w-full min-h-full flex flex-col items-stretch max-w-[var(--page-max-w)] lg:px-6 mx-auto"
+						class="w-full min-h-full flex flex-col items-stretch max-w-[var(--page-max-w)] px-4 lg:px-6 xl:px-10 mx-auto"
 					>
 						{ children... }
 					</div>
@@ -38,14 +38,28 @@ templ PageContainer(size PageSize) {
 }
 
 templ PageHeaderShort() {
-	<div data-slot="page-header" class="@container max-w-[var(--page-max-w)] px-4 lg:px-6 xl:px-10 w-full mx-auto pt-12">
+	<div data-slot="page-header" class="@container w-full mx-auto pt-12">
+		{ children... }
+	</div>
+}
+
+templ PageHeaderFull() {
+	<div data-slot="page-header" class="@container w-full mx-auto">
 		{ children... }
 	</div>
 }
 
 templ PageContentShort() {
-	<div data-slot="page-content" class="mx-auto w-full @container max-w-[var(--page-max-w)] px-4 lg:px-6 xl:px-10">
+	<div data-slot="page-content" class="@container w-full mx-auto ">
 		<div class="py-6 w-full flex flex-col gap-y-4">
+			{ children... }
+		</div>
+	</div>
+}
+
+templ PageContentFull() {
+	<div data-slot="page-content" class="@container w-full mx-auto ">
+		<div class="w-full flex flex-col gap-y-4">
 			{ children... }
 		</div>
 	</div>
@@ -61,8 +75,7 @@ templ PageSection(header string, description templ.Component, actionComp templ.C
 						<div
 							data-slot="page-section-description"
 							class="text-sm text-foreground-light"
-							style="text-box-trim:
-	trim-end;"
+							style="text-box-trim:trim-end;"
 						>
 							@description
 						</div>

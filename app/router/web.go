@@ -369,10 +369,11 @@ func setupEnvionment(r chi.Router,
 func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment.Controller, appCtrl *application.Controller, varCtrl *variable.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, deploymentCtrl *deployment.Controller, logsCtrl *logs.Controller, volumeCtrl *volume.Controller, templCtrl *template.Controller, favCtrl *favorite.Controller) {
 	r.Route("/application", func(r chi.Router) {
 		r.Get("/", handlerapplication.HandleList(envCtrl, appCtrl))
-		r.Get("/nav", handlerapplication.HandleListNavigation(appCtrl))
+		r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlerapplication.HandleListNavigation(appCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamApplicationUID), func(r chi.Router) {
 			//Inject application here
 			r.Use(middlewareinject.InjectApplication(appCtrl))
+			r.Use(middlewarenav.PopulateNavApplication())
 			r.Get("/", handlerapplication.HandleListDeployments(appCtrl, deploymentCtrl))
 			r.Patch("/name", handlerapplication.HandleUpdateName(appCtrl))
 			r.Patch("/icon", handlerapplication.HandleUpdateIcon(appCtrl))

@@ -12,6 +12,7 @@ const (
 	DropdownIdentifierTeam        DropdownIdentifier = "team"
 	DropdownIdentifierProject     DropdownIdentifier = "project"
 	DropdownIdentifierEnvironment DropdownIdentifier = "environment"
+	DropdownIdentifierApplication DropdownIdentifier = "application"
 )
 
 type PopoverAlign string

@@ -53,6 +53,10 @@ func ApplicationNew(envUID int64) string {
 	return fmt.Sprintf("environment/%d/%s", envUID, AppNewGitPublic)
 }
 
+func ApplicationNewCtx(ctx context.Context) string {
+	return fmt.Sprintf("%s/%s", EnvironmentCtx(ctx), AppNewGitPublic)
+}
+
 func ApplicationCtx(ctx context.Context) string {
 	app, _ := request.ApplicationFrom(ctx)
 	return fmt.Sprintf("%s/application/%d", EnvironmentCtx(ctx), app.UID)

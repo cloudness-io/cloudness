@@ -18,8 +18,10 @@ func getDeleteRoute(ctx context.Context, uid int64) string {
 templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64) {
 	<form
 		id="addVolume"
+		class="form"
 		hx-push-url="false"
 		hx-swap="none"
+		hx-indicator="#overlay-spinner"
 		if action == enum.VolumeFormActionCreate {
 			hx-post={ routes.AppVolumeCreate }
 		}
@@ -42,45 +44,43 @@ templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64)
 				}
 			</h1>
 		</div>
-		<div class="mt-2 flex flex-col gap-4">
-			@shared.Input(&shared.InputProps{
-				Label:       "Name",
-				Name:        "name",
-				Placeholder: "Database Storage",
-				Value:       "Database Storage",
-				Required:    true,
-				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
-				Attrs: templ.Attributes{
-					"x-model":   "form.name",
-					"autofocus": true,
-				},
-			})
-			@shared.Input(&shared.InputProps{
-				Label:       "Mount Path",
-				Tooltip:     "Directory inside the container",
-				Name:        "mountPath",
-				Placeholder: "/data",
-				Value:       "/data",
-				Required:    true,
-				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
-				Attrs: templ.Attributes{
-					"x-model": "form.mountPath",
-				},
-			})
-			@shared.Input(&shared.InputProps{
-				Label:       "Size",
-				Tooltip:     "Size of the volume in MiB, cannot be downsized",
-				Description: "Volume size is in MiB",
-				Name:        "size",
-				Type:        "number",
-				Placeholder: "1024",
-				Required:    true,
-				Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
-				Attrs: templ.Attributes{
-					"x-model": "form.size",
-				},
-			})
-		</div>
+		@shared.NewInput(&shared.NewInputProps{
+			Label:       "Name",
+			Name:        "name",
+			Placeholder: "Database Storage",
+			Value:       "Database Storage",
+			Required:    true,
+			Readonly:    action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
+			Attrs: templ.Attributes{
+				"x-model":   "form.name",
+				"autofocus": true,
+			},
+		})
+		@shared.NewInput(&shared.NewInputProps{
+			Label:            "Mount Path",
+			LabelDescription: "Directory inside the container",
+			Name:             "mountPath",
+			Placeholder:      "/data",
+			Value:            "/data",
+			Required:         true,
+			Readonly:         action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
+			Attrs: templ.Attributes{
+				"x-model": "form.mountPath",
+			},
+		})
+		@shared.NewInput(&shared.NewInputProps{
+			Label:            "Size",
+			LabelDescription: "Size of the volume in MiB, cannot be downsized",
+			ValueDescription: "Volume size is in MiB",
+			Name:             "size",
+			Type:             "number",
+			Placeholder:      "1024",
+			Required:         true,
+			Readonly:         action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach,
+			Attrs: templ.Attributes{
+				"x-model": "form.size",
+			},
+		})
 		@volumeFormFooter(action, uid)
 	</form>
 }
@@ -88,43 +88,39 @@ templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64)
 templ volumeFormFooter(action enum.VolumeFormAction, uid int64) {
 	<div class="flex flex-row justify-end gap-2 mt-3">
 		if action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach {
-			<button
-				type="button"
-				class="button-danger"
-				hx-delete={ getDeleteRoute(ctx, uid) }
-			>
-				Delete	
-			</button>
+			@shared.ButtonDanger("Delete", templ.Attributes{"hx-delete": getDeleteRoute(ctx, uid)})
 		}
 		if action == enum.VolumeFormActionUpdate {
-			<button
-				type="button"
-				class="button-danger"
-				hx-patch={ fmt.Sprintf("%s/%d/%s", routes.AppVolume, uid, routes.AppVolumeDetach) }
-			>
-				Detach
-			</button>
-			<button type="button" class="button-neutral" x-on:click="reset()">
-				Reset
-			</button>
+			@shared.ButtonDanger("Detach", templ.Attributes{"hx-patch": fmt.Sprintf("%s/%d/%s", routes.AppVolume, uid, routes.AppVolumeDetach)})
+			@shared.ButtonNeutral("Reset", templ.Attributes{"x-on:click": "reset()"})
 		}
 		if action == enum.VolumeFormActionCreate || action == enum.VolumeFormActionUpdate || action == enum.VolumeFormActionAttach {
-			<button
-				type="submit"
-				class="button-primary"
-				if action == enum.VolumeFormActionUpdate {
-					:disabled="JSON.stringify(form) == JSON.stringify(initial)"
-				}
-			>
-				switch action {
-					case enum.VolumeFormActionCreate:
-						Create 
-					case enum.VolumeFormActionUpdate:
-						Update 
-					case enum.VolumeFormActionAttach:
-						Attach
-				}
-			</button>
+			@shared.ButtonPrimary(getPrimaryButtonText(action), getPrimaryButtonAttrs(action))
 		}
 	</div>
+}
+
+func getPrimaryButtonText(action enum.VolumeFormAction) string {
+	switch action {
+	case enum.VolumeFormActionCreate:
+		return "Create"
+	case enum.VolumeFormActionUpdate:
+		return "Update"
+	case enum.VolumeFormActionAttach:
+		return "Attach"
+	default:
+		return "Save"
+	}
+}
+
+func getPrimaryButtonAttrs(action enum.VolumeFormAction) templ.Attributes {
+	switch action {
+	case enum.VolumeFormActionUpdate:
+		return templ.Attributes{
+			"type":      "submit",
+			":disabled": "JSON.stringify(form) == JSON.stringify(initial)",
+		}
+	default:
+		return templ.Attributes{"type": "submit"}
+	}
 }

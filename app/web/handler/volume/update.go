@@ -35,7 +35,7 @@ func HandleUpdateAttached(appCtrl *application.Controller, volumeCtrl *volume.Co
 		_, err := appCtrl.UpdateVolume(ctx, session, tenant, project, env, application, volume)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating volume")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		err = renderVolumesList(ctx, w, application, volumeCtrl)

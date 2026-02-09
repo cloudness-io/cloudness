@@ -19,7 +19,7 @@ const (
 	IsFavIcon = "ph-fill ph-star"
 
 	PipelineSucessIcon  = "ph-fill ph-check-circle"
-	PipelineErrorIcon   = "ph-fill ph-x-circle"
+	PipelineErrorIcon   = "ph ph-x-circle"
 	PipelineSkippedIcon = "ph ph-prohibit-inset rotate-90"
 	PipelineRunningIcon = "ph ph-circle-notch"
 	PipelinePendingIcon = "ph ph-clock"
