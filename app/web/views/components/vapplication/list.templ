@@ -15,8 +15,14 @@ func trimProtocol(url string) string {
 	return strings.TrimSuffix(url, "/")
 }
 
+templ appHeaderDescription(env *types.Environment) {
+	<span>
+		You are viewing applications in <b><i>{ env.Name }</i></b> Environment
+	</span>
+}
+
 templ List(env *types.Environment, apps []*types.Application) {
-	@shared.PageSection("Applications", "", shared.AddButton("New Application", routes.ApplicationNew(env.UID))) {
+	@shared.PageSection("Applications", appHeaderDescription(env), shared.AddButton("New Application", routes.ApplicationNew(env.UID))) {
 		@list(env, apps)
 	}
 }

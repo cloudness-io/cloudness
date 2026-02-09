@@ -35,7 +35,7 @@ templ Members(tenant *types.Tenant, session *auth.Session, members []*types.Tena
 }
 
 templ tenantMembershipListTable(tenant *types.Tenant, session *auth.Session, members []*types.TenantMembershipUser) {
-	@shared.PageSection("", "", templ.NopComponent) {
+	@shared.PageSection("", templ.NopComponent, templ.NopComponent) {
 		@shared.CardContainer() {
 			<div class="overflow-x-auto w-full">
 				<table class="min-w-full divide-y text-left">
@@ -109,7 +109,7 @@ templ tenantMembershipListTable(tenant *types.Tenant, session *auth.Session, mem
 }
 
 templ tenantAddMembersSection() {
-	@shared.PageSection("Add Members", "Make sure you have oauth enabled, since we do not support invite link generation yet.", templ.NopComponent) {
+	@shared.PageSection("Add Members", shared.TextComp("Make sure you have oauth enabled, since we do not support invite link generation yet."), templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

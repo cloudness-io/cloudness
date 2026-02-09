@@ -27,8 +27,8 @@ templ Preview(template *types.Template, actionUrl string) {
 								@icon(service.Icon)
 							</div>
 							<div class="text-sm">
-								<p class="font-semibold">{ service.Name }</p>
-								<p>{ service.Build.GetSource() }</p>
+								<p class="font-medium">{ service.Name }</p>
+								<p class="text-foreground-light">{ service.Build.GetSource() }</p>
 							</div>
 						</div>
 					</header>

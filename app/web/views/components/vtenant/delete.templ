@@ -6,7 +6,7 @@ import "fmt"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 
 templ dangerZone(tenant *types.Tenant) {
-	@shared.PageSection("Danger Zone", "", templ.NopComponent) {
+	@shared.PageSection("Danger Zone", templ.NopComponent, templ.NopComponent) {
 		@shared.AlertCardContainer() {
 			<div class="mt-2" x-data="{tenantDeleteModel: false}">
 				<div class="mb-4 flex flex-col gap-1">

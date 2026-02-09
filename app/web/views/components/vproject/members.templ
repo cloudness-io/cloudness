@@ -29,7 +29,7 @@ templ Members(session *auth.Session, project *types.Project, members []*types.Pr
 }
 
 templ membershipListTable(project *types.Project, members []*types.ProjectMembershipUser) {
-	@shared.PageSection("", "", templ.NopComponent) {
+	@shared.PageSection("", templ.NopComponent, templ.NopComponent) {
 		@shared.CardContainer() {
 			<div class="flex flex-col gap-2 w-full">
 				@shared.InfoAlert("Team admins are owners of all projects in the team by default", "")
@@ -111,7 +111,7 @@ templ membershipListTable(project *types.Project, members []*types.ProjectMember
 }
 
 templ projectAddMembersSection() {
-	@shared.PageSection("Add Members", "", templ.NopComponent) {
+	@shared.PageSection("Add Members", templ.NopComponent, templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

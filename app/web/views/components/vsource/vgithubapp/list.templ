@@ -18,7 +18,7 @@ func getGHAppButtonComp(ctx context.Context) templ.Component {
 }
 
 templ ListGHApps(ghApps []*types.GithubApp, selectedURL string) {
-	@shared.PageSection("Github Apps", ghAppDescription, getGHAppButtonComp(ctx)) {
+	@shared.PageSection("Github Apps", shared.TextComp(ghAppDescription), getGHAppButtonComp(ctx)) {
 		if len(ghApps) == 0 {
 			if request.IsProjectOwner(ctx) {
 				@addGithubCard()

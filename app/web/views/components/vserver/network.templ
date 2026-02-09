@@ -10,7 +10,7 @@ import (
 )
 
 templ networkSetting(server *types.Server) {
-	@shared.PageSection("Network Settings", "", templ.NopComponent) {
+	@shared.PageSection("Network Settings", templ.NopComponent, templ.NopComponent) {
 		@shared.CardContainer() {
 			<form
 				class="form"

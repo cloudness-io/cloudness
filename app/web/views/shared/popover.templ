@@ -93,21 +93,13 @@ templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop d
 		>
 			<div x-ref="popoverInner" x-show="popoverOpen" class="w-full bg-overlay-default border rounded-md shadow-sm">
 				<div
-					x-show="popoverArrow && popoverPosition == 'bottom'"
+					x-show="popoverArrow && popoverPosition === 'bottom'"
 					:style="arrowStyle"
 					class="absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5"
+					x-cloak
 				>
 					<div
 						class="w-2.5 h-2.5 origin-bottom-left transform rotate-45 bg-overlay-default border-t border-l rounded-sm"
-					></div>
-				</div>
-				<div
-					x-show="popoverArrow  && popoverPosition == 'top'"
-					:style="arrowStyle"
-					class="absolute bottom-0 inline-block w-5 mb-px overflow-hidden translate-y-2.5"
-				>
-					<div
-						class="w-2.5 h-2.5 origin-top-left transform -rotate-45 bg-overlay-default border-b border-l rounded-sm"
 					></div>
 				</div>
 				{ children... }

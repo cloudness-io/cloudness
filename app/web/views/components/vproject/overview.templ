@@ -19,7 +19,7 @@ templ Overview(
 		if selected == nil {
 			@shared.PageContainer(shared.PageSizeMedium) {
 				@shared.PageContentShort() {
-					@shared.PageSection("No Environments", "No environments found in this project", templ.NopComponent) {
+					@shared.PageSection("No Environments", shared.TextComp("No environments found in this project"), templ.NopComponent) {
 						@venvironment.AddEnvironmentCard()
 					}
 				}
@@ -27,7 +27,7 @@ templ Overview(
 		} else if len(apps) == 0 {
 			@shared.PageContainer(shared.PageSizeMedium) {
 				@shared.PageContentShort() {
-					@shared.PageSection("No Applications", "No applications found in this environment", templ.NopComponent) {
+					@shared.PageSection("No Applications", shared.TextComp("No applications found in this environment"), templ.NopComponent) {
 						@vapplication.AddApplicationCard(selected)
 					}
 				}

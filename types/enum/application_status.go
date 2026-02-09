@@ -12,7 +12,7 @@ const (
 type ApplicationDeploymentStatus string
 
 const (
-	ApplicationDeploymentStatusNeedsDeployment = "needs deployment"
+	ApplicationDeploymentStatusNeedsDeployment = "pending"
 	ApplicationDeploymentStatusDeploying       = "deploying"
 	ApplicationDeploymentStatusFailed          = "failed"
 	ApplicationDeploymentStatusSuccess         = "success"

@@ -51,7 +51,7 @@ templ PageContentShort() {
 	</div>
 }
 
-templ PageSection(header string, description string, actionComp templ.Component) {
+templ PageSection(header string, description templ.Component, actionComp templ.Component) {
 	<div data-slot="page-section" data-orientation="vertical" class="pt-12 first:pt-2 last:pb-12 gap-4 flex flex-col">
 		if header != "" {
 			<div class="@container flex flex-row justify-between">
@@ -63,7 +63,9 @@ templ PageSection(header string, description string, actionComp templ.Component)
 							class="text-sm text-foreground-light"
 							style="text-box-trim:
 	trim-end;"
-						>{ description }</div>
+						>
+							@description
+						</div>
 					</div>
 				</div>
 				<div data-slot="page-section-action">

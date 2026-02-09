@@ -15,7 +15,7 @@ templ GHAppInfoPage(tenant *types.Tenant, project *types.Project, ghApp *types.G
 			@backToConnectionsLink()
 		}
 		@shared.PageContentShort() {
-			@shared.PageSection("Github App", "", shared.ButtonDanger("Delete", templ.Attributes{
+			@shared.PageSection("Github App", templ.NopComponent, shared.ButtonDanger("Delete", templ.Attributes{
 				"hx-delete":    routes.ProjectConnectionGithubUID(ghApp.UID),
 				"hx-swap":      "none",
 				"hx-indicator": "#overlay-spinner",

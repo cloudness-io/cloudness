@@ -41,7 +41,7 @@ func getEnvMenuDropdownProps(ctx context.Context, env *types.Environment) []*sha
 }
 
 templ ListEnvironments(envs []*types.Environment) {
-	@shared.PageSection("Manage your Environments", "", getEnvAddButtonComp(ctx)) {
+	@shared.PageSection("Manage your Environments", templ.NopComponent, getEnvAddButtonComp(ctx)) {
 		if len(envs) == 0 {
 			@AddEnvironmentCard()
 		} else {

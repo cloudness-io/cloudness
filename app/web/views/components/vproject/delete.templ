@@ -8,7 +8,7 @@ import (
 )
 
 templ dangerZone(project *types.Project) {
-	@shared.PageSection("Danger Zone", "", templ.NopComponent) {
+	@shared.PageSection("Danger Zone", templ.NopComponent, templ.NopComponent) {
 		@shared.AlertCardContainer() {
 			<div class="mt-2" x-data="{projectDeleteModel: false}">
 				<div class="mb-4 flex flex-col gap-1">

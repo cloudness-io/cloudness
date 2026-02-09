@@ -18,7 +18,7 @@ templ Restrictions(tenant *types.Tenant, restrictions *types.TenantRestrictions,
 				<div class="heading-subSection text-foreground-light">Manage your team limits and permissions.</div>
 			}
 			@shared.PageContentShort() {
-				@shared.PageSection("", "", templ.NopComponent) {
+				@shared.PageSection("", templ.NopComponent, templ.NopComponent) {
 					@shared.CardContainer() {
 						<form
 							class="form"
