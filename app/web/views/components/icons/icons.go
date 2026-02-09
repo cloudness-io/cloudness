@@ -41,7 +41,7 @@ const (
 	SourceDatabaseIcon = "ph ph-database"
 	SourceRegistryIcon = "container-registry.svg"
 	SourceOneclickIcon = "ph ph-hand-tap"
-	SourceGithubIcon   = "github.svg"
+	SourceGithubIcon   = "ph ph-github-logo"
 	SourceTemplateIcon = "ph ph-folder-open"
 
 	//Action Icons

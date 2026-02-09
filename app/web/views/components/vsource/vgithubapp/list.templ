@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
@@ -47,7 +48,10 @@ templ listGHApps(ghApps []*types.GithubApp, selectedURL string, canEdit bool) {
 					"data-disabled": fmt.Sprintf("%t", !canEdit),
 				}) {
 					@shared.TableBodyCell() {
-						<span>{ ghApp.Name }</span>
+						<span class="flex items-center gap-2 text-foreground-light">
+							@shared.Icon(icons.SourceGithubIcon, "overflow-hidden")
+							{ ghApp.Name }
+						</span>
 					}
 					@shared.TableBodyCell() {
 						<span class="text-foreground-lighter italic">

@@ -31,7 +31,7 @@ templ list(env *types.Environment, apps []*types.Application) {
 						"hx-get": routes.Application(env.UID, app.UID),
 					}) {
 						@shared.TableBodyCell() {
-							<span class="flex items-center gap-2">
+							<span class="flex items-center gap-2 text-foreground-light">
 								if app.Spec.Icon != "" {
 									@shared.Icon(app.Spec.Icon, "overflow-hidden")
 								} else {
