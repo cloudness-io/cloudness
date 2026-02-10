@@ -88,11 +88,11 @@ templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64)
 templ volumeFormFooter(action enum.VolumeFormAction, uid int64) {
 	<div class="flex flex-row justify-end gap-2 mt-3">
 		if action == enum.VolumeFormActionDelete || action == enum.VolumeFormActionAttach {
-			@shared.ButtonDanger("Delete", templ.Attributes{"hx-delete": getDeleteRoute(ctx, uid)})
+			@shared.ButtonDanger("Delete", templ.Attributes{"type": "button", "hx-delete": getDeleteRoute(ctx, uid)})
 		}
 		if action == enum.VolumeFormActionUpdate {
-			@shared.ButtonDanger("Detach", templ.Attributes{"hx-patch": fmt.Sprintf("%s/%d/%s", routes.AppVolume, uid, routes.AppVolumeDetach)})
-			@shared.ButtonNeutral("Reset", templ.Attributes{"x-on:click": "reset()"})
+			@shared.ButtonDanger("Detach", templ.Attributes{"type": "button", "hx-patch": fmt.Sprintf("%s/%d/%s", routes.AppVolume, uid, routes.AppVolumeDetach)})
+			@shared.ButtonNeutral("Reset", templ.Attributes{"type": "button", "x-on:click": "reset()"})
 		}
 		if action == enum.VolumeFormActionCreate || action == enum.VolumeFormActionUpdate || action == enum.VolumeFormActionAttach {
 			@shared.ButtonPrimary(getPrimaryButtonText(action), getPrimaryButtonAttrs(action))

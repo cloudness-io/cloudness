@@ -80,9 +80,8 @@ templ baseLayout() {
 			<!-- JS -->
 			<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js" hx-preserve="true"></script>
 			<script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.32.1/humanize-duration.min.js" hx-preserve="true"></script>
-			<!-- uPlot -->
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.min.css" hx-preserve="true"/>
-			<script src="https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.iife.min.js" hx-preserve="true"></script>
+			<!-- Lightweight Charts -->
+			<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4/dist/lightweight-charts.standalone.production.js" hx-preserve="true"></script>
 			@shared.ExternalScripts(request.InstanceSettingsFrom(ctx))
 			@shared.AdditionalScripts(request.InstanceSettingsFrom(ctx))
 		</head>

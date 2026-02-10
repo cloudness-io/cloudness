@@ -82,7 +82,9 @@ templ updateIconForm(app *types.Application) {
 				"x-model": "icon",
 			},
 		})
-		@shared.UpdateDivNew()
+		<div class="flex items-center justify-end space-x-2">
+			@shared.ButtonPrimary("Update", templ.Attributes{"type": "submit"})
+		</div>
 	</form>
 }
 
@@ -105,6 +107,8 @@ templ updateNameForm(app *types.Application) {
 				"x-model": "name",
 			},
 		})
-		@shared.UpdateDivNew()
+		<div class="flex items-center justify-end space-x-2">
+			@shared.ButtonPrimary("Update", templ.Attributes{"type": "submit"})
+		</div>
 	</form>
 }
