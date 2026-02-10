@@ -111,8 +111,6 @@ func NewWebHandler(
 
 	r.Use(url.PopulateCurrentUrl())
 
-	r.Use(middlewareinject.PopulateTargetElemet())
-
 	// serve static files
 	if config.Environment == "local" {
 		r.Handle("/public/*", disableCache(staticDev()))

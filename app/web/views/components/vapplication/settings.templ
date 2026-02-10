@@ -54,17 +54,17 @@ func getSettingsSections(
 		{
 			Name:      spec.GetSourceText(application),
 			IconClass: spec.GetSourceIcon(application),
-			Content:   SourceSettings(application, ghApp),
+			Content:   sourceSettingsFrom(application, ghApp),
 		},
 		{
 			Name:      "Networking",
 			IconClass: icons.NetworkSectionIcon,
-			Content:   NetworkSettings(application),
+			Content:   networkSettingsForm(application),
 		},
 		{
 			Name:      "Deploy",
 			IconClass: icons.DeploySectionIcon,
-			Content:   settingsDeploy(project, application, restrictions),
+			Content:   settingsDeployForm(project, application, restrictions),
 		},
 	}
 

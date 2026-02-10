@@ -1,0 +1,126 @@
+package vapplication
+
+import (
+	specSvc "github.com/cloudness-io/cloudness/app/services/spec"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vnetwork"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgithubapp"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgitpublic"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/helpers"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ sourceSettingsFrom(app *types.Application, ghApp *types.GithubApp) {
+	@shared.CardContainer() {
+		<div class="form">
+			if app.GetGithubAppID() > 0 {
+				@vgithubapp.GithubSourceForm(ghApp, app.Spec.ToInput())
+			} else if app.Spec.IsGit() {
+				@vgitpublic.GitPublicSourceFrom(app.Spec.ToInput())
+			} else if app.Spec.IsRegistry() {
+				@shared.NewInput(&shared.NewInputProps{
+					Name:        "image",
+					Label:       "Image",
+					Placeholder: "nginx:latest",
+					Required:    true,
+					Attrs: templ.Attributes{
+						"x-model": "form.image",
+					},
+				})
+			}
+		</div>
+	}
+}
+
+templ networkSettingsForm(app *types.Application) {
+	@shared.CardContainer() {
+		@vnetwork.NetworkSettings(app)
+	}
+}
+
+templ settingsDeployForm(project *types.Project, application *types.Application, restrictions *types.ApplicationRestrction) {
+	@shared.CardContainer() {
+		<div
+			class="form"
+			x-data="{ enableHealthcheck: form.healthcheckPath !== '' && form.healthcheckPath !== undefined }"
+		>
+			@shared.NewInput(&shared.NewInputProps{
+				Name:             "startCommand",
+				Label:            "Start Command",
+				LabelDescription: "Command that will be run on startup of the application container",
+				Attrs: templ.Attributes{
+					"x-model": "form.startCommand",
+				},
+			})
+			<div class="flex flex-col gap-2">
+				<h3 class="w-full">Application Scaling</h3>
+				@shared.NewCheckbox(&shared.NewCheckboxProps{
+					Name:             "sleepApplication",
+					Label:            "Auto Sleep",
+					LabelDescription: "When enabled, the application will be scaled to zero replicas when there are no inbound requests",
+					Attrs: templ.Attributes{
+						"x-model.boolean": "form.sleepApplication",
+						"x-bind:checked":  "form.sleepApplication == 'true'",
+						"@change":         "form.sleepApplication = $el.checked ? 'true' : 'false'",
+					},
+				})
+				if specSvc.IsStateful(application.Spec) {
+					@shared.WarningAlert("Horizontal scaling is disabled for stateful applications", `Max replica is one for
+				stateful applications having volume attached or cron applications`)
+				} else {
+					@shared.Range(&shared.RangeProps{
+						Name:     "maxReplicas",
+						Label:    "Max Replicas",
+						Legend:   "Replicas",
+						Min:      "1",
+						Max:      helpers.ToInt64String(restrictions.MaxInstance),
+						Step:     "1",
+						FormName: "form.maxReplicas",
+					})
+				}
+			</div>
+			<div class="flex flex-col gap-2">
+				<h3>Limits</h3>
+				@shared.Range(&shared.RangeProps{
+					Name:     "cpu",
+					Label:    "CPU",
+					Legend:   "vCPU",
+					Min:      "1",
+					Max:      helpers.ToInt64String(restrictions.MaxCPU),
+					Step:     "1",
+					FormName: "form.cpu",
+				})
+				@shared.Range(&shared.RangeProps{
+					Name:     "memory",
+					Label:    "Memory",
+					Legend:   "GB",
+					Min:      "0.5",
+					Max:      helpers.ToFloat64String(restrictions.MaxMemory),
+					Step:     "0.5",
+					FormName: "form.memory",
+				})
+			</div>
+			<div class="form">
+				<h3 class="w-full mt-2">Healthcheck</h3>
+				@shared.NewInput(&shared.NewInputProps{
+					Name:        "healthcheckPath",
+					Label:       "Path",
+					Placeholder: "/healthz",
+					Attrs: templ.Attributes{
+						"x-model": "form.healthcheckPath",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:  "healthcheckTimeout",
+					Label: "Timeout",
+					Type:  "number",
+					Attrs: templ.Attributes{
+						"x-model":            "form.healthcheckTimeout",
+						"x-bind:placeholder": "300",
+						"x-bind:disabled":    "form.healthcheckPath === '' || form.healthcheckPath === undefined",
+					},
+				})
+			</div>
+		</div>
+	}
+}

@@ -1,5 +1,6 @@
 package shared
 
+import "fmt"
 import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 
 type NewInputProps struct {
@@ -17,10 +18,11 @@ type NewInputProps struct {
 	WrapperAttrs templ.Attributes
 
 	//action params
-	Disabled bool
-	Hidden   bool
-	Required bool
-	Readonly bool
+	Disabled  bool
+	Hidden    bool
+	Required  bool
+	Readonly  bool
+	AllowCopy bool
 }
 
 templ NewInput(props *NewInputProps) {
@@ -42,8 +44,11 @@ templ NewInput(props *NewInputProps) {
 					}
 				</div>
 			}
-			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
-				<div class="relative" x-data="{ show: false }">
+			<div
+				class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }
+				x-data="{ show: false, copyMsg: false }"
+			>
+				<div class="relative">
 					<input
 						name={ props.Name }
 						placeholder={ props.Placeholder }
@@ -75,11 +80,23 @@ templ NewInput(props *NewInputProps) {
 						{ props.Attrs... }
 					/>
 					if props.Type == "password" && !props.Disabled {
-						<div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-foreground-muted hover:text-foreground">
+						<div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-foreground-lighter hover:text-foreground">
 							<i class={ icons.ShownIcon } x-show="!show" x-on:click="show = true" x-cloak></i>
 							<i class={ icons.HiddenIcon } x-show="show" x-on:click="show = false" x-cloak></i>
 						</div>
 					}
+					if props.AllowCopy && props.Name != "" {
+						<button
+							type="button"
+							class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-foreground-lighter hover:text-foreground"
+							@click={ fmt.Sprintf("navigator.clipboard.writeText(document.querySelector('input[name=%s]').value), copyMsg = true, setTimeout(() => copyMsg = false, 1000)", props.Name) }
+						>
+							@Icon(icons.CopyIcon, "cursor-pointer")
+						</button>
+					}
+				</div>
+				<div x-show="copyMsg" x-transition x-cloak class="text-xs text-success">
+					Copied to clipboard!
 				</div>
 				<div id={ props.Name + "-error" }></div>
 				if props.ValueDescription != "" {

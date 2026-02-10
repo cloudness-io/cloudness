@@ -6,6 +6,7 @@ import (
 
 	"github.com/cloudness-io/cloudness/app/controller/tenant"
 	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vtenant"
 
@@ -41,10 +42,6 @@ func HandlePatchGeneralSettings(tenantCtrl *tenant.Controller) http.HandlerFunc 
 			return
 		}
 
-		canEdit := canEdit(ctx, tenantCtrl, tenant)
-
-		ctx = request.WithTenant(ctx, tenant)
-		render.Page(ctx, w, vtenant.Settings(tenant, canEdit))
-		render.ToastSuccess(ctx, w, "Settings updated successfully")
+		render.Redirect(w, routes.TenantCtx(ctx)+"/"+routes.TenantSettings)
 	}
 }

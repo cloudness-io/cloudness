@@ -17,7 +17,6 @@ const (
 	hxPreviousUrl
 	hostDomainUrl
 	currentFullUrl
-	targetElement
 	userKey
 	requestIDKey
 	tenantKey
@@ -84,17 +83,6 @@ func WithCurrentFullUrl(parent context.Context, v string) context.Context {
 func CurrentFullUrlFrom(ctx context.Context) (string, bool) {
 	v, ok := ctx.Value(currentFullUrl).(string)
 	return v, ok && v != ""
-}
-
-// WithTargetElement function    returns a copy of parent in which the target element
-func WithTargetElement(parent context.Context, v string) context.Context {
-	return context.WithValue(parent, targetElement, v)
-}
-
-// TargetElementFrom function    returns the value of target element
-func TargetElementFrom(ctx context.Context) string {
-	v, _ := ctx.Value(targetElement).(string)
-	return v
 }
 
 // WithInstanceSettings function    returns a copy of parent in which the instance

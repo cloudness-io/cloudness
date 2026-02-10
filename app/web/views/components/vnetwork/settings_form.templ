@@ -5,43 +5,41 @@ import "github.com/cloudness-io/cloudness/app/utils/routes"
 import "github.com/cloudness-io/cloudness/types"
 
 templ networkSettingsForm(app *types.Application) {
-	<div class="flex flex-col gap-3">
-		<template x-for="(containerPort, index) in form.containerPorts">
-			@shared.Input(&shared.InputProps{
-				Name:     "containerPorts[0]",
-				Label:    "Container Port",
-				Type:     "number",
-				Tooltip:  "The port on the container to listen on",
-				Required: true,
-				Attrs: templ.Attributes{
-					"x-model.number": "form.containerPorts[index]",
-				},
-			})
-		</template>
-		<div id="public-networking" class="flex flex-col gap-1" x-data="{showTCPProxyForm:false,showCustomDomainForm: false}">
-			<h2>Public Networking</h2>
-			<span class="text-xs text-foreground-light">Access to this service publicly through HTTP</span>
-			@serviceDomain(app.Spec)
-			@tcpProxy()
-			<div class="flex flex-row gap-2 mt-2" x-show="!showTCPProxyForm && !showCustomDomainForm">
-				<button
-					type="submit"
-					class="button-inert text-xs w-40"
-					x-show="!form.serviceDomainEnabled"
-					hx-post={ routes.AppNetworkHTTPGenerate }
-				>Generate Domain</button>
-				<button
-					type="button"
-					x-show="!form.tcpProxiesEnabled"
-					x-on:click="showTCPProxyForm = true; $nextTick(() => htmx.process(document.body))"
-					class="button-inert text-xs w-40"
-				>TCP Proxy</button>
-			</div>
+	<template x-for="(containerPort, index) in form.containerPorts">
+		@shared.NewInput(&shared.NewInputProps{
+			Name:             "containerPorts[0]",
+			Label:            "Container Port",
+			Type:             "number",
+			LabelDescription: "The port on the container to listen on",
+			Required:         true,
+			Attrs: templ.Attributes{
+				"x-model.number": "form.containerPorts[index]",
+			},
+		})
+	</template>
+	<div id="public-networking" class="flex flex-col gap-1" x-data="{showTCPProxyForm:false,showCustomDomainForm: false}">
+		<h3>Public Networking</h3>
+		<span class="text-xs text-foreground-light">Access to this service publicly through HTTP</span>
+		@serviceDomain(app.Spec)
+		@tcpProxy()
+		<div class="flex flex-row gap-2 mt-2" x-show="!showTCPProxyForm && !showCustomDomainForm">
+			<button
+				type="submit"
+				class="button-inert text-xs w-40"
+				x-show="!form.serviceDomainEnabled"
+				hx-post={ routes.AppNetworkHTTPGenerate }
+			>Generate Domain</button>
+			<button
+				type="button"
+				x-show="!form.tcpProxiesEnabled"
+				x-on:click="showTCPProxyForm = true; $nextTick(() => htmx.process(document.body))"
+				class="button-inert text-xs w-40"
+			>TCP Proxy</button>
 		</div>
-		<div id="private-networking" class="flex flex-col gap-1">
-			<h2>Private Networking</h2>
-			<span class="text-xs text-foreground-light">Communicate with this service from within the Cloudness network.</span>
-			@privateNetwork(app)
-		</div>
+	</div>
+	<div id="private-networking" class="flex flex-col gap-1">
+		<h3>Private Networking</h3>
+		<span class="text-xs text-foreground-light">Communicate with this service from within the current cloudness environment.</span>
+		@privateNetwork(app)
 	</div>
 }

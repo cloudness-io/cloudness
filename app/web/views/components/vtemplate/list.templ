@@ -7,7 +7,7 @@ templ List(templates []*types.Template, actionUrl string) {
 	<ui class="grid grid-cols-6 gap-3 mt-2 pr-2">
 		for _, template := range templates {
 			<li
-				class="block cursor-pointer border bg-primary col-span-full sm:col-span-3 lg:col-span-2 xl:col-span-1 shadow-xs rounded-sm transition-all duration-150 hover:border-b-link overflow-ellipsis overflow-hidden hover:scale-105"
+				class="block cursor-pointer border bg-primary col-span-full sm:col-span-3 lg:col-span-2 xl:col-span-1	shadow-xs rounded-sm transition-all duration-150 hover:border-b-link overflow-ellipsis overflow-hidden hover:scale-102"
 				hx-get={ fmt.Sprintf("%s/%d", actionUrl, template.ID) }
 			>
 				<div class="flex space-x-3 items-center first:mt-0 mt-1.5 py-3 pl-6 pr-3 rounded-md hover:bg-secondary">

@@ -23,6 +23,7 @@ templ GithubSourceForm(ghApp *types.GithubApp, input *types.ApplicationInput) {
 			"hx-swap":         "innerHTML",
 			"hx-indicator":    "#spinner-repo",
 			"hx-disabled-elt": "#branch",
+			"hx-push-url":     "false",
 		},
 	})
 	@shared.NewDropdown(&shared.NewDropdownProps{
@@ -39,6 +40,7 @@ templ GithubSourceForm(ghApp *types.GithubApp, input *types.ApplicationInput) {
 			"hx-target":    "this",
 			"hx-swap":      "innerHTML",
 			"hx-indicator": "#spinner-branch",
+			"hx-push-url":  "false",
 		},
 	})
 	@vgit.GitBuildConfigForm(input)

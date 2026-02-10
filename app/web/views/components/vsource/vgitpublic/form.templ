@@ -10,10 +10,11 @@ import (
 
 templ GitPublicSourceFrom(input *types.ApplicationInput) {
 	@shared.NewInput(&shared.NewInputProps{
-		Name:     "repoURL_disabled",
-		Value:    input.RepoURL,
-		Label:    "Repository",
-		Disabled: true,
+		Name:      "repoURL_disabled",
+		Value:     input.RepoURL,
+		Label:     "Repository",
+		Disabled:  true,
+		AllowCopy: true,
 		Attrs: templ.Attributes{
 			"x-model": "form.repoURL",
 		},

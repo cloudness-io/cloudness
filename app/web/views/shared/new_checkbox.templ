@@ -1,13 +1,15 @@
 package shared
 
+import "fmt"
+
 type NewCheckboxProps struct {
 	Name             string
 	Label            string
 	LabelDescription string
-	Value            string
 	ValueDescription string
 	Attrs            templ.Attributes
 	Direction        string
+	Class            string
 
 	WrapperAttrs templ.Attributes
 	//action params
@@ -36,7 +38,7 @@ templ NewCheckbox(props *NewCheckboxProps) {
 					<input
 						type="checkbox"
 						name={ props.Name }
-						value={ props.Value }
+						value={ fmt.Sprintf("%t", props.Checked) }
 						if props.Checked {
 							checked
 						}
@@ -48,11 +50,13 @@ templ NewCheckbox(props *NewCheckboxProps) {
 							required
 							aria-required="true"
 						}
-						class="h-4 w-4 rounded border border-control bg-primary appearance-none
+						class={ `h-4 w-4 rounded border border-control bg-primary appearance-none
 						checked:bg-brand checked:border-brand cursor-pointer
 						focus:ring-2 focus:ring-background-control focus:ring-offset-2
 						focus:ring-offset-foreground-muted disabled:cursor-not-allowed
-						disabled:opacity-50 checked:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22white%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.207%204.793a1%201%200%20010%201.414l-5%205a1%201%200%2001-1.414%200l-2-2a1%201%200%20011.414-1.414L6.5%209.086l4.293-4.293a1%201%200%20011.414%200z%22%2F%3E%3C%2Fsvg%3E')]"
+						disabled:opacity-50
+						checked:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22white%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.207%204.793a1%201%200%20010%201.414l-5%205a1%201%200%2001-1.414%200l-2-2a1%201%200%20011.414-1.414L6.5%209.086l4.293-4.293a1%201%200%20011.414%200z%22%2F%3E%3C%2Fsvg%3E')]`,
+						props.Class }
 						{ props.Attrs... }
 					/>
 				</div>

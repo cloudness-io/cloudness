@@ -7,7 +7,6 @@ import (
 	"github.com/cloudness-io/cloudness/app/controller/application"
 	"github.com/cloudness-io/cloudness/app/controller/environment"
 	"github.com/cloudness-io/cloudness/app/request"
-	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vapplication"
 	"github.com/cloudness-io/cloudness/types"
@@ -25,7 +24,6 @@ func RenderAppList(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	tenant, _ := request.TenantFrom(ctx)
 	project, _ := request.ProjectFrom(ctx)
 	env, _ := request.EnvironmentFrom(ctx)
-	target := request.TargetElementFrom(ctx)
 
 	apps, err := appCtrl.List(ctx, tenant.ID, project.ID, env.ID)
 	if err != nil {
@@ -34,7 +32,7 @@ func RenderAppList(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	if request.HxIndicatorFrom(ctx) && target != routes.TargetMain {
+	if request.HxIndicatorFrom(ctx) {
 		render.HTMLWithBreadCrumb(ctx, w, vapplication.List(env, apps))
 		return
 	}

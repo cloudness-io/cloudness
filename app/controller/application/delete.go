@@ -10,17 +10,7 @@ import (
 )
 
 type AppDeleteOption struct {
-	Name    string `json:"name"`
-	Confirm string `json:"confirm"`
-	Volume  bool   `json:"volume,string"`
-}
-
-func DefaultDeleteOption(app *types.Application) *AppDeleteOption {
-	return &AppDeleteOption{
-		Name:    app.Name,
-		Confirm: "",
-		Volume:  true,
-	}
+	Volume bool `json:"volume,string"`
 }
 
 func (c *Controller) softDeleteInternal(ctx context.Context, app *types.Application, now int64) error {

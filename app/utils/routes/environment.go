@@ -39,10 +39,6 @@ func EnvironmentUID(envUID int64) string {
 	return fmt.Sprintf("%s/%d", EnvironmentBase, envUID)
 }
 
-func EnvironmentApplicationCtx(ctx context.Context) string {
-	return fmt.Sprintf("%s/%s%s", EnvironmentCtx(ctx), EnvironmentApplication, TargetMainQuery)
-}
-
 func HasApplicationRoute(url string, env *types.Environment) bool {
 	return strings.Contains(url, fmt.Sprintf("/environment/%d/application/", env.UID))
 }
