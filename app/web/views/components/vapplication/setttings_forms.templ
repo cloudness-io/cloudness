@@ -52,8 +52,8 @@ templ settingsDeployForm(project *types.Project, application *types.Application,
 					"x-model": "form.startCommand",
 				},
 			})
-			<div class="flex flex-col gap-2">
-				<h3 class="w-full">Application Scaling</h3>
+			<div class="flex flex-col gap-4">
+				@shared.AppFormSubheader("Scaling", "Configure the scaling of the application")
 				@shared.NewCheckbox(&shared.NewCheckboxProps{
 					Name:             "sleepApplication",
 					Label:            "Auto Sleep",
@@ -68,20 +68,23 @@ templ settingsDeployForm(project *types.Project, application *types.Application,
 					@shared.WarningAlert("Horizontal scaling is disabled for stateful applications", `Max replica is one for
 				stateful applications having volume attached or cron applications`)
 				} else {
-					@shared.Range(&shared.RangeProps{
-						Name:     "maxReplicas",
-						Label:    "Max Replicas",
-						Legend:   "Replicas",
-						Min:      "1",
-						Max:      helpers.ToInt64String(restrictions.MaxInstance),
-						Step:     "1",
+					@shared.NewRange(&shared.NewRangeProps{
+						Name:   "maxReplicas",
+						Label:  "Max Replicas",
+						Legend: "Replicas",
+						Min:    "1",
+						Max:    helpers.ToInt64String(restrictions.MaxInstance),
+						Step:   "1",
+						Attrs: templ.Attributes{
+							"x-model": "form.maxReplicas",
+						},
 						FormName: "form.maxReplicas",
 					})
 				}
 			</div>
-			<div class="flex flex-col gap-2">
-				<h3>Limits</h3>
-				@shared.Range(&shared.RangeProps{
+			<div class="flex flex-col gap-4">
+				@shared.AppFormSubheader("Resources", "Configure the resources of the application")
+				@shared.NewRange(&shared.NewRangeProps{
 					Name:     "cpu",
 					Label:    "CPU",
 					Legend:   "vCPU",
@@ -90,7 +93,7 @@ templ settingsDeployForm(project *types.Project, application *types.Application,
 					Step:     "1",
 					FormName: "form.cpu",
 				})
-				@shared.Range(&shared.RangeProps{
+				@shared.NewRange(&shared.NewRangeProps{
 					Name:     "memory",
 					Label:    "Memory",
 					Legend:   "GB",
@@ -100,8 +103,8 @@ templ settingsDeployForm(project *types.Project, application *types.Application,
 					FormName: "form.memory",
 				})
 			</div>
-			<div class="form">
-				<h3 class="w-full mt-2">Healthcheck</h3>
+			<div class="flex flex-col gap-4">
+				@shared.AppFormSubheader("Healthcheck", "Configure the healthcheck of the application")
 				@shared.NewInput(&shared.NewInputProps{
 					Name:        "healthcheckPath",
 					Label:       "Path",

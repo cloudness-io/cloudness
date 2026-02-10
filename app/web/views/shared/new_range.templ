@@ -1,0 +1,93 @@
+package shared
+
+import "fmt"
+
+type NewRangeProps struct {
+	Name             string
+	Label            string
+	LabelDescription string
+	Value            string
+	ValueDescription string
+	Attrs            templ.Attributes
+	Direction        string
+	Class            string
+
+	//action params
+	Disabled bool
+
+	//Range related
+	FormName string
+	Legend   string
+	Min      string
+	Max      string
+	Step     string
+
+	WrapperAttrs templ.Attributes
+}
+
+templ NewRange(props *NewRangeProps) {
+	<div
+		{ props.WrapperAttrs... }
+	>
+		<div
+			class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction ==
+		"vertical") }
+		>
+			if props.Label != "" {
+				<div class={ "transition-all duration-500 ease-in-out col-span-4 flex flex-col gap-2",templ.KV("col-span-12",props.Direction == "vertical") }>
+					<label class="text peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm transition-colors text-foreground flex gap-2 items-center break-all leading-normal">
+						<span>{ props.Label }</span>
+					</label>
+					if props.LabelDescription != "" {
+						<div id={ props.Name + "-description" } class="text-xs text-foreground-lighter">{ props.LabelDescription }</div>
+					}
+				</div>
+			}
+			<div
+				class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }
+				x-data="{ show: false, copyMsg: false }"
+			>
+				<div class="relative">
+					<div class="flex flex-col space-y-2 p-2 border rounded-md transition-colors ease-out w-full bg-foreground/[.026]">
+						<div
+							class="flex justify-between items-center h-5"
+						>
+							<p class="text-sm text-foreground-light">
+								{ props.Label }: 
+								<span class="font-semibold text-foreground">
+									<span x-text={ props.FormName }></span> { props.Legend }
+								</span>
+							</p>
+							<p
+								class="text-sm text-foreground-light"
+							>Limit: { props.Max } { props.Legend }</p>
+						</div>
+						<input
+							type="range"
+							id={ props.Name }
+							name={ props.Name }
+							min={ props.Min }
+							max={ props.Max }
+							step={ props.Step }
+							x-model={ props.FormName }
+							:style={ fmt.Sprintf("`background: linear-gradient(to right, var(--color-foreground-lighter) ${(%s - %s) / (%s - %s) * 100}%%, color-mix(in srgb, var(--color-foreground) 10%%, transparent) ${(%s - %s) / (%s - %s) * 100}%%)`", props.FormName, props.Min, props.Max, props.Min, props.FormName, props.Min, props.Max, props.Min) }
+							if props.Disabled {
+								disabled
+							}
+							class={ `w-full h-2 my-3 appearance-none rounded-full bg-foreground/10 cursor-pointer disabled:cursor-not-allowed [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-foreground-lighter [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-150 [&::-webkit-slider-thumb]:ease-out [&::-webkit-slider-thumb]:hover:scale-125 [&::-webkit-slider-thumb]:active:scale-110 [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-foreground-lighter [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-150 [&::-moz-range-thumb]:ease-out [&::-moz-range-thumb]:hover:scale-125 [&::-moz-range-thumb]:active:scale-110 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:h-2 [&::-moz-range-progress]:rounded-full [&::-moz-range-progress]:h-2 [&::-moz-range-progress]:bg-foreground-lighter`,
+						props.Class }
+							value={ props.Value }
+							{ props.Attrs... }
+						/>
+					</div>
+					<div id={ props.Name + "-error" }></div>
+					if props.ValueDescription != "" {
+						<div id={ props.Name + "-value-description" } class="text-foreground-lighter text-xs mt-2">
+							@templ.Raw(props.ValueDescription)
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

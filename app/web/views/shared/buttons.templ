@@ -71,13 +71,29 @@ templ AddButtonNeutral(text string, actionURL string) {
 	</a>
 }
 
+templ AddButtonNeutralNew(text string, attr templ.Attributes) {
+	<a
+		data-size="tiny"
+		type="button"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out
+		duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border bg-selection hover:bg-secondary-hover
+		border-button-hover hover:border-stronger focus-visible:outline-brand-600 outline-brand-600
+		disabled:bg-secondary-hover disabled:border-strong text-xs px-2.5 py-1 h-[26px]"
+		{ attr... }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">{ text }</span>
+	</a>
+}
+
 templ ButtonNeutral(text string, attr templ.Attributes) {
 	<button
-		class="relative justify-center cursor-pointer items-center space-x-2
-							text-center font-regular ease-out duration-200 rounded-md outline-none transition-all outline-0
-							focus-visible:outline-4 focus-visible:outline-offset-1 border text-foreground bg-selection hover:bg-selection border-button-hover hover:border-stronger
-							focus-visible:outline-brand-600 outline-brand-600
-							disabled:border-strong text-xs px-2.5 py-1 h-[26px]"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out
+		duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border bg-selection hover:bg-secondary-hover
+		border-button-hover hover:border-stronger focus-visible:outline-brand-600 outline-brand-600
+		disabled:bg-secondary-hover disabled:border-strong text-xs px-2.5 py-1 h-[26px]"
 		{ attr... }
 	>
 		<span class="truncate">{ text }</span>
