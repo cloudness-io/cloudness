@@ -65,8 +65,7 @@ templ settingsDeployForm(project *types.Project, application *types.Application,
 					},
 				})
 				if specSvc.IsStateful(application.Spec) {
-					@shared.WarningAlert("Horizontal scaling is disabled for stateful applications", `Max replica is one for
-				stateful applications having volume attached or cron applications`)
+					@shared.WarningAlert("Scaling is limited for this app", `This app can run only one replica because it uses persistent storage or is a scheduled jobs.`)
 				} else {
 					@shared.NewRange(&shared.NewRangeProps{
 						Name:   "maxReplicas",
