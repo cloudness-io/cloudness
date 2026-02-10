@@ -101,17 +101,11 @@ templ settingsFooter() {
 			<p class="font-semibold">You have unsaved changes.</p>
 		</div>
 		<div class="flex gap-2">
-			<button type="button" class="button-neutral" x-on:click="reset()">
-				Reset
-			</button>
-			<button
-				type="submit"
-				class="button-primary"
-				:disabled="JSON.stringify(form) == JSON.stringify(initial)"
-				hx-swap="none"
-			>
-				Save	
-			</button>
+			@shared.ButtonNeutral("Reset", templ.Attributes{"x-on:click": "reset()"})
+			@shared.ButtonPrimary("Update", templ.Attributes{
+				":disabled": "JSON.stringify(form) == JSON.stringify(initial)",
+				"hx-swap":   "none",
+			})
 		</div>
 	</div>
 }

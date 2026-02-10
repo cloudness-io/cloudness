@@ -54,7 +54,7 @@ templ addTeamFrom() {
 				<div
 					class="flex items-end col-span-8 space-x-2 ml-auto"
 				>
-					@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantBaseURL()})
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "hx-get": routes.TenantBaseURL()})
 					@shared.ButtonPrimary("Create Team", templ.Attributes{
 						"type": "submit",
 					})

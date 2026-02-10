@@ -1,27 +1,7 @@
 package vapplication
 
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
-import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
-
-func getArtifactsOption(artifacts []*types.Artifact) []*shared.DropdownOption {
-	opt := make([]*shared.DropdownOption, 0)
-	if len(artifacts) > 1 {
-		opt = append(opt, &shared.DropdownOption{Name: "All", Value: "all"})
-	}
-	for _, artifact := range artifacts {
-		opt = append(opt, &shared.DropdownOption{Name: artifact.Name, Value: artifact.UID})
-	}
-	return opt
-}
-
-templ artifactSelector(app *types.Application, artifacts []*types.Artifact) {
-	@shared.Dropdown(&shared.DropdownProps{
-		Name:     "artifact",
-		Label:    "Instance",
-		Options2: getArtifactsOption(artifacts),
-	})
-}
 
 templ noApplicationCard() {
 	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">

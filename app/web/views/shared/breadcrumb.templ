@@ -101,17 +101,3 @@ templ dropdownPopover(crumb *dto.NavItem) {
 		</div>
 	</div>
 }
-
-templ BreadCrumbDropdownList(items []*dto.BreadCrumbListItem) {
-	if len(items) == 0 {
-		<span>No items</span>
-	} else {
-		for _, item := range items {
-			<a
-				hx-push-url="true"
-				href={ item.Link }
-				class="block px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-brand"
-			>{ item.Name }</a>
-		}
-	}
-}

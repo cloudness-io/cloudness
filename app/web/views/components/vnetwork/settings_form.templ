@@ -18,7 +18,7 @@ templ networkSettingsForm(app *types.Application) {
 	</template>
 	<div id="public-networking" class="flex flex-col gap-4" x-data="{showTCPProxyForm:false,showCustomDomainForm: false}">
 		@shared.AppFormSubheader("Public Networking", "Access to this service publicly through HTTP")
-		@serviceDomain(app.Spec)
+		@publicDomain(app.Spec)
 		@tcpProxy()
 	</div>
 	<div id="private-networking" class="flex flex-col gap-4">

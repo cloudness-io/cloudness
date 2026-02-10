@@ -55,7 +55,7 @@ templ addProjectFrom() {
 				<div
 					class="flex items-end col-span-8 space-x-2 ml-auto"
 				>
-					@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.TenantCtx(ctx)})
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "hx-get": routes.TenantCtx(ctx)})
 					@shared.ButtonPrimary("Create Project", templ.Attributes{
 						"type": "submit",
 					})

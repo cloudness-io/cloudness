@@ -7,15 +7,15 @@ import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/xdata"
 import "github.com/cloudness-io/cloudness/app/controller/application"
 
-templ serviceDomain(spec *types.ApplicationSpec) {
+templ publicDomain(spec *types.ApplicationSpec) {
 	@shared.GeneralFromComp(&shared.GeneralFormCompProps{
 		Label:            "Public Domain",
 		LabelDescription: "Public domain name for your service",
-		Value:            serviceDomainForm(spec),
+		Value:            publicDomainForm(spec),
 	})
 }
 
-templ serviceDomainForm(spec *types.ApplicationSpec) {
+templ publicDomainForm(spec *types.ApplicationSpec) {
 	@shared.AddButtonNeutralNew("Public Domain", templ.Attributes{
 		"x-show":  "!form.serviceDomainEnabled",
 		"hx-post": routes.AppNetworkHTTPGenerate,
