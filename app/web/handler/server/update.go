@@ -24,7 +24,7 @@ func HandlePatchGeneral(serverCtrl *server.Controller) http.HandlerFunc {
 		server, err := serverCtrl.UpdateGeneral(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating server")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -46,7 +46,7 @@ func HandlePatchNetwork(serverCtrl *server.Controller) http.HandlerFunc {
 		server, err := serverCtrl.UpdateNetwork(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating server")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -68,7 +68,7 @@ func HandlePatchBuilder(serverCtrl *server.Controller) http.HandlerFunc {
 		server, err := serverCtrl.UpdateBuilder(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating server")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -90,7 +90,7 @@ func HandlePatchLimits(serverCtrl *server.Controller) http.HandlerFunc {
 		server, err := serverCtrl.UpdateLimits(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating server")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

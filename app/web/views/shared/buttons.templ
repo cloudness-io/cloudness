@@ -1,0 +1,133 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ NavButtonPrimary(text string, actionURL string) {
+	<a
+		data-size="tiny"
+		type="button"
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out duration-200
+rounded-md outline-none transition-all outline-0 focus-visible:outline-4 focus-visible:outline-offset-1 border
+bg-brand-500/80 hover:bg-brand/50 text-foreground outline-brand-600
+border-brand hover:border-brand focus-visible:outline-brand-600
+disabled:bg-brand/70 disabled:border-brand/30 text-xs
+px-2.5 py-1 h-[26px]"
+		href={ actionURL }
+	>
+		<span class="truncate">{ text }</span>
+	</a>
+}
+
+templ AddButton(text string, actionURL string) {
+	<a
+		data-size="tiny"
+		type="button"
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out duration-200
+rounded-md outline-none transition-all outline-0 focus-visible:outline-4 focus-visible:outline-offset-1 border
+bg-brand-500/80 hover:bg-brand/50 text-foreground outline-brand-600
+border-brand hover:border-brand focus-visible:outline-brand-600
+disabled:bg-brand/70 disabled:border-brand/30 text-xs
+px-2.5 py-1 h-[26px]"
+		href={ actionURL }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">{ text }</span>
+	</a>
+}
+
+templ AddButtonNew(text string, attr templ.Attributes) {
+	<button
+		data-size="tiny"
+		type="button"
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out duration-200
+rounded-md outline-none transition-all outline-0 focus-visible:outline-4 focus-visible:outline-offset-1 border
+bg-brand-500/80 hover:bg-brand/50 text-foreground outline-brand-600
+border-brand hover:border-brand focus-visible:outline-brand-600
+disabled:bg-brand/70 disabled:border-brand/30 text-xs
+px-2.5 py-1 h-[26px]"
+		{ attr... }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">{ text }</span>
+	</button>
+}
+
+templ AddButtonNeutral(text string, actionURL string) {
+	<a
+		data-size="tiny"
+		type="button"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out
+		duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border bg-selection hover:bg-secondary-hover
+		border-button-hover hover:border-stronger focus-visible:outline-brand-600 outline-brand-600
+		disabled:bg-secondary-hover disabled:border-strong text-xs px-2.5 py-1 h-[26px]"
+		href={ actionURL }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">{ text }</span>
+	</a>
+}
+
+templ AddButtonNeutralNew(text string, attr templ.Attributes) {
+	<a
+		data-size="tiny"
+		type="button"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out
+		duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border bg-selection hover:bg-secondary-hover
+		border-button-hover hover:border-stronger focus-visible:outline-brand-600 outline-brand-600
+		disabled:bg-secondary-hover disabled:border-strong text-xs px-2.5 py-1 h-[26px]"
+		{ attr... }
+	>
+		@Icon(icons.AddIcon, "icon-2xs")
+		<span class="truncate">{ text }</span>
+	</a>
+}
+
+templ ButtonNeutral(text string, attr templ.Attributes) {
+	<button
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center font-regular ease-out
+		duration-200 rounded-md outline-none transition-all outline-0 focus-visible:outline-4
+		focus-visible:outline-offset-1 border bg-selection hover:bg-secondary-hover
+		border-button-hover hover:border-stronger focus-visible:outline-brand-600 outline-brand-600
+		disabled:bg-secondary-hover disabled:border-strong text-xs px-2.5 py-1 h-[26px]"
+		{ attr... }
+	>
+		<span class="truncate">{ text }</span>
+	</button>
+}
+
+templ ButtonPrimary(text string, attr templ.Attributes) {
+	<button
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center
+							font-regular ease-out duration-200 rounded-md outline-none transition-all outline-0
+							focus-visible:outline-4 focus-visible:outline-offset-1 border bg-brand-500
+							hover:bg-brand/50 text-foreground border-brand/30
+							hover:border-brand focus-visible:outline-brand-600
+							disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+							text-xs px-2.5 py-1 h-[26px]"
+		{ attr... }
+	>
+		<span class="truncate">{ text }</span>
+	</button>
+}
+
+templ ButtonDanger(text string, attr templ.Attributes) {
+	<button
+		tabindex="0"
+		class="relative justify-center cursor-pointer inline-flex items-center space-x-2 text-center
+							font-regular ease-out duration-200 rounded-md outline-none transition-all outline-0
+							focus-visible:outline-4 focus-visible:outline-offset-1 border bg-error/50
+							hover:bg-error/70 text-foreground border-error/30
+							hover:border-brand/50 focus-visible:outline-brand/60
+							disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+							text-xs px-2.5 py-1 h-[26px]"
+		{ attr... }
+	>
+		<span class="truncate">{ text }</span>
+	</button>
+}

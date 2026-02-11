@@ -21,6 +21,7 @@ func ProvideService(
 	envStore store.EnvironmentStore,
 	appStore store.ApplicationStore,
 	volumeStore store.VolumeStore,
+	tokenStore store.TokenStore,
 	serverFactory manager.ManagerFactory,
 ) *Service {
 	return New(
@@ -32,6 +33,7 @@ func ProvideService(
 		envStore,
 		appStore,
 		volumeStore,
+		tokenStore,
 		serverFactory,
 	)
 }

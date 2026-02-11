@@ -21,14 +21,14 @@ templ Range(props *RangeProps) {
 		<div
 			class="flex justify-between items-center h-5"
 		>
-			<p class="text-sm text-tx-secondary">
+			<p class="text-sm text-foreground-light">
 				{ props.Label }: 
 				<span class="font-semibold text-foreground">
 					<span x-text={ props.FormName }></span> { props.Legend }
 				</span>
 			</p>
 			<p
-				class="text-sm text-tx-secondary"
+				class="text-sm text-foreground-light"
 			>Limit: { props.Max } { props.Legend }</p>
 		</div>
 		<input

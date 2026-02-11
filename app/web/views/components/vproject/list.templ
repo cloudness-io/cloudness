@@ -2,12 +2,109 @@ package vproject
 
 import (
 	"context"
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/common"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
+
+templ ListProjects(projects []*types.Project) {
+	if len(projects) == 0 {
+		if request.IsTeamAdmin(ctx) {
+			@addProjectCard()
+		} else {
+			@noProjectAccessCard()
+		}
+	} else {
+		<div
+			class="flex flex-col gap-y-4"
+			x-data="{
+				search: '',
+				matchCount: 0,
+				normalize(value) {
+					return (value || '').toString().toLowerCase().trim();
+				},
+				matches(value) {
+					const term = this.normalize(this.search);
+					if (!term) return true;
+					return this.normalize(value).includes(term);
+				},
+				updateMatchCount() {
+					if (!this.$refs.projectGrid) return;
+					this.matchCount = Array.from(this.$refs.projectGrid.querySelectorAll('[data-project-search]'))
+						.filter((card) => this.matches(card.dataset.projectSearch)).length;
+				},
+			}"
+			x-init="updateMatchCount()"
+			x-effect="updateMatchCount()"
+		>
+			<div class="flex items-center justify-between">
+				@shared.SearchBox(&shared.SearchBoxProps{
+					Placeholder: "Search for a project",
+					Attr: templ.Attributes{
+						"x-model.debounce.150ms": "search",
+					},
+				})
+				<div id="add-project">
+					if request.IsTeamAdmin(ctx) {
+						@shared.AddButton("New Project", routes.ProjectNew())
+					}
+				</div>
+			</div>
+			@list(projects)
+		</div>
+	}
+}
+
+templ list(projects []*types.Project) {
+	<div
+		class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+		x-ref="projectGrid"
+		x-show="matchCount > 0 || !search"
+		x-transition.opacity.duration.120ms
+	>
+		for _, p := range projects {
+			<a
+				href={ routes.Project(p.UID) }
+				data-project-search={ fmt.Sprintf("%s %d", p.Name, p.UID) }
+				x-show="matches($el.dataset.projectSearch)"
+				x-transition.opacity.duration.100ms
+				x-cloak
+			>
+				@shared.CardContainerClickable() {
+					<div class="relative flex items-start gap-3">
+						<div class="rounded-full bg-primary border w-8 h-8 flex items-center justify-center flex-shrink-0">
+							@shared.Icon(icons.ProjectIcon, "icons-xs text-foreground")
+						</div>
+						<div class="flex-grow flex flex-col gap-0 min-w-0">
+							<h3 title={ p.Name } class="text-sm text-foreground mb-0 truncate max-w-full">{ p.Name }</h3>
+							<div class="flex items-center justify-between text-xs text-foreground-light font-sans">
+								<div class="flex items-center gap-x-1.5">
+									<span class="line-clamp-1">{ p.Description }</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</a>
+		}
+	</div>
+	<div
+		class="flex items-center justify-between bg-secondary px-4 md:px-6 py-4 rounded-md border border-default"
+		x-show="matchCount === 0 && search"
+		x-transition:enter.opacity.duration.150ms.delay.150ms
+		x-cloak
+	>
+		<div class="text-sm flex flex-col gap-y-0.5">
+			<p class="text-foreground">No results found</p>
+			<p
+				class="text-foreground-lighter"
+			>Your search for “<span x-text="search"></span>” did not return any results</p>
+		</div>
+	</div>
+}
 
 func getProjectMenuDropdownProps(ctx context.Context, project *types.Project) []*shared.MenuDropDownProps {
 	props := []*shared.MenuDropDownProps{}
@@ -31,33 +128,4 @@ func getProjectMenuDropdownProps(ctx context.Context, project *types.Project) []
 	})
 
 	return props
-}
-
-templ ListProjects(projects []*types.Project) {
-	<div hx-push-url="true" hx-sync="#main:drop">
-		<table class="min-w-full divide-y bg-primary text-left">
-			<thead>
-				<tr>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Name</th>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden text-ellipsis">Description</th>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[20%] hidden md:block">Created</th>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[10%]"></th>
-				</tr>
-			</thead>
-			<tbody class="divide-y overflow-y-visible">
-				for _,project := range projects {
-					<tr class="hover:bg-secondary group cursor-pointer" hx-get={ routes.Project(project.UID) }>
-						<td class="whitespace-nowrap px-4 py-2 link">{ project.Name }</td>
-						<td class="whitespace-nowrap px-4 py-2 max-w-40 sm:max-w-full truncate overflow-hidden text-ellipsis">{ project.Description }</td>
-						<td class="whitespace-nowrap px-4 py-2 hidden md:block">
-							@common.DateTimeYear(project.Created)
-						</td>
-						<td class="whitespace-nowrap px-4 py-2 text-right">
-							@shared.MenuDropDown(getProjectMenuDropdownProps(ctx, project))
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
 }

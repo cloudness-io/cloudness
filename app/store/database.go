@@ -394,6 +394,12 @@ type (
 		// List lists the templates
 		List(ctx context.Context) ([]*types.Template, error)
 
+		// ListTags lists all template tags
+		ListTags(ctx context.Context) ([]*types.Tag, error)
+
+		// ListByTag lists templates associated with a tag slug
+		ListByTag(ctx context.Context, tag string) ([]*types.Template, error)
+
 		// List by slugs
 		ListBySlugs(ctx context.Context, slugs []string) ([]*types.Template, error)
 

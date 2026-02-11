@@ -56,22 +56,23 @@ func getTemplate(fileName string) *template.Template {
 
 type (
 	TemplateIn struct {
-		Identifier    string
-		Namespace     string
-		HasState      bool
-		Image         string
-		Command       []string
-		Args          []string
-		ServicePorts  []int
-		PrivateDomain string
-		ServiceDomain *ServiceDomain
-		Volumes       []*Volume
-		MaxReplicas   int64
-		CPU           int64
-		Memory        float64
-		Variables     map[string]string
-		Secrets       map[string]string
-		UpdatedAt     string
+		Identifier          string
+		CloudnessIdentifier string
+		Namespace           string
+		HasState            bool
+		Image               string
+		Command             []string
+		Args                []string
+		ServicePorts        []int
+		PrivateDomain       string
+		ServiceDomain       *ServiceDomain
+		Volumes             []*Volume
+		MaxReplicas         int64
+		CPU                 int64
+		Memory              float64
+		Variables           map[string]string
+		Secrets             map[string]string
+		UpdatedAt           string
 	}
 
 	ServiceDomain struct {

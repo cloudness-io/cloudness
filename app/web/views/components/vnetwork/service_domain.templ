@@ -7,15 +7,27 @@ import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/xdata"
 import "github.com/cloudness-io/cloudness/app/controller/application"
 
-templ serviceDomain(spec *types.ApplicationSpec) {
-	<template x-if="form.serviceDomainEnabled">
-		<div>
+templ publicDomain(spec *types.ApplicationSpec) {
+	@shared.GeneralFromComp(&shared.GeneralFormCompProps{
+		Label:            "Public Domain",
+		LabelDescription: "Public domain name for your service",
+		Value:            publicDomainForm(spec),
+	})
+}
+
+templ publicDomainForm(spec *types.ApplicationSpec) {
+	@shared.AddButtonNeutralNew("Public Domain", templ.Attributes{
+		"x-show":  "!form.serviceDomainEnabled",
+		"hx-post": routes.AppNetworkHTTPGenerate,
+	})
+	<template x-if="form.serviceDomainEnabled" class="w-full">
+		<div class="w-full">
 			//inputs for whole settings update
 			<input type="hidden" name="serviceDomainFQDN" x-bind:value="form.serviceDomainFQDN"/>
 			<input type="hidden" name="serviceDomainPort" x-bind:value="form.serviceDomainPort"/>
 			<input type="hidden" name="serviceDomainPath" x-bind:value="form.serviceDomainPath"/>
 			<div
-				class="py-1 border rounded-lg max-w-sm sm:max-w-md md:max-w-lg w-full"
+				class="py-1 border rounded-lg w-full w-full bg-overlay-default"
 				x-data="{ edit: false}"
 				x-cloak
 			>
@@ -24,13 +36,13 @@ templ serviceDomain(spec *types.ApplicationSpec) {
 						<a
 							x-bind:href="form.serviceDomainFQDN"
 							target="_blank"
-							class="focus:outline-none focus-visible:ring-2 focus-visible:ring-brand group/link overflow-hidden overflow-ellipsis flex-grow text-left text-sm"
+							class="focus:outline-none focus-visible:ring-2 focus-visible:ring-brand group/link overflow-hidden overflow-ellipsis flex-grow text-left"
 						>
 							<span x-text="form.serviceDomainFQDN" class="group-hover/link:underline"></span>
 						</a>
-						<div class="items-center space-x-1 flex flex-row align-middle text-xs font-semibold">
+						<div class="items-center space-x-1 flex flex-row align-middle text-xs text-foreground-light">
 							<i class="ph ph-arrow-right icon-sm"></i>
-							<p class="text-xs">
+							<p>
 								Port <span x-text="form.serviceDomainPort" class="font-mono"></span>
 							</p>
 						</div>
@@ -39,63 +51,51 @@ templ serviceDomain(spec *types.ApplicationSpec) {
 						<i class={ icons.CancelIcon, "text-error cursor-pointer" } x-show="edit" x-on:click="edit = false"></i>
 						<i class={ icons.EditIcon, "text-brand cursor-pointer" } x-show="!edit" x-on:click="edit = true"></i>
 						<button type="button" hx-delete={ routes.AppNetworkHTTP } x-show="!edit">
-							<i class={ icons.DeleteIcon, "cursor-pointer" }></i>
+							<i class={ icons.DeleteIcon, "cursor-pointer text-error" }></i>
 						</button>
 					</div>
 				</div>
 				<div x-show="edit" style="opacity: 1; height: auto;">
-					<div class="p-4 space-y-4 border-t">
-						<form class="space-y-4" x-data={ xdata.ToFormData(application.FromDomainSpec(spec)) }>
+					<div class="p-4 space-y-4 border-t-2">
+						<form class="space-y-4" x-data={ xdata.ToFormData(application.FromDomainSpec(spec)) } hx-post={ routes.AppNetworkHTTP }>
+							<input type="hidden" name="scheme" x-bind:value="form.scheme"/>
+							<input type="hidden" name="domain" x-bind:value="form.domain"/>
 							<div class="flex gap-3 items-center">
-								<div class="flex items-center grow justify-between border rounded-md focus-within:border-brand pr-4">
-									<div class="w-full">
-										@shared.Input(&shared.InputProps{
-											Name:        "subdomain",
-											HideLabel:   true,
-											Placeholder: "my-app",
-											Required:    true,
-											Attrs: templ.Attributes{
-												"x-model": "form.subdomain",
-											},
-										})
-									</div>
-									@shared.Input(&shared.InputProps{
-										Name:   "scheme",
-										Hidden: true,
+								<div
+									class="flex items-center grow justify-between border rounded-md focus-visible:ring-2
+						focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted pr-4"
+								>
+									@shared.NewInput(&shared.NewInputProps{
+										Name:        "subdomain",
+										Direction:   "vertical",
+										Placeholder: "my-app",
+										Class:       "md:min-w-sm",
+										Required:    true,
 										Attrs: templ.Attributes{
-											"x-model": "form.scheme",
+											"x-model": "form.subdomain",
 										},
 									})
-									@shared.Input(&shared.InputProps{
-										Name:   "domain",
-										Hidden: true,
-										Attrs: templ.Attributes{
-											"x-model": "form.domain",
-										},
-									})
-									<p x-text="form.domain" class="text-xs text-tx-secondary whitespace-nowrap pl-1"></p>
+									<p x-text="form.domain" class="text-xs text-foreground-light whitespace-nowrap pl-1"></p>
 								</div>
 							</div>
-							<p class="text-xs text-tx-secondary">
+							<p class="text-xs text-foreground-light">
 								Enter the port your app is listening on
 							</p>
 							<div class="w-full">
-								<div class="flex items-center relative w-full">
-									@shared.Input(&shared.InputProps{
-										Name:        "serviceDomainPort",
-										Type:        "number",
-										Placeholder: "8080",
-										Required:    true,
-										HideLabel:   true,
-										Attrs: templ.Attributes{
-											"min":     "0",
-											"max":     "65535",
-											"x-model": "form.serviceDomainPort",
-										},
-									})
-								</div>
+								@shared.NewInput(&shared.NewInputProps{
+									Name:        "serviceDomainPort",
+									Type:        "number",
+									Placeholder: "8080",
+									Required:    true,
+									Direction:   "vertical",
+									Attrs: templ.Attributes{
+										"min":     "0",
+										"max":     "65535",
+										"x-model": "form.serviceDomainPort",
+									},
+								})
 							</div>
-							@shared.UpdateDivPost(routes.AppNetworkHTTP)
+							@shared.UpdateDivNew()
 						</form>
 					</div>
 				</div>

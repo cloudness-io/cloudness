@@ -2,6 +2,7 @@ CREATE TABLE tenants (
 	tenant_id							INTEGER PRIMARY KEY AUTOINCREMENT,
 	tenant_uid							INTEGER NOT NULL,
 	tenant_name							TEXT NOT NULL,
+	tenant_slug							TEXT NOT NULL,
 	tenant_description				TEXT,
 	tenant_allow_admin_to_modify  BOOLEAN,
 	tenant_max_projects     		INTEGER,
@@ -19,6 +20,6 @@ CREATE TABLE tenants (
 	tenant_updated						BIGINT NOT NULL,
 	tenant_deleted						BIGINT DEFAULT NULL,
 
-	UNIQUE(tenant_uid)
-
+	UNIQUE(tenant_uid),
+	UNIQUE(tenant_slug)
 );

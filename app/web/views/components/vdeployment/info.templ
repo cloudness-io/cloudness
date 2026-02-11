@@ -6,22 +6,11 @@ import (
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vlog"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vsource"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
 
 templ Info(app *types.Application, d *types.Deployment) {
-	<div class="flex gap-1">
-		@header()
-		<div id="back-button" class="text-xs self-center" hx-push-url="true">
-			<a
-				class="button-link"
-				href={ "deployments" }
-			>
-				<i class="ph ph-arrow-left"></i>
-				Back
-			</a>
-		</div>
-	</div>
 	<div class="flex flex-col gap-2">
 		@info(app, d, d.GetInfo())
 		@vlog.LogContainer(d)
@@ -30,7 +19,7 @@ templ Info(app *types.Application, d *types.Deployment) {
 
 templ info(app *types.Application, d *types.Deployment, info *types.DeploymentInfo) {
 	<div class="flex flex-col gap-1" x-data="{ isExpanded: false }">
-		<div class="flex gap-1">
+		<div class="flex items-center gap-1">
 			@DeploymentStatus(d)
 			<h4>{ info.Title }</h4>
 			if info.Description != "" {
@@ -47,49 +36,61 @@ templ info(app *types.Application, d *types.Deployment, info *types.DeploymentIn
 				x-transition:leave="transition-all ease-in-out duration-500"
 				x-transition:leave-start="opacity-100 max-h-96"
 				x-transition:leave-end="opacity-0 max-h-0 overflow-hidden"
-				class="break-words text-wrap max-w-screen"
+				class="break-words text-wrap max-w-screen text-foreground-lighter"
 			>{ info.Description }</pre>
 		}
 	</div>
 	@vsource.Info(app, d.Spec)
-	<div class="flex flex-col gap-2">
-		<span class="flex gap-1">
-			<span class="text-tx-secondary">
-				Triggered by: 
-			</span>
-			<span>
-				{ d.Triggerer } | { string(d.Action) } at 
-				<span>
-					@common.DateTimeYear(d.Created)
-				</span>
-			</span>
-		</span>
-		if d.Started > 0 {
-			<span class="flex gap-1">
-				<span class="text-tx-secondary">Started: </span>
-				<span>
-					@common.DateTimeYear(d.Started)
-				</span>
-			</span>
-			if d.IsDone() {
-				<span class="flex gap-1">
-					<span class="text-tx-secondary">Ended: </span>
-					<span>
-						@common.DateTimeYear(d.Stopped)
-					</span>
-				</span>
-				<span class="flex gap-1">
-					<span class="text-tx-secondary">Duration: </span>
-					<span>
-						@common.TimeDiff(d.Started, d.Stopped)
-					</span>
-				</span>
-			}
-			if d.Error != "" {
-				<span class="text-error">
-					Error:	{ d.Error }
-				</span>
-			}
+	@shared.DescGridMD() {
+		for _, dtd:= range getDescription(app, d) {
+			@shared.DescTerm(dtd.term)
+			@shared.DescDetail(dtd.details)
 		}
-	</div>
+	}
+}
+
+type DescriptionGridItems struct {
+	term    string
+	details templ.Component
+}
+
+func getDescription(app *types.Application, d *types.Deployment) []*DescriptionGridItems {
+	desc := make([]*DescriptionGridItems, 0)
+
+	desc = append(desc, &DescriptionGridItems{
+		term:    "Triggered By",
+		details: triggeredBy(d),
+	})
+	if d.Started > 0 {
+		desc = append(desc, &DescriptionGridItems{
+			term:    "Started",
+			details: common.DateTimeYear(d.Started),
+		})
+		if d.IsDone() {
+			desc = append(desc, &DescriptionGridItems{
+				term:    "Ended",
+				details: common.DateTimeYear(d.Stopped),
+			})
+			desc = append(desc, &DescriptionGridItems{
+				term:    "Duration",
+				details: common.TimeDiff(d.Started, d.Stopped),
+			})
+		}
+		if d.Error != "" {
+			desc = append(desc, &DescriptionGridItems{
+				term:    "Error",
+				details: shared.TextComp(d.Error),
+			})
+		}
+	}
+	return desc
+}
+
+templ triggeredBy(d *types.Deployment) {
+	<span>
+		{ d.Triggerer } | { string(d.Action) } at 
+		<span>
+			@common.DateTimeYear(d.Created)
+		</span>
+	</span>
 }

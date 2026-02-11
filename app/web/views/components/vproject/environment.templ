@@ -6,15 +6,19 @@ import (
 	"github.com/cloudness-io/cloudness/types"
 )
 
-templ ListEnvs(project *types.Project, envs []*types.Environment, env *types.Environment) {
-	@projectHeader(project)
+templ ListEnvs(project *types.Project, envs []*types.Environment, selected *types.Environment) {
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: ProjectNavEnvironments,
-		Content:    listEnvs(envs, env),
 		Options:    getProjectPageNav(ctx),
-	})
-}
-
-templ listEnvs(envs []*types.Environment, selected *types.Environment) {
-	@venvironment.ListEdit(envs, selected)
+	}) {
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Environments</h1>
+				<div class="heading-subSection text-foreground-light">{ venvironment.EnvironmentDescription }</div>
+			}
+			@shared.PageContentShort() {
+				@venvironment.ListEnvironments(envs)
+			}
+		}
+	}
 }

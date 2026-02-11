@@ -3,7 +3,7 @@ package vvariable
 import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/enum"
 )
@@ -20,17 +20,20 @@ templ addForm(usrVars []*types.UserVariable) {
 					}
 				</div>
 				<div class="flex space-x-1 items-center ml-auto">
-					<button type="button" class="button-primary flex items-center gap-1" x-on:click="header = false">
-						<i class={ icons.AddIcon,"icon-base" }></i>
-						New Variable
-					</button>
+					@shared.AddButtonNew("New Variable", templ.Attributes{"x-on:click": "header = false"})
 				</div>
 			</div>
 		</div>
-		<form x-show="!header" x-cloak>
+		<form
+			x-show="!header"
+			x-cloak
+			hx-push-url="false"
+			hx-swap="none"
+			hx-indicator="#overlay-indicator"
+		>
 			@addVariablesForm()
-			<p id="new_key_error" class="text-error text-xs"></p>
-			<p id="new_value_error" class="text-error text-xs"></p>
+			<p id="new_key-error" class="text-error text-xs"></p>
+			<p id="new_value-error" class="text-error text-xs"></p>
 			<!--
 			<template x-if="!header" x-cloak>
 				@addVariablesForm()
@@ -71,8 +74,8 @@ templ addVariablesForm() {
 			@variableTypeRadio(string(enum.VariableTypeBuildAndRun))
 		</div>
 		<div class="flex space-x-2 h-7">
-			<button type="button" class="button-primary" hx-post={ routes.AppVariables } hx-push-url="false" hx-swap="none">Add</button>
-			<button type="button" class="button-neutral" x-on:click="header = true">Cancel</button>
+			@shared.ButtonPrimary("Add", templ.Attributes{"hx-post": routes.AppVariables})
+			@shared.ButtonNeutral("Cancel", templ.Attributes{"x-on:click": "header = true"})
 		</div>
 	</div>
 }

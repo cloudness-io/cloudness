@@ -24,13 +24,8 @@ func getBaseLayoutDTO(ctx context.Context) *dto.BaseLayoutOption {
 
 	if session, ok := request.AuthSessionFrom(ctx); ok {
 		dto.Nav.DisplayName = session.Principal.DisplayName
+		dto.Nav.Email = session.Principal.Email
 	}
-
-	if tenant, ok := request.TenantFrom(ctx); ok {
-		dto.Nav.TenantName = tenant.Name
-		dto.Nav.TenantUID = tenant.UID
-	}
-
 	return dto
 }
 
@@ -50,7 +45,7 @@ func HTML(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 }
 
 func HTMLWithBreadCrumb(ctx context.Context, w http.ResponseWriter, c templ.Component) {
-	shared.BreadCrumb(true).Render(ctx, w)
+	shared.BreadCrumb().Render(ctx, w)
 	HTML(ctx, w, c)
 }
 
@@ -59,8 +54,8 @@ func Page(ctx context.Context, w http.ResponseWriter, c templ.Component) {
 		w.Header().Set("HX-Reswap", "innerHTML")
 		w.Header().Set("HX-Retarget", "#main")
 		shared.Title().Render(ctx, w)
+		shared.BreadCrumb().Render(ctx, w)
 		shared.BaseUrl().Render(ctx, w)
-		shared.BreadCrumb(false).Render(ctx, w)
 		if _, ok := request.ProjectFrom(ctx); ok {
 			common.RenderSSEStreamer().Render(ctx, w)
 		}
@@ -147,7 +142,7 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 func Forbidden(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if request.HxIndicatorFrom(ctx) {
-		ToastErrorMsg(ctx, w, "Forbidden")
+		ToastErrorMsg(ctx, w, "You do not have permissions to perform this action")
 	} else {
 		currURL, _ := request.HxCallerUrlFrom(ctx)
 		_, ok := request.PrincipalFrom(ctx)

@@ -1,0 +1,51 @@
+package shared
+
+type GeneralFormCompProps struct {
+	Name             string
+	Label            string
+	LabelDescription string
+	Value            templ.Component
+	ValueDescription string
+	Attrs            templ.Attributes
+	Direction        string
+	Class            string
+
+	WrapperAttrs templ.Attributes
+}
+
+templ GeneralFromComp(props *GeneralFormCompProps) {
+	<div
+		class={ "text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction ==
+		"vertical") }
+		{ props.WrapperAttrs... }
+	>
+		if props.Label != "" {
+			<div class={ "transition-all duration-500 ease-in-out col-span-4 flex flex-col gap-2",templ.KV("col-span-12",props.Direction == "vertical") }>
+				<label class="text peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm transition-colors text-foreground flex gap-2 items-center break-all leading-normal">
+					<span>{ props.Label }</span>
+				</label>
+				if props.LabelDescription != "" {
+					<div id={ props.Name + "-description" } class="text-xs text-foreground-lighter">{ props.LabelDescription }</div>
+				}
+			</div>
+		}
+		<div
+			class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }
+		>
+			<div class="w-full">
+				<div
+					class={ "flex w-full",props.Class }
+					{ props.Attrs... }
+				>
+					@props.Value
+				</div>
+			</div>
+			<div id={ props.Name + "-error" }></div>
+			if props.ValueDescription != "" {
+				<div id={ props.Name + "-value-description" } class="text-foreground-lighter text-xs mt-2">
+					@templ.Raw(props.ValueDescription)
+				</div>
+			}
+		</div>
+	</div>
+}

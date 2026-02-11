@@ -1,0 +1,109 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/dto"
+
+templ Popover(comp templ.Component, alignMobile dto.PopoverAlign, alignDesktop dto.PopoverAlign) {
+	<div
+		x-data="{
+        popoverOpen: false,
+        popoverArrow: true,
+        popoverPosition: 'bottom',
+        popoverHeight: 0,
+        popoverOffset: 40,
+        popoverWidth: 288,
+        isCalculating: false,
+        popoverStyle: '',
+        arrowStyle: '',
+        alignMobile: $el.dataset.alignMobile || 'start',
+        alignDesktop: $el.dataset.alignDesktop || 'start',
+        popoverHeightCalculate() {
+            this.isCalculating = true;
+            this.$refs.popover.classList.add('invisible'); 
+            this.popoverOpen=true; 
+            let that=this;
+            $nextTick(function(){ 
+                that.popoverHeight = that.$refs.popover.offsetHeight;
+                that.popoverOpen=false; 
+                that.$refs.popover.classList.remove('invisible');
+                that.$refs.popoverInner.setAttribute('x-transition', '');
+                that.popoverPositionCalculate();
+                that.isCalculating = false;
+            });
+        },
+        getAlignment() {
+            return window.innerWidth >= 768 ? this.alignDesktop : this.alignMobile;
+        },
+        popoverPositionCalculate(){
+            const rect = this.$refs.popoverButton.getBoundingClientRect();
+            const align = this.getAlignment();
+            let leftPos;
+            let arrowLeft;
+            
+            if (align === 'center') {
+                leftPos = rect.left + (rect.width / 2) - (this.popoverWidth / 2);
+                arrowLeft = '50%';
+            } else if (align === 'end') {
+                leftPos = rect.right - this.popoverWidth;
+                arrowLeft = 'auto';
+            } else {
+                leftPos = rect.left;
+                arrowLeft = '12px';
+            }
+            
+            // Ensure popover doesn't go off-screen
+            leftPos = Math.max(8, Math.min(leftPos, window.innerWidth - this.popoverWidth - 8));
+            
+            this.arrowStyle = align === 'end' ? 'right: 12px; left: auto;' : (align === 'center' ? 'left: 50%; transform: translateX(-50%);' : 'left: 12px;');
+            
+            if(window.innerHeight < (rect.top + rect.height + this.popoverOffset + this.popoverHeight)){
+                this.popoverPosition = 'top';
+                this.popoverStyle = `bottom: ${window.innerHeight - rect.top + 10}px; left: ${leftPos}px;`;
+            } else {
+                this.popoverPosition = 'bottom';
+                this.popoverStyle = `top: ${rect.bottom + 10}px; left: ${leftPos}px;`;
+            }
+        }
+    }"
+		x-init="
+			window.addEventListener('resize', () => popoverPositionCalculate());
+			window.addEventListener('scroll', () => { if(popoverOpen) popoverPositionCalculate(); }, true);
+			$watch('popoverOpen', (value) => {
+				if (value && !isCalculating) {
+					popoverPositionCalculate();
+					$nextTick(() => $dispatch('popover-opened'));
+				}
+			});
+		"
+		class="relative"
+		data-align-mobile={ string(alignMobile) }
+		data-align-desktop={ string(alignDesktop) }
+	>
+		<button x-ref="popoverButton" @click="popoverOpen=!popoverOpen">
+			@comp
+		</button>
+		<div
+			x-ref="popover"
+			x-show="popoverOpen"
+			x-init="setTimeout(function(){ popoverHeightCalculate(); }, 100);"
+			@click.away="popoverOpen=false;"
+			@keydown.escape.window="popoverOpen=false"
+			:style="popoverStyle"
+			class="fixed w-72 z-50"
+			x-cloak
+		>
+			<div x-ref="popoverInner" x-show="popoverOpen" class="w-full bg-overlay-default border rounded-md shadow-sm">
+				<div
+					x-show="popoverArrow && popoverPosition === 'bottom'"
+					:style="arrowStyle"
+					class="absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-y-2.5"
+					x-cloak
+				>
+					<div
+						class="w-2.5 h-2.5 origin-bottom-left transform rotate-45 bg-overlay-default border-t border-l rounded-sm"
+					></div>
+				</div>
+				{ children... }
+			</div>
+		</div>
+	</div>
+}

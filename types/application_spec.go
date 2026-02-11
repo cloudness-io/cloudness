@@ -107,3 +107,13 @@ func (b *BuildConfiguration) GetSource() string {
 	}
 	return ""
 }
+
+func (s *ApplicationSpec) IsServiceDomainEnabled() bool {
+	serviceDomain := s.ToServiceDomainInput()
+	return serviceDomain != nil && serviceDomain.Enabled
+}
+
+func (s *ApplicationSpec) IsTCPProxiesEnabled() bool {
+	tcpProxies := s.ToTCPPorxiesInput()
+	return tcpProxies != nil && tcpProxies.Enabled
+}

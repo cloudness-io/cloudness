@@ -5,7 +5,11 @@ import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 
 templ ListPlaceholder(tenant *types.Tenant) {
-	@shared.LazyLoader("favorites", routes.TenantCtx(ctx)+"/favorites")
+	@shared.PageSection("Favorites", templ.NopComponent, templ.NopComponent) {
+		@shared.PageContentShort() {
+			@shared.LazyLoader("favorites", routes.TenantCtx(ctx)+"/favorites")
+		}
+	}
 }
 
 templ List(favs []*types.FavoriteDTO) {
@@ -15,43 +19,38 @@ templ List(favs []*types.FavoriteDTO) {
 				<p>
 					You do not have any favorites set. 
 				</p>
-				<p class="text-tx-secondary">
+				<p class="text-foreground-light">
 					Set one by clicking on the star icon on appliaction page
 				</p>
 			</div>
 		</div>
 	} else {
 		<div hx-push-url="true" hx-sync="#main:drop">
-			<table class="min-w-full divide-y bg-primary text-left">
-				<thead>
-					<tr>
-						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Name</th>
-						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Project</th>
-						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Environment</th>
-						<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%] hidden md:block">URL</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y overflow-y-visible">
-					for _,fav:= range favs {
-						<tr
-							class="hover:bg-secondary group cursor-pointer"
-							hx-get={ routes.ApplicationProject(fav.ProjectUID, fav.EnvironmentUID, fav.ApplicationUID) }
-						>
-							<td class="whitespace-nowrap px-4 py-2 link">{ fav.AppName }</td>
-							<td class="whitespace-nowrap px-4 py-2">{ fav.ProjectName }</td>
-							<td class="whitespace-nowrap px-4 py-2">{ fav.EnvironmentName }</td>
-							<td
-								class="whitespace-nowrap px-4 py-2 hidden md:block"
-								onClick="event.stopPropagation()"
-							>
-								if fav.AppDomain != "" {
-									<a class="link" href={ templ.SafeURL(fav.AppDomain) } target="_blank">{ fav.AppDomain }</a>
-								}
-							</td>
-						</tr>
+			@shared.Table() {
+				@shared.TableHeadFull("Name", "Project", "Environment", "URL")
+				@shared.TableBody() {
+					for _, fav := range favs {
+						@shared.TableBodyRow(templ.Attributes{"hx-get": routes.ApplicationProject(fav.ProjectUID, fav.EnvironmentUID, fav.ApplicationUID)}) {
+							@shared.TableBodyCell() {
+								<span class="text-foreground-light">{ fav.AppName }</span>
+							}
+							@shared.TableBodyCell() {
+								<span class="text-foreground-light">{ fav.ProjectName }</span>
+							}
+							@shared.TableBodyCell() {
+								<span class="text-foreground-light">{ fav.EnvironmentName }</span>
+							}
+							@shared.TableBodyCell() {
+								<span onClick="event.stopPropagation();">
+									if fav.AppDomain != "" {
+										<a class="link" href={ templ.SafeURL(fav.AppDomain) } target="_blank">{ fav.AppDomain }</a>
+									}
+								</span>
+							}
+						}
 					}
-				</tbody>
-			</table>
+				}
+			}
 		</div>
 	}
 }

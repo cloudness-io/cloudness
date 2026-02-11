@@ -1,0 +1,16 @@
+package venvironment
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+templ noEnvironmentCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.EnvironmentIcon, "icon-lg size-6 text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h4>No Environments found</h4>
+				<p class="text-foreground-light text-sm max-w-[640px]">Please ask your project owner to create one.</p>
+			</div>
+		</div>
+	</div>
+}

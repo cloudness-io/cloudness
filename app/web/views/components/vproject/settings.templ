@@ -1,51 +1,67 @@
 package vproject
 
 import (
+	projectCtrl "github.com/cloudness-io/cloudness/app/controller/project"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/app/web/views/xdata"
 	"github.com/cloudness-io/cloudness/types"
 )
 
 templ ProjectGeneral(project *types.Project) {
-	@projectHeader(project)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: ProjectNavSettings,
-		Content:    projectGeneralSettings(project),
 		Options:    getProjectPageNav(ctx),
-	})
-}
-
-type projectGeneralForm struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	}) {
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Project Settings</h1>
+			}
+			@shared.PageContentShort() {
+				@projectGeneralSettings(project)
+				@dangerZone(project)
+			}
+		}
+	}
 }
 
 templ projectGeneralSettings(project *types.Project) {
-	<div class="flex items-center gap-1">
-		<i class={ icons.SettingsIcon, "icon-2xl" }></i>
-		<h3>Settings</h3>
-	</div>
-	<form
-		class="flex flex-col place-items-baseline mt-2 gap-2"
-		x-data={ xdata.ToFormData(&projectGeneralForm{project.Name, project.Description}) }
-		x-cloak
-	>
-		@shared.Input(&shared.InputProps{
-			Name:  "name",
-			Label: "Name",
-			Attrs: templ.Attributes{
-				"x-model": "form.name",
-			},
-		})
-		@shared.Textarea(&shared.TextareaProps{
-			Name:  "description",
-			Label: "Description",
-			Attrs: templ.Attributes{
-				"x-model": "form.description",
-			},
-		})
-		@shared.UpdateDiv(routes.ProjectSettings)
-	</form>
+	@shared.PageSection("Project Details", templ.NopComponent, templ.NopComponent) {
+		@shared.CardContainer() {
+			<form
+				class="form"
+				x-data={ xdata.ToFormData(&projectCtrl.CreateProjectInput{Name: project.Name, Slug: project.Slug, Description: project.Description}) }
+				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-patch={ routes.ProjectSettings }
+				x-cloak
+			>
+				@shared.NewInput(&shared.NewInputProps{
+					Name:  "name",
+					Label: "Name",
+					Attrs: templ.Attributes{
+						"x-model": "form.name",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:      "slug",
+					Label:     "Slug",
+					Disabled:  true,
+					AllowCopy: true,
+					Attrs: templ.Attributes{
+						"x-model": "form.slug",
+					},
+				})
+				@shared.NewTextarea(&shared.NewTextareaProps{
+					Name:  "description",
+					Label: "Description",
+					Attrs: templ.Attributes{
+						"x-model": "form.description",
+					},
+				})
+				@shared.UpdateDivNew()
+			</form>
+		}
+	}
 }

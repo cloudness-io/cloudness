@@ -3,6 +3,7 @@ CREATE TABLE projects (
     project_uid INTEGER NOT NULL,
     project_tenant_id INTEGER REFERENCES tenants (tenant_id) ON UPDATE NO ACTION ON DELETE CASCADE,
     project_name TEXT NOT NULL,
+	 project_slug TEXT NOT NULL,
     project_description TEXT,
     project_created_by INTEGER NOT NULL,
     project_created BIGINT NOT NULL,
@@ -11,5 +12,8 @@ CREATE TABLE projects (
     UNIQUE (
         project_uid,
         project_tenant_id
-    )
+    ),
+	 UNIQUE (
+		  project_slug
+	 )
 );

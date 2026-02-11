@@ -6,6 +6,7 @@ import (
 
 	"github.com/cloudness-io/cloudness/app/controller/project"
 	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
 
@@ -36,11 +37,10 @@ func HandleUpdateSettingsGeneral(projectCtrl *project.Controller) http.HandlerFu
 		p, err := projectCtrl.Update(ctx, p.ID, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating project")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
-		render.Page(request.WithProject(ctx, p), w, vproject.ProjectGeneral(p))
-		render.ToastSuccess(ctx, w, "Project general settings updated successfully")
+		render.Redirect(w, routes.ProjectCtx(ctx)+"/"+routes.ProjectSettings)
 	}
 }

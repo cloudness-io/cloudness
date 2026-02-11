@@ -7,11 +7,20 @@ import (
 )
 
 templ Server(server *types.Server) {
-	@header()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: InstanceNavServer,
 		Options:    getInstanceNav(),
 	}) {
-		@vserver.Settings(server)
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Server Settings</h1>
+				<div class="heading-subsection text-foreground-light">Manage your instance server.</div>
+			}
+			@shared.PageContentShort() {
+				<div class="flex flex-col gap-3 mb-2">
+					@vserver.Settings(server)
+				</div>
+			}
+		}
 	}
 }

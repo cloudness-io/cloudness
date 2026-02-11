@@ -27,6 +27,7 @@ func (c *Controller) CreateNoAuth(ctx context.Context, userID int64, in *CreateT
 	tenant := &types.Tenant{
 		UID:                helpers.GenerateUID(),
 		Name:               in.Name,
+		Slug:               helpers.Slugify("t", in.Name),
 		Description:        in.Description,
 		AllowAdminToModify: defaults.DefaultAllowAdminToModify,
 		MaxProjects:        defaults.DefaultMaxProjectsPerTenant,

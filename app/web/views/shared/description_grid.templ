@@ -1,0 +1,19 @@
+package shared
+
+templ DescGridMD() {
+	<d1 class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-y-1 [&>dd]:mb-3 xl:[&>dd]:mb-0 xl:gap-y-2 gap-x-5">
+		{ children... }
+	</d1>
+}
+
+templ DescTerm(term string) {
+	<dt class="text-sm text-foreground-lighter">
+		{ term }
+	</dt>
+}
+
+templ DescDetail(details templ.Component) {
+	<dd class="text-sm lg:text-left text-foreground-light">
+		@details
+	</dd>
+}

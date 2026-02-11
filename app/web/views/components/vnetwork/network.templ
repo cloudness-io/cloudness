@@ -10,5 +10,7 @@ templ NetworkCreate() {
 }
 
 templ NetworkSettings(app *types.Application) {
-	@networkSettingsForm(app)
+	<div class="form">
+		@networkSettingsForm(app)
+	</div>
 }

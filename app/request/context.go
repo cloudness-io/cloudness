@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cloudness-io/cloudness/app/auth"
+	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/types"
 )
 
@@ -16,7 +17,6 @@ const (
 	hxPreviousUrl
 	hostDomainUrl
 	currentFullUrl
-	targetElement
 	userKey
 	requestIDKey
 	tenantKey
@@ -29,6 +29,7 @@ const (
 	deploymentKey
 	volumeKey
 	authSettingKey
+	navItemsKey
 )
 
 // WithRequestID returns a copy of parent in which the request id value is set.
@@ -82,17 +83,6 @@ func WithCurrentFullUrl(parent context.Context, v string) context.Context {
 func CurrentFullUrlFrom(ctx context.Context) (string, bool) {
 	v, ok := ctx.Value(currentFullUrl).(string)
 	return v, ok && v != ""
-}
-
-// WithTargetElement function    returns a copy of parent in which the target element
-func WithTargetElement(parent context.Context, v string) context.Context {
-	return context.WithValue(parent, targetElement, v)
-}
-
-// TargetElementFrom function    returns the value of target element
-func TargetElementFrom(ctx context.Context) string {
-	v, _ := ctx.Value(targetElement).(string)
-	return v
 }
 
 // WithInstanceSettings function    returns a copy of parent in which the instance
@@ -237,4 +227,25 @@ func WithAuthSetting(parent context.Context, c *types.AuthSetting) context.Conte
 func AuthSettingFrom(ctx context.Context) (*types.AuthSetting, bool) {
 	c, ok := ctx.Value(authSettingKey).(*types.AuthSetting)
 	return c, ok && c != nil
+}
+
+// WithNavItem function returns a copy of parent with navigation items
+func WithNavItem(parent context.Context, nav *dto.NavItem) context.Context {
+	navItems, _ := NavItemsFrom(parent)
+	navItems = append(navItems, nav)
+	return context.WithValue(parent, navItemsKey, navItems)
+}
+
+// NavItensFrom returns the value of the main navigation crumb
+func NavItemsFrom(ctx context.Context) ([]*dto.NavItem, bool) {
+	c, ok := ctx.Value(navItemsKey).([]*dto.NavItem)
+	if c == nil {
+		return []*dto.NavItem{}, true
+	}
+	return c, ok
+}
+
+// NavItemsReset resets the navigation items
+func NavItemsReset(ctx context.Context) context.Context {
+	return context.WithValue(ctx, navItemsKey, []*dto.NavItem{})
 }

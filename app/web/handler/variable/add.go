@@ -28,7 +28,7 @@ func HandlePost(appCtrl *application.Controller, varCtrl *variable.Controller) h
 		err := varCtrl.Add(ctx, env.ID, app.ID, in)
 		if err != nil {
 			log.Error().Err(err).Msg("Error updating variables")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

@@ -10,25 +10,19 @@ import (
 	"github.com/cloudness-io/cloudness/errors"
 	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types/check"
+
+	"github.com/rs/zerolog/log"
 )
 
-var fields = helpers.ListJsonName(model{})
-
-func ValidationError(ctx context.Context, w http.ResponseWriter, key string, msg string) {
-	ValidationErrors(ctx, w, map[string]string{key: msg})
-}
-
-func ValidationErrors(ctx context.Context, w http.ResponseWriter, errs map[string]string) {
+func renderAalidationErrors(ctx context.Context, w http.ResponseWriter, model any, errs map[string]string) {
+	var fields = helpers.ListJsonName(model)
+	log.Ctx(ctx).Debug().Any("fields", fields).Any("errs", errs).Msg("Fields")
 	for _, field := range fields {
 		if _, ok := errs[field]; !ok {
 			errs[field] = ""
 		}
 	}
 	HTML(ctx, w, views.ValidationErrors(errs))
-}
-
-func ResetValidationErrors(ctx context.Context, w http.ResponseWriter) {
-	ValidationErrors(ctx, w, map[string]string{})
 }
 
 func ToastErrorMsg(ctx context.Context, w http.ResponseWriter, msg string) {
@@ -38,7 +32,16 @@ func ToastErrorMsg(ctx context.Context, w http.ResponseWriter, msg string) {
 func ToastError(ctx context.Context, w http.ResponseWriter, err error) {
 	var validationErr *check.ValidationErrors
 	if errors.As(err, &validationErr) {
-		ValidationErrors(ctx, w, validationErr.Errors())
+		renderAalidationErrors(ctx, w, model{}, validationErr.Errors())
+		return
+	}
+	toast.ToastError(usererror.TranslateErrMsg(ctx, err)).Render(ctx, w)
+}
+
+func ToastErrorWithValidation(ctx context.Context, w http.ResponseWriter, model any, err error) {
+	var validationErr *check.ValidationErrors
+	if errors.As(err, &validationErr) {
+		renderAalidationErrors(ctx, w, model, validationErr.Errors())
 		return
 	}
 	toast.ToastError(usererror.TranslateErrMsg(ctx, err)).Render(ctx, w)

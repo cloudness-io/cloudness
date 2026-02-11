@@ -13,7 +13,7 @@ func (c *Controller) List(ctx context.Context) ([]*types.Template, error) {
 }
 
 func (c *Controller) ListDatabase(ctx context.Context) ([]*types.Template, error) {
-	return c.templateStore.ListBySlugs(ctx, databaseSlugs)
+	return c.templateStore.ListByTag(ctx, "database")
 }
 
 func (c *Controller) ListTemplates(ctx context.Context) ([]*types.Template, error) {

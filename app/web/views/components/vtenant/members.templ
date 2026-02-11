@@ -2,7 +2,6 @@ package vtenant
 
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "github.com/cloudness-io/cloudness/app/auth"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 import "github.com/cloudness-io/cloudness/types/enum"
@@ -17,21 +16,31 @@ func getOpRole(role enum.TenantRole) enum.TenantRole {
 	}
 }
 
-templ Members(tenant *types.Tenant, session *auth.Session, members []*types.TenantMembershipUser) {
-	@header(tenant)
+templ Members(tenant *types.Tenant, session *auth.Session, members []*types.TenantMembershipUser, canEdit bool) {
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: TenantNavMembers,
-		Options:    getTenantNav(tenant),
+		Options:    getTenantNav(tenant, canEdit),
 	}) {
-		<div class="max-w-7xl flex flex-col gap-2">
-			<div class="flex items-center gap-1">
-				<i class={ icons.MembersIcon, "icon-2xl" }></i>
-				<h3>Members</h3>
-			</div>
-			<div class="overflow-x-auto">
-				<table class="min-w-full divide-y bg-primary text-left">
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Team</h1>
+				<div class="heading-subSection text-foreground-light">Manage team members.</div>
+			}
+			@shared.PageContentShort() {
+				@tenantMembershipListTable(tenant, session, members)
+				@tenantAddMembersSection()
+			}
+		}
+	}
+}
+
+templ tenantMembershipListTable(tenant *types.Tenant, session *auth.Session, members []*types.TenantMembershipUser) {
+	@shared.PageSection("", templ.NopComponent, templ.NopComponent) {
+		@shared.CardContainer() {
+			<div class="overflow-x-auto w-full">
+				<table class="min-w-full divide-y text-left">
 					<thead>
-						<tr>
+						<tr class="text-foreground-light">
 							<th class="whitespace-nowrap px-4 py-2 font-medium w-[25%]">Name</th>
 							<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Email</th>
 							<th class="whitespace-nowrap px-4 py-2 font-medium w-[15%]">Role</th>
@@ -50,24 +59,23 @@ templ Members(tenant *types.Tenant, session *auth.Session, members []*types.Tena
 							>
 								<td class="whitespace-nowrap px-4 py-2 max-w-32 overflow-hidden">{ member.DisplayName }</td>
 								<td class="whitespace-nowrap px-4 py-2">
-									@shared.Input(&shared.InputProps{
-										Name:       "email",
-										HideLabel:  true,
-										Disabled:   true,
-										AllowCopy:  true,
-										InputClass: "min-w-xs",
+									@shared.NewInput(&shared.NewInputProps{
+										Name:      "email",
+										Disabled:  true,
+										Direction: "vertical",
+										Class:     "min-w-2xs xl:min-w-max",
 										Attrs: templ.Attributes{
 											"x-model": "form.email",
 										},
 									})
 								</td>
 								<td class="whitespace-nowrap px-4 py-2 capitalize">
-									@shared.Dropdown(&shared.DropdownProps{
-										HideLabel:     true,
-										Value:         string(member.Role),
-										Options:       enum.TenantRolesStr,
-										DropdownClass: "min-w-52 capitalize",
-										Disabled:      session.Principal.ID == member.PrincipalID,
+									@shared.NewDropdown(&shared.NewDropdownProps{
+										SelectedOption: string(member.Role),
+										Options:        enum.TenantRolesStr,
+										Disabled:       session.Principal.ID == member.PrincipalID,
+										Direction:      "vertical",
+										Class:          "min-w-2xs xl:min-w-max capitalize",
 										Attrs: templ.Attributes{
 											"x-model": "form.role",
 										},
@@ -81,19 +89,13 @@ templ Members(tenant *types.Tenant, session *auth.Session, members []*types.Tena
 											class="flex gap-1 text-xs"
 											hx-push-url="false"
 											hx-swap="none"
+											hx-indicator="#overlay-spinner"
 										>
 											<input type="hidden" class="hidden" name="email" x-model="form.email"/>
 											<input type="hidden" class="hidden" name="role" x-model="form.role"/>
-											<button class="button-neutral" x-on:click="reset()">Reset</button>
-											<button
-												type="submit"
-												class="button-primary"
-												:class="isModified() ? '' :	'disabled'"
-												hx-patch={ routes.TenantMembers }
-											>
-												Update
-											</button>
-											<button type="submit" class="button-danger" hx-delete={ routes.TenantMembers }>Remove</button>
+											@shared.ButtonNeutral("Reset", templ.Attributes{"type": "button", "x-on:click": "reset()"})
+											@shared.ButtonPrimary("Update", templ.Attributes{":class": "isModified() ? '' : 'disabled'", "hx-patch": routes.TenantMembers})
+											@shared.ButtonDanger("Remove", templ.Attributes{"hx-delete": routes.TenantMembers})
 										</form>
 									}
 								</td>
@@ -102,39 +104,42 @@ templ Members(tenant *types.Tenant, session *auth.Session, members []*types.Tena
 					</tbody>
 				</table>
 			</div>
-			<div class="flex items-center gap-2 mt-2">
-				<i class={ icons.AddIcon, "icon-xl text-brand" }></i>
-				<h3>Add Members</h3>
-			</div>
-			<div class="mt-2">
-				@shared.WarningAlert("Make sure you have oauth enabled, since we do not support invite link generation yet.", "")
-			</div>
+		}
+	}
+}
+
+templ tenantAddMembersSection() {
+	@shared.PageSection("Add Members", shared.TextComp("Make sure you have oauth enabled, since we do not support invite link generation yet."), templ.NopComponent) {
+		@shared.CardContainer() {
 			<form
-				class="flex flex-col gap-4 w-full my-2"
-				hx-post={ routes.TenantMembersUrl(ctx) }
-				hx-swap="none"
+				class="form"
+				x-data={ xdata.ToFormData(&tenantCtrl.TenantMembershipModel{}) }
 				hx-push-url="false"
+				hx-swap="none"
+				hx-indicator="#overlay-spinner"
+				hx-post={ routes.TenantMembersUrl(ctx) }
 			>
-				@shared.Input(&shared.InputProps{
+				@shared.NewInput(&shared.NewInputProps{
 					Name:        "email",
 					Label:       "Email",
 					Placeholder: "Email Address",
 					Required:    true,
+					Attrs: templ.Attributes{
+						"x-model": "form.email",
+					},
 				})
-				@shared.Dropdown(&shared.DropdownProps{
-					Name:          "role",
-					Label:         "Role",
-					Options:       enum.TenantRolesStr,
-					DropdownClass: "capitalize",
+				@shared.NewDropdown(&shared.NewDropdownProps{
+					Name:    "role",
+					Label:   "Role",
+					Options: enum.TenantRolesStr,
+					Class:   "capitalize",
+					Attrs: templ.Attributes{
+						"x-model": "form.role",
+					},
 				})
-				<button
-					type="submit"
-					class="button-primary max-w-fit"
-				>
-					Add	
-				</button>
+				@shared.UpdateDivNewWithText("Add")
 			</form>
-		</div>
+		}
 	}
 }
 

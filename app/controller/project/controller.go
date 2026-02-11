@@ -12,7 +12,6 @@ import (
 	dbStore "github.com/cloudness-io/cloudness/store"
 	"github.com/cloudness-io/cloudness/store/database/dbtx"
 	"github.com/cloudness-io/cloudness/types"
-	"github.com/cloudness-io/cloudness/types/check"
 )
 
 type Controller struct {
@@ -61,18 +60,4 @@ func (c *Controller) findByUID(ctx context.Context, tenantID int64, projectUID i
 		return nil, err
 	}
 	return project, nil
-}
-
-func (c *Controller) sanitizeCreateInput(in *CreateProjectInput) error {
-	errors := check.NewValidationErrors()
-	if err := check.DisplayName(in.Name); err != nil {
-		errors.AddValidationError("name", err)
-	}
-	if err := check.Description(in.Description); err != nil {
-		errors.AddValidationError("description", err)
-	}
-	if errors.HasError() {
-		return errors
-	}
-	return nil
 }

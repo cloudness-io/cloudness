@@ -29,7 +29,7 @@ templ info(v *types.UserVariable, canEdit bool, options templ.Component) {
 					if v.TextValue != "" && canEdit {
 						{ v.TextValue }
 					} else {
-						&lt;empty string&gt
+						<i>&lt;empty string&gt</i>
 					}
 				</span>
 				<span x-show="!show" :class="show ? 'hidden' : ''">**********</span>

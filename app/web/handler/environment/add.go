@@ -8,9 +8,17 @@ import (
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
+	"github.com/cloudness-io/cloudness/app/web/views/components/venvironment"
 
 	"github.com/rs/zerolog/log"
 )
+
+func HandleNew() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		render.Page(ctx, w, venvironment.AddEnvironmentPage())
+	}
+}
 
 func HandleAdd(envCtrl *environment.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -36,6 +44,6 @@ func HandleAdd(envCtrl *environment.Controller) http.HandlerFunc {
 
 		ctx = request.WithEnvironment(ctx, env)
 
-		render.Redirect(w, routes.EnvironmentApplicationCtx(ctx))
+		render.Redirect(w, routes.ProjectEnvironment)
 	}
 }

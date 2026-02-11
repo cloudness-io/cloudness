@@ -18,21 +18,17 @@ templ BaseLayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 	@shared.Title()
 	@shared.BaseUrl()
-	<div class="sticky top-0 z-50">
-		<div id="toast" class="toast-wrapper"></div>
-	</div>
-	<div class="sticky top-0 z-10">
-		@navigations.MainNav(dto.Nav)
-	</div>
-	<div class="relative">
-		<div class="progress-indicator mx-auto">
-			<div
-				class="indeterminate bg-brand"
-			></div>
+	<div class="flex flex-col h-screen w-screen">
+		<div class="sticky top-0 z-50">
+			<div id="toast" class="toast-wrapper"></div>
 		</div>
+		<div class="sticky top-0 z-10">
+			@navigations.MainNav(dto.Nav)
+		</div>
+		@shared.ProgressIndicator()
+		@shared.OverlaySpinner()
 		@common.RenderSSEStreamer()
-		<div class="main" id="main">
-			@shared.BreadCrumb(false)
+		<div class="main flex flex-1 w-full overflow-y-hidden" id="main">
 			@contents
 		</div>
 	</div>
@@ -41,16 +37,15 @@ templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 templ LayoutWithoutNav(contents templ.Component) {
 	@shared.Title()
 	@shared.BaseUrl()
-	<div class="flex flex-col flex-1 px-4 pt-2 min-h-[calc(100vh-20rem)] main" id="main">
+	<div class="flex flex-col h-screen w-screen">
 		<div class="sticky top-0 z-50">
 			<div id="toast" class="toast-wrapper"></div>
 		</div>
-		<div class="progress-indicator mx-auto">
-			<div
-				class="indeterminate bg-brand"
-			></div>
+		@shared.ProgressIndicator()
+		@shared.OverlaySpinner()
+		<div class="flex flex-col flex-1 px-4 pt-2 main" id="main">
+			@contents
 		</div>
-		@contents
 	</div>
 }
 
@@ -68,8 +63,6 @@ templ baseLayout() {
 			<meta charset="UTF-8" hx-preserve="true"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" hx-preserve="true"/>
 			<link rel="stylesheet" href={ views.Asset("styles.css") } hx-preserve="true"/>
-			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" hx-preserve="true"/>
-			<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;700&display=swap" rel="stylesheet" hx-preserve="true"/>
 			<!-- <script defer src={ views.Asset("index.js") } hx-preserve="true"></script> -->
 			<script defer src={ views.Asset("metrics-chart.js") } hx-preserve="true"></script>
 			<!-- ICONS -->
@@ -87,9 +80,8 @@ templ baseLayout() {
 			<!-- JS -->
 			<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js" hx-preserve="true"></script>
 			<script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.32.1/humanize-duration.min.js" hx-preserve="true"></script>
-			<!-- uPlot -->
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.min.css" hx-preserve="true"/>
-			<script src="https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.iife.min.js" hx-preserve="true"></script>
+			<!-- Lightweight Charts -->
+			<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4/dist/lightweight-charts.standalone.production.js" hx-preserve="true"></script>
 			@shared.ExternalScripts(request.InstanceSettingsFrom(ctx))
 			@shared.AdditionalScripts(request.InstanceSettingsFrom(ctx))
 		</head>
@@ -104,7 +96,7 @@ templ baseLayout() {
 		>
 			<div
 				id="root"
-				class="flex flex-col mx-auto min-h-screen text-sm"
+				class="flex flex-col min-h-svh w-screen text-sm"
 				hx-indicator=".progress-indicator"
 			>
 				{ children... }

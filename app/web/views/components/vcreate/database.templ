@@ -2,29 +2,34 @@ package vcreate
 
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vtemplate"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 
 templ DatabaseView(templates []*types.Template) {
-	@createHeader()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: navDatabase,
 		Options:    getCreatePageNavs(),
+		BackUrl:    routes.EnvironmentCtx(ctx),
+		BackText:   "Applications",
 	}) {
-		<div class="flex place-items-baseline align-middle gap-1">
-			@shared.Icon(icons.SourceDatabaseIcon, ``)
-			<h3>Database</h3>
-		</div>
-		@vtemplate.List(templates, routes.AppNewDatabase)
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderShort() {
+				<h1>Databases</h1>
+				<div class="heading-susbection text-foreground-light">Deploy pre-configured databases</div>
+			}
+			@shared.PageContentShort() {
+				@vtemplate.List(templates, routes.AppNewDatabase)
+			}
+		}
 	}
 }
 
 templ DatabasePreview(template *types.Template) {
-	@createHeader()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: navDatabase,
 		Options:    getCreatePageNavs(),
+		BackUrl:    routes.EnvironmentCtx(ctx),
+		BackText:   "Applications",
 		Content:    vtemplate.Preview(template, routes.AppNewDatabase),
 	})
 }

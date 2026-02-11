@@ -9,8 +9,8 @@ templ WarningAlert(head string, subtext string) {
 				</svg>
 			</div>
 			<div class="ml-2">
-				<h3 class="text-sm font-semibold text-warning">{ head }</h3>
-				<p class="text-xs font-medium">{ subtext }</p>
+				<h3 class="text-sm text-warning">{ head }</h3>
+				<p class={ "text-xs", templ.KV("text-warning/60", head=="") }>{ subtext }</p>
 			</div>
 		</div>
 	</div>

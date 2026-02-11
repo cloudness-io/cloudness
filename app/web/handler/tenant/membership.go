@@ -108,6 +108,8 @@ func renderMembershipPage(w http.ResponseWriter, r *http.Request, tenantCtrl *te
 		return err
 	}
 
-	render.Page(ctx, w, vtenant.Members(tenant, session, memberships))
+	canEdit := canEdit(ctx, tenantCtrl, tenant)
+
+	render.Page(ctx, w, vtenant.Members(tenant, session, memberships, canEdit))
 	return nil
 }

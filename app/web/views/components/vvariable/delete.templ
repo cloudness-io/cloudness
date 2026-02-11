@@ -3,26 +3,29 @@ package vvariable
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
 
 templ variableDeleteModal(v *types.UserVariable) {
-	<h2 class="flex text-xl font-semibold text-center items-center">Delete Variable</h2>
-	<div class="w-full max-w-full pt-4">
-		<span>
-			Are you sure you want to delete 
-			<pre class="inline-block font-mono rounded-xs text-brand inline-code">{ v.Key }</pre>
-			? Once deleted, it will be gone forever.
-		</span>
-	</div>
-	<div class="pt-4 flex w-full">
-		<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
-			<button type="button" class="button-neutral" x-on:click="deleteModel=false">Cancel</button>
-			<button
-				type="button"
-				class="button-danger"
-				hx-delete={ fmt.Sprintf("%s/%d", routes.AppVariables, v.UID) }
-				hx-push-url="false"
-				hx-swap="none"
-			>Delete</button>
+	<form
+		class="form"
+		hx-delete={ fmt.Sprintf("%s/%d", routes.AppVariables, v.UID) }
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-indicator"
+	>
+		@shared.CardHeader("Delete Variable", "")
+		<div class="w-full max-w-full pt-4">
+			<span>
+				Are you sure you want to delete 
+				<pre class="inline-block font-mono rounded-xs text-brand inline-code">{ v.Key }</pre>
+				? Once deleted, it will be gone forever.
+			</span>
 		</div>
-	</div>
+		<div class="pt-4 flex w-full">
+			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
+				@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "x-on:click": "deleteModel=false"})
+				@shared.ButtonDanger("Delete", templ.Attributes{"type": "submit"})
+			</div>
+		</div>
+	</form>
 }

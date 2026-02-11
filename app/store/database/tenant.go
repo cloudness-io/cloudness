@@ -37,6 +37,7 @@ const tenantInsert = `
 INSERT INTO tenants (
 	tenant_uid
 	,tenant_name
+	,tenant_slug
 	,tenant_description
 	,tenant_allow_admin_to_modify
 	,tenant_max_projects
@@ -54,6 +55,7 @@ INSERT INTO tenants (
 ) values (
 	:tenant_uid
 	,:tenant_name
+	,:tenant_slug
 	,:tenant_description
 	,:tenant_allow_admin_to_modify
 	,:tenant_max_projects
@@ -74,6 +76,7 @@ const tenantColumns = `
 	tenant_id
 	,tenant_uid
 	,tenant_name
+	,tenant_slug
 	,tenant_description
 	,tenant_allow_admin_to_modify
 	,tenant_max_projects

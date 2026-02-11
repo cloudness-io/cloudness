@@ -34,7 +34,7 @@ func HandleCreate(appCtrl *application.Controller, volumeCtrl *volume.Controller
 		_, err := appCtrl.AddVolume(ctx, session, tenant, project, env, application, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error creating volume")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		err = renderVolumesList(ctx, w, application, volumeCtrl)

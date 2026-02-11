@@ -14,24 +14,23 @@ func init() {
 }
 
 templ generateModal(v *types.UserVariable) {
-	<h2 class="flex text-xl font-semibold text-center items-center">Variable Generator</h2>
-	<p class="text-substitute text-xs">Generate a random variable value</p>
 	<form
-		class="w-full pt-4"
+		class="form"
 		hx-patch={ fmt.Sprintf("%s/%d/generate", routes.AppVariables, v.UID) }
 		hx-push-url="false"
 		hx-swap="none"
 	>
-		@shared.Dropdown(&shared.DropdownProps{
-			Name:    "length",
-			Label:   "Variable Length",
-			Value:   "15",
-			Options: variableLenghtRange,
+		@shared.CardHeader("Variable Generator", "Generate a random variable value")
+		@shared.NewDropdown(&shared.NewDropdownProps{
+			Label:          "Variable Length",
+			Name:           "length",
+			SelectedOption: "15",
+			Options:        variableLenghtRange,
 		})
 		<div class="pt-4 flex w-full">
 			<div class="ml-auto flex w-full gap-x-4 sm:w-auto sm:whitespace-nowrap">
-				<button type="button" class="button-neutral" x-on:click="generate=false">Cancel</button>
-				<button type="submit" class="button-primary">Save</button>
+				@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "x-on:click": "generate=false"})
+				@shared.ButtonPrimary("Generate", templ.Attributes{"type": "submit"})
 			</div>
 		</div>
 	</form>

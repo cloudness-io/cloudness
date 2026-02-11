@@ -1,49 +1,65 @@
 package vtenant
 
 import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
-import "github.com/cloudness-io/cloudness/app/request"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
+import "fmt"
 
-templ AddTeam() {
-	if request.IsSuperAdmin(ctx) {
-		<div x-data="{openAddTenantModal: false}">
-			<button type="button" class="button-link max-w-max" x-on:click="openAddTenantModal = true">
-				<i class={ icons.AddIcon }></i>
-				Add Team
-			</button>
-			@shared.Modal("openAddTenantModal", addTenant())
+const (
+	teamDescription = "A team represents a logical boundary for users, projects, and environments in Cloudness."
+)
+
+templ addTeamCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.TeamIcon, "icon-lg text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h3>Create a team</h3>
+				<p class="text-foreground-light text-sm max-w-[640px]">{ teamDescription }</p>
+			</div>
 		</div>
+		@shared.AddButtonNeutral("New Team", fmt.Sprintf("%s/new", routes.TenantBase))
+	</div>
+}
+
+templ AddTeamPage() {
+	@shared.PageContainer(shared.PageSizeSmall) {
+		@shared.PageContentShort() {
+			@shared.CardContainer() {
+				@addTeamFrom()
+			}
+		}
 	}
 }
 
-templ addTenant() {
+templ addTeamFrom() {
 	<form
-		id="addTeam"
+		id="addTeamForm"
+		class="form"
 		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-post={ routes.TenantNew() }
 	>
-		<div class="flex items-center justify-between">
-			<h1 class="text-2xl font-medium">Create New Team</h1>
-		</div>
-		<div class="mt-2 flex flex-col space-y-2">
-			<label for="Name">Team Name</label>
-			@shared.Input(&shared.InputProps{
-				Name:        "name",
-				Placeholder: "Root",
-				Attrs: templ.Attributes{
-					"autofocus": true,
-				},
-			})
-		</div>
-		<div class="flex justify-end mt-6">
-			<button
-				type="submit"
-				class="button-primary"
-				hx-swap="none"
-				hx-post={ routes.TenantCreate() }
-			>
-				Create
-			</button>
+		@shared.CardHeader("Create a new team", teamDescription)
+		@shared.NewInput(&shared.NewInputProps{
+			Name:             "name",
+			Label:            "Name",
+			Placeholder:      "Team Name",
+			ValueDescription: "What's the name of your company or team? You can change this later.",
+		})
+		<div class="flex h-12 items-center px-sm">
+			<div class="grid grid-cols-12 w-full gap-4 items-center">
+				<div class="col-span-4"></div>
+				<div
+					class="flex items-end col-span-8 space-x-2 ml-auto"
+				>
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "hx-get": routes.TenantBaseURL()})
+					@shared.ButtonPrimary("Create Team", templ.Attributes{
+						"type": "submit",
+					})
+				</div>
+			</div>
 		</div>
 	</form>
 }

@@ -33,10 +33,6 @@ func (j *deletedArtifactsJob) cleanupProjects(ctx context.Context, tenantID, del
 		log.Ctx(ctx).Info().Msgf("found %d projects to be cleaned up", len(projectsToCleanup))
 
 		for _, project := range projectsToCleanup {
-			if err := j.cleanupEnviornments(ctx, &project.TenantID, &project.ID, nil, tracker); err != nil {
-				return err
-			}
-
 			if err := j.projectStore.Purge(ctx, project.ID, project.Deleted); err != nil {
 				return fmt.Errorf("failed to purge project %d: %w", project.ID, err)
 			}

@@ -5,9 +5,8 @@ import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/types/enum"
 
 templ List(volumes []*types.Volume) {
-	@header(enum.VolumeFormActionCreate)
 	if len(volumes) == 0 {
-		@shared.NoData("No volumes attached to this application", nil)
+		@shared.NoDataCard("No volumes attached to this application", nil)
 	} else {
 		<div class="mt-2 flex flex-wrap gap-4">
 			for _, volume := range volumes {

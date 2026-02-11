@@ -7,11 +7,18 @@ import (
 )
 
 templ DeploymentInfo(app *types.Application, d *types.Deployment) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavDeployments,
-		Content:    vdeployment.Info(app, d),
 		Options:    getAppPageNav(app),
-		Header:     shared.CommandBar(getCommandButtons()),
-	})
+	}) {
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@vdeployment.Info(app, d)
+			}
+		}
+	}
 }

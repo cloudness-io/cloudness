@@ -39,19 +39,21 @@ const volumeColumns = `
 	 volume_id
 	,volume_uid
 	,volume_tenant_id
-   	,volume_project_id
-   	,volume_environment_id
+   ,volume_project_id
+   ,volume_environment_id
 	,volume_environment_uid
 	,volume_server_id
-   	,volume_application_id
-   	,volume_name
-   	,volume_mount_path
-   	,volume_host_path
-   	,volume_size
-   	,volume_created
-   	,volume_updated
-   	,volume_deleted
-	`
+   ,volume_application_id
+   ,volume_name
+	,volume_slug
+	,volume_parent_slug
+   ,volume_mount_path
+   ,volume_host_path
+   ,volume_size
+   ,volume_created
+   ,volume_updated
+   ,volume_deleted
+`
 
 const volumeInsert = `
 INSERT INTO volumes(
@@ -63,6 +65,8 @@ INSERT INTO volumes(
 	,volume_server_id
 	,volume_application_id
 	,volume_name 
+	,volume_slug
+	,volume_parent_slug
 	,volume_mount_path
 	,volume_host_path
 	,volume_size
@@ -78,6 +82,8 @@ INSERT INTO volumes(
 	,:volume_server_id
 	,:volume_application_id
 	,:volume_name
+	,:volume_slug
+	,:volume_parent_slug
 	,:volume_mount_path
 	,:volume_host_path
 	,:volume_size

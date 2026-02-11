@@ -1,0 +1,23 @@
+package vproject
+
+import "github.com/cloudness-io/cloudness/types"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/app/web/views/components/vsource/vgithubapp"
+import "github.com/cloudness-io/cloudness/app/utils/routes"
+
+templ ListConnections(project *types.Project, ghApps []*types.GithubApp) {
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: ProjectNavConnections,
+		Options:    getProjectPageNav(ctx),
+	}) {
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Connections</h1>
+				<div class="heading-subSection text-foreground-light">Connect your project to github app</div>
+			}
+			@shared.PageContentShort() {
+				@vgithubapp.ListGHApps(ghApps, routes.ProjectConnectionGithub)
+			}
+		}
+	}
+}

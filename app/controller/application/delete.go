@@ -10,17 +10,7 @@ import (
 )
 
 type AppDeleteOption struct {
-	Name    string `json:"name"`
-	Confirm string `json:"confirm"`
-	Volume  bool   `json:"volume,string"`
-}
-
-func DefaultDeleteOption(app *types.Application) *AppDeleteOption {
-	return &AppDeleteOption{
-		Name:    app.Name,
-		Confirm: "",
-		Volume:  true,
-	}
+	Volume bool `json:"volume,string"`
 }
 
 func (c *Controller) softDeleteInternal(ctx context.Context, app *types.Application, now int64) error {
@@ -71,9 +61,9 @@ func (c *Controller) SoftDelete(ctx context.Context, app *types.Application, opt
 	})
 }
 
-func (c *Controller) SoftDeleteInEnvironment(ctx context.Context, envID, now int64) error {
+func (c *Controller) SoftDeleteInEnvironment(ctx context.Context, env *types.Environment, now int64) error {
 	apps, err := c.applicationStore.List(ctx, &types.ApplicationFilter{
-		EnvironmentID: &envID,
+		EnvironmentID: &env.ID,
 	})
 	if err != nil {
 		return err
@@ -112,5 +102,5 @@ func (c *Controller) clearResources(ctx context.Context, server *types.Server, a
 		return err
 	}
 
-	return manager.DeleteResources(ctx, server, app.Namespace(), app.GetIdentifierStr())
+	return manager.DeleteResources(ctx, server, app.ParentSlug, app.GetIdentifierStr())
 }

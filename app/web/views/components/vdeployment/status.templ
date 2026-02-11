@@ -58,41 +58,41 @@ templ statusIcon(status enum.DeploymentStatus) {
 func getStatusTextColor(status enum.DeploymentStatus) string {
 	switch status {
 	case enum.DeploymentStatusPending:
-		return "text-tx-secondary"
+		return "text-foreground-light"
 	case enum.DeploymentStatusRunning:
 		return "text-brand"
 	case enum.DeploymentStatusSuccess:
-		return "text-success"
+		return "text-success/70"
 	case enum.DeploymentStatusSkipped:
-		return "text-tx-secondary"
+		return "text-foreground-light"
 	case enum.DeploymentStatusFailed:
-		return "text-error"
+		return "text-error/70"
 	case enum.DeploymentStatusCancelled:
-		return "text-tx-secondary"
+		return "text-foreground-light"
 	}
 	return ""
 }
 
 templ statusPending() {
-	<i class={ icons.PipelinePendingIcon,"icon-base" , getStatusTextColor(enum.DeploymentStatusPending) }></i>
+	<i class={ icons.PipelinePendingIcon,"icon-lg" , getStatusTextColor(enum.DeploymentStatusPending) }></i>
 }
 
 templ statusRunning() {
-	<i class={ icons.PipelineRunningIcon,"icon-base animate-spin", getStatusTextColor(enum.DeploymentStatusRunning) }></i>
+	<i class={ icons.PipelineRunningIcon,"icon-lg animate-spin", getStatusTextColor(enum.DeploymentStatusRunning) }></i>
 }
 
 templ statusSuccess() {
-	<i class={ icons.PipelineSucessIcon, "icon-base", getStatusTextColor(enum.DeploymentStatusSuccess) }></i>
+	<i class={ icons.PipelineSucessIcon, "icon-lg", getStatusTextColor(enum.DeploymentStatusSuccess) }></i>
 }
 
 templ statusSkipped() {
-	<i class={ icons.PipelineSkippedIcon,"icon-base", getStatusTextColor(enum.DeploymentStatusSkipped) }></i>
+	<i class={ icons.PipelineSkippedIcon,"icon-lg", getStatusTextColor(enum.DeploymentStatusSkipped) }></i>
 }
 
 templ statusFailed() {
-	<i class={ icons.PipelineErrorIcon, "icon-base", getStatusTextColor(enum.DeploymentStatusFailed) }></i>
+	<i class={ icons.PipelineErrorIcon, "icon-lg", getStatusTextColor(enum.DeploymentStatusFailed) }></i>
 }
 
 templ statusCancelled() {
-	<i class={ icons.PipelineCancelIcon,"icon-base", getStatusTextColor(enum.DeploymentStatusCancelled) }></i>
+	<i class={ icons.PipelineCancelIcon,"icon-lg", getStatusTextColor(enum.DeploymentStatusCancelled) }></i>
 }

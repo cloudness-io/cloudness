@@ -2,49 +2,51 @@ package icons
 
 const (
 	LogoIcon   = "logo.svg"
-	ServerIcon = "ph ph-hard-drives text-indigo-400"
-	AuthIcon   = "ph ph-key text-yellow-400"
+	ServerIcon = "ph ph-hard-drives"
+	AuthIcon   = "ph ph-key"
 	K8sIcon    = "k8s.svg"
-	RunnerIcon = "ph-fill ph-person-simple-run text-violet-500"
+	RunnerIcon = "ph-fill ph-person-simple-run"
 
-	ProjectIcon     = "ph ph-stack text-indigo-400"
-	EnvironmentIcon = "ph ph-package text-cyan-700"
-	ApplicationIcon = "ph ph-globe-simple text-blue-400"
-	OutIcon         = "ph ph-arrow-square-out text-brand"
+	TeamIcon        = "ph ph-building-office"
+	ProjectIcon     = "ph ph-stack"
+	EnvironmentIcon = "ph ph-package"
+	ApplicationIcon = "ph ph-globe-simple"
+	OutIcon         = "ph ph-arrow-square-out"
+	HomeIcon        = "ph ph-house"
 
 	//Fav
-	ToFavIcon = "ph ph-star text-yellow-400"
-	IsFavIcon = "ph-fill ph-star text-yellow-400"
+	ToFavIcon = "ph ph-star"
+	IsFavIcon = "ph-fill ph-star text-yellow-600"
 
 	PipelineSucessIcon  = "ph-fill ph-check-circle"
-	PipelineErrorIcon   = "ph-fill ph-x-circle"
+	PipelineErrorIcon   = "ph ph-x-circle"
 	PipelineSkippedIcon = "ph ph-prohibit-inset rotate-90"
 	PipelineRunningIcon = "ph ph-circle-notch"
 	PipelinePendingIcon = "ph ph-clock"
 	PipelineCancelIcon  = "ph ph-prohibit"
 
-	UserProfileIcon = "ph ph-user-circle text-brand"
-	UserSessionIcon = "ph ph-notebook text-sky-700"
-	UserSignoutIcon = "ph ph-sign-out text-error"
-	TeamIcon        = "ph ph-users-three text-brand"
-	MembersIcon     = "ph ph-user-list text-teal-500"
-	LimitsIcon      = "ph ph-prohibit text-brand"
-	SwitchIcon      = "ph ph-arrows-left-right text-brand"
+	UserProfileIcon = "ph ph-user-circle"
+	UserSessionIcon = "ph ph-notebook"
+	UserSignoutIcon = "ph ph-sign-out"
+	MembersIcon     = "ph ph-user-list"
+	TeamMembersIcon = "ph ph-users"
+	LimitsIcon      = "ph ph-prohibit"
+	SwitchIcon      = "ph ph-arrows-left-right"
 
 	NavUpIcon     = "ph ph-caret-up"
 	NavDownIcon   = "ph ph-caret-down"
 	NavUpDownIcon = "ph ph-caret-up-down"
 
-	SourceGitIcon      = "git.svg"
-	SourceDatabaseIcon = "ph ph-database text-sky-700"
+	SourceGitIcon      = "ph ph-git-merge"
+	SourceDatabaseIcon = "ph ph-database"
 	SourceRegistryIcon = "container-registry.svg"
-	SourceOneclickIcon = "ph ph-hand-tap text-lime-500"
-	SourceGithubIcon   = "github.svg"
+	SourceOneclickIcon = "ph ph-hand-tap"
+	SourceGithubIcon   = "ph ph-github-logo"
 	SourceTemplateIcon = "ph ph-folder-open"
 
 	//Action Icons
 	WarningIcon      = "ph-fill ph-warning"
-	DeleteIcon       = "ph ph-trash text-error"
+	DeleteIcon       = "ph ph-trash"
 	RestartIcon      = "ph ph-arrow-clockwise"
 	RefreshIcon      = "ph ph-arrows-clockwise text-brand"
 	RedoIcon         = "ph ph-arrow-u-down-right"
@@ -59,7 +61,7 @@ const (
 	FunctionIcon     = "ph ph-function"
 	CopyIcon         = "ph ph-copy"
 
-	SettingsIcon             = "ph ph-gear text-slate-400"
+	SettingsIcon             = "ph ph-gear"
 	BuildSectionIcon         = "ph ph-hammer"
 	DeploySectionIcon        = "ph ph-cube"
 	MetricsSectionIcon       = "ph ph-chart-line"
@@ -75,4 +77,8 @@ const (
 	VariablesIcon  = "ph ph-brackets-curly"
 	MetricsIcon    = "ph ph-chart-line-up text-teal-600"
 	TooltipIcon    = "ph ph-info"
+
+	//common
+	SearchIcon = "ph ph-magnifying-glass"
+	FilterIcon = "ph ph-filter"
 )

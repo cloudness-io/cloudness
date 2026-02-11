@@ -1,25 +1,29 @@
 package pages
 
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+
 templ Error404(previousUrl string) {
-	<div class="py-8 px-4 mx-auto max-w-(--breakpoint-xl) lg:py-16 lg:px-6" hx-swap-oob="true" id="root" hx-boost="false">
-		<div class="mx-auto max-w-(--breakpoint-sm) text-center">
-			<h1 class="mb-4 text-4xl tracking-tight font-extrabold lg:text-5xl text-brand">
-				404
-			</h1>
-			<p class="mb-4 text-2xl tracking-tight font-bold md:text-3xl">
-				Something's missing.
-			</p>
-			<p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
-				Sorry, we can't find that page. You'll find
-				lots to explore on the home page.
-			</p>
-			<div class="mt-6">
-				if previousUrl != "" {
-					<a href={ templ.SafeURL(previousUrl) } class="button-primary py-2">Go Back</a>
-				} else {
-					<a href="/" class="button-primary py-2">Back to Homepage</a>
-				}
+	@shared.PageContainer(shared.PageSizeSmall) {
+		<div class="py-8 px-4 mx-auto max-w-(--breakpoint-xl) lg:py-16 lg:px-6" hx-swap-oob="true" id="root" hx-boost="false">
+			<div class="mx-auto max-w-(--breakpoint-sm) text-center">
+				<h1 class="mb-4 text-4xl tracking-tight font-extrabold lg:text-5xl text-brand">
+					404
+				</h1>
+				<p class="mb-4 text-2xl tracking-tight font-bold md:text-3xl">
+					Something's missing.
+				</p>
+				<p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
+					Sorry, we can't find that page. You'll find
+					lots to explore on the home page.
+				</p>
+				<div class="mt-6">
+					if previousUrl != "" {
+						@shared.NavButtonPrimary("Go Back", previousUrl)
+					} else {
+						@shared.NavButtonPrimary("Back to Homepage", "/")
+					}
+				</div>
 			</div>
 		</div>
-	</div>
+	}
 }

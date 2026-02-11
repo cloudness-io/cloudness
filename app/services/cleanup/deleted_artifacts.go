@@ -14,7 +14,7 @@ import (
 
 const (
 	jobTypeDeletedArtifacts        = "cloudness:cleanup:deleted-artifacts"
-	jobCronDeletedArtifacts        = "*/5 * * * *"
+	jobCronDeletedArtifacts        = "*/2 * * * *"
 	jobMaxDurationDeletedArtifacts = 10 * time.Minute
 	maxRetrivalItems               = 100
 )
@@ -63,11 +63,10 @@ func (t *purgeTracker) ToString() string {
 }
 
 func (j *deletedArtifactsJob) Handle(ctx context.Context, _ string, _ job.ProgressReporter) (string, error) {
-	olderThan := time.Now().UTC().Add(-time.Minute)
-
-	log.Ctx(ctx).Info().Msgf("cleanup: starting to purge artifacts deleted before %s: %d", olderThan.Format(time.RFC3339Nano), olderThan.UnixMilli())
-
+	olderThan := time.Now().UTC()
 	deletedBeforeOrAt := olderThan.UnixMilli()
+
+	log.Ctx(ctx).Info().Msgf("cleanup: starting to purge artifacts deleted before %s: %d", olderThan.Format(time.RFC3339Nano), deletedBeforeOrAt)
 
 	tracker := &purgeTracker{}
 

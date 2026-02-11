@@ -28,7 +28,7 @@ func (m *K8sManager) ListMetrics(ctx context.Context, server *types.Server) ([]*
 
 	for _, pod := range podMetrics.Items {
 		appUID := m.getApplicationUIDFromPodLabels(pod.Labels)
-		updatedAt := m.getUpdateTimeFromPodLabels(pod.Labels)
+		updatedAt := m.getUpdateTimeFromPodAnnotations(pod.Annotations)
 		if appUID == 0 {
 			continue
 		}

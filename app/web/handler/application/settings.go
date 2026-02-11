@@ -43,7 +43,7 @@ func HandleUpdateSettings(appCtrl *application.Controller, ghAppCtrl *githubapp.
 		app, err := appCtrl.Update(ctx, session, tenant, project, environment, app, in)
 		if err != nil {
 			log.Error().Err(err).Msg("Error updating application")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

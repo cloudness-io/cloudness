@@ -7,12 +7,8 @@ import (
 	"github.com/cloudness-io/cloudness/app/controller/application"
 	"github.com/cloudness-io/cloudness/app/controller/environment"
 	"github.com/cloudness-io/cloudness/app/request"
-	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vapplication"
-	"github.com/cloudness-io/cloudness/app/web/views/components/vproject"
-	"github.com/cloudness-io/cloudness/app/web/views/dto"
-	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 
 	"github.com/rs/zerolog/log"
@@ -28,7 +24,6 @@ func RenderAppList(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	tenant, _ := request.TenantFrom(ctx)
 	project, _ := request.ProjectFrom(ctx)
 	env, _ := request.EnvironmentFrom(ctx)
-	target := request.TargetElementFrom(ctx)
 
 	apps, err := appCtrl.List(ctx, tenant.ID, project.ID, env.ID)
 	if err != nil {
@@ -37,7 +32,7 @@ func RenderAppList(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	if request.HxIndicatorFrom(ctx) && target != routes.TargetMain {
+	if request.HxIndicatorFrom(ctx) {
 		render.HTMLWithBreadCrumb(ctx, w, vapplication.List(env, apps))
 		return
 	}
@@ -51,7 +46,7 @@ func RenderAppList(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 			return
 		}
 	}
-	render.Page(ctx, w, vproject.Overview(project, envs, env, apps))
+	// render.Page(ctx, w, vproject.Overview(project, envs, env, apps))
 }
 
 func HandleListNavigation(appctrl *application.Controller) http.HandlerFunc {
@@ -60,6 +55,7 @@ func HandleListNavigation(appctrl *application.Controller) http.HandlerFunc {
 		tenant, _ := request.TenantFrom(ctx)
 		project, _ := request.ProjectFrom(ctx)
 		env, _ := request.EnvironmentFrom(ctx)
+		selectedUID, _ := request.GetSelectedUIDFromPath(r)
 
 		apps, err := appctrl.List(ctx, tenant.ID, project.ID, env.ID)
 		if err != nil {
@@ -68,14 +64,6 @@ func HandleListNavigation(appctrl *application.Controller) http.HandlerFunc {
 			return
 		}
 
-		listItems := make([]*dto.BreadCrumbListItem, 0)
-		for _, app := range apps {
-			listItems = append(listItems, &dto.BreadCrumbListItem{
-				Name: app.Name,
-				Link: routes.ApplicationCtxUID(ctx, app.UID),
-			})
-		}
-
-		render.HTML(ctx, w, shared.BreadCrumbDropdownList(listItems))
+		render.HTML(ctx, w, vapplication.Dropdown(apps, selectedUID))
 	}
 }

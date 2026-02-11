@@ -59,7 +59,7 @@ func HandleRegister(instanceCtrl *instance.Controller, authCtrl *auth.Controller
 		tokenResponse, err := authCtrl.Register(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error registering user")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

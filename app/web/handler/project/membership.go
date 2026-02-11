@@ -35,7 +35,7 @@ func HandleAddMember(projectCtrl *project.Controller) http.HandlerFunc {
 		err := projectCtrl.AddMember(ctx, session, tenant.ID, project.ID, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error adding project membership")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

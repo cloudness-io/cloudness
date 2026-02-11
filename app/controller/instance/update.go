@@ -15,6 +15,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type InstanceUpdateFQDNInput struct {
+	FQDN            string           `json:"fqdn"`
+	DNSProvider     enum.DNSProvider `json:"dns_provider"`
+	DNSProviderAuth string           `json:"dns_provider_auth"`
+}
+
+type InstanceUpdateDNSConfigInput struct {
+	DNSValidationEnabled bool   `json:"dns_validation_enabled,string"`
+	DNSServers           string `json:"dns_servers"`
+}
+
+type InstanceUpdateScriptsInput struct {
+	ExternalScripts   string `json:"external_scripts"`
+	AdditionalScripts string `json:"additional_scripts"`
+}
+
 type InstanceUpdateInput struct {
 	FQDN                 string           `json:"fqdn"`
 	DNSProvider          enum.DNSProvider `json:"dns_provider"`
@@ -32,10 +48,11 @@ type InstanceRegistryUpdateInput struct {
 	MirrorSize    int64 `json:"registry_mirror_size,string"`
 }
 
-func (c *Controller) Update(ctx context.Context, server *types.Server, in *InstanceUpdateInput) (*types.Instance, error) {
-	if err := c.sanitizeGeneralUpdateModel(in); err != nil {
+func (c *Controller) UpdateFQDN(ctx context.Context, server *types.Server, in *InstanceUpdateFQDNInput) (*types.Instance, error) {
+	if err := c.sanitizeFQDNUpdateModel(in); err != nil {
 		return nil, err
 	}
+
 	instance, err := c.instanceStore.Get(ctx)
 	if err != nil {
 		return nil, err
@@ -75,8 +92,8 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 
 		if !isServerSubdomain {
 			// validate dns record
-			if in.DNSValidationEnabled {
-				err = c.dnsSvc.ValidateHost(ctx, fqdnURL.Hostname(), server.IPV4, in.DNSServers, in.DNSProvider)
+			if instance.DNSValidationEnabled {
+				err = c.dnsSvc.ValidateHost(ctx, fqdnURL.Hostname(), server.IPV4, instance.DNSServers, in.DNSProvider)
 				if err != nil {
 					return nil, err
 				}
@@ -101,10 +118,6 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 		instance.DNSProvider = in.DNSProvider
 		instance.DNSProviderAuth = in.DNSProviderAuth
 	}
-	instance.DNSValidationEnabled = in.DNSValidationEnabled
-	instance.DNSServers = in.DNSServers
-	instance.ExternalScripts = in.ExternalScripts
-	instance.AdditionalScripts = in.AdditionalScripts
 
 	err = c.tx.WithTx(ctx, func(ctx context.Context) error {
 		manager, err := c.factory.GetServerManager(server)
@@ -142,16 +155,39 @@ func (c *Controller) Update(ctx context.Context, server *types.Server, in *Insta
 	return instance, nil
 }
 
-func (c *Controller) UpdateWithServer(ctx context.Context, server *types.Server) (*types.Instance, error) {
+func (c *Controller) UpdateDNSConfig(ctx context.Context, in *InstanceUpdateDNSConfigInput) (*types.Instance, error) {
+	if err := c.sanitizeDNSConfigUpdateModel(in); err != nil {
+		return nil, err
+	}
 	instance, err := c.instanceStore.Get(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	instance.PublicIPV4 = server.IPV4
-	instance.PublicIPV6 = server.IPV6
+	instance.DNSValidationEnabled = in.DNSValidationEnabled
+	instance.DNSServers = in.DNSServers
 
-	return c.instanceStore.Update(ctx, instance)
+	instance, err = c.instanceStore.Update(ctx, instance)
+	if err != nil {
+		return nil, err
+	}
+	return instance, nil
+}
+
+func (c *Controller) UpdateScripts(ctx context.Context, in *InstanceUpdateScriptsInput) (*types.Instance, error) {
+	instance, err := c.instanceStore.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	instance.ExternalScripts = in.ExternalScripts
+	instance.AdditionalScripts = in.AdditionalScripts
+
+	instance, err = c.instanceStore.Update(ctx, instance)
+	if err != nil {
+		return nil, err
+	}
+	return instance, nil
 }
 
 func (c *Controller) UpdateEnableSignup(ctx context.Context, enableSignup bool) error {
@@ -258,7 +294,7 @@ func (c *Controller) UpdateRegistry(ctx context.Context, in *InstanceRegistryUpd
 	// return c.instanceStore.Update(ctx, instance)
 }
 
-func (c *Controller) sanitizeGeneralUpdateModel(in *InstanceUpdateInput) error {
+func (c *Controller) sanitizeFQDNUpdateModel(in *InstanceUpdateFQDNInput) error {
 	errors := check.NewValidationErrors()
 	if err := check.FQDN(in.FQDN); in.FQDN != "" && err != nil {
 		errors.AddValidationError("fqdn", err)
@@ -275,6 +311,21 @@ func (c *Controller) sanitizeGeneralUpdateModel(in *InstanceUpdateInput) error {
 			if in.DNSProviderAuth == "" {
 				errors.AddValidationError("dns_provider_auth", usererror.BadRequest("DNS Auth is required for https domain behind a DNS proxy provider"))
 			}
+		}
+	}
+
+	if errors.HasError() {
+		return errors
+	}
+	return nil
+}
+
+func (c *Controller) sanitizeDNSConfigUpdateModel(in *InstanceUpdateDNSConfigInput) error {
+	errors := check.NewValidationErrors()
+
+	if in.DNSValidationEnabled {
+		if in.DNSServers == "" {
+			errors.AddValidationError("dns_servers", usererror.BadRequest("DNS servers are required"))
 		}
 	}
 

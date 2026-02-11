@@ -6,6 +6,7 @@ type Tenant struct {
 	ID                 int64   `db:"tenant_id"                     json:"-"`
 	UID                int64   `db:"tenant_uid"                    json:"uid"`
 	Name               string  `db:"tenant_name"                   json:"name"`
+	Slug               string  `db:"tenant_slug"                   json:"slug"`
 	Description        string  `db:"tenant_description"            json:"description"`
 	AllowAdminToModify bool    `db:"tenant_allow_admin_to_modify"  json:"allow_admin_to_modify"`
 	MaxProjects        int64   `db:"tenant_max_projects"           json:"max_projects"`

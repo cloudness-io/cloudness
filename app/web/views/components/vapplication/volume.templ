@@ -9,23 +9,37 @@ import (
 )
 
 templ VolumeList(app *types.Application, volumes []*types.Volume) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavVolume,
-		Content:    volumeList(app, volumes),
 		Options:    getAppPageNav(app),
-		Header:     shared.CommandBar(getCommandButtons()),
-	})
+	}) {
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@volumeList(app, volumes)
+			}
+		}
+	}
 }
 
 templ volumeList(app *types.Application, volumes []*types.Volume) {
-	if !specSvc.IsStateless(app.Spec) {
-		@shared.WarningAlert("Volumes are not supported in stateless apps", `Volumes are not supported if the replica count
-		is more than one or cron schedule is set.`)
-	} else {
-		<div class="flex flex-col gap-2">
-			@vvolume.List(volumes)
-			@vvolume.ListUnattachedContainer(routes.AppVolumeUnAttached)
-		</div>
+	@shared.PageSection("Volumes", shared.TextComp("Volumes that are currently attached to the application"), vvolume.AddButton()) {
+		if !specSvc.IsStateless(app.Spec) {
+			@shared.WarningAlert("Volumes are not available for this app", `Volumes can only be used when the app runs a single replica and has no scheduled jobs.`)
+		} else {
+			<div class="flex flex-col gap-2">
+				@vvolume.List(volumes)
+			</div>
+		}
+	}
+	if specSvc.IsStateless(app.Spec) {
+		@shared.PageSection("Unattached Volumes", shared.TextComp("You can attach volumes which are not used by any	application"), templ.NopComponent) {
+			<div class="flex flex-col gap-2">
+				@vvolume.ListUnattachedContainer(routes.AppVolumeUnAttached)
+			</div>
+		}
 	}
 }
