@@ -3,6 +3,8 @@ package vfavorite
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
+import "strings"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 
 templ ListPlaceholder(tenant *types.Tenant) {
 	@shared.PageSection("Favorites", templ.NopComponent, templ.NopComponent) {
@@ -35,15 +37,18 @@ templ List(favs []*types.FavoriteDTO) {
 								<span class="text-foreground-light">{ fav.AppName }</span>
 							}
 							@shared.TableBodyCell() {
-								<span class="text-foreground-light">{ fav.ProjectName }</span>
+								<span class="text-foreground-light text-xs">{ fav.ProjectName }</span>
 							}
 							@shared.TableBodyCell() {
-								<span class="text-foreground-light">{ fav.EnvironmentName }</span>
+								<span class="text-foreground-light text-xs">{ fav.EnvironmentName }</span>
 							}
 							@shared.TableBodyCell() {
 								<span onClick="event.stopPropagation();">
 									if fav.AppDomain != "" {
-										<a class="link" href={ templ.SafeURL(fav.AppDomain) } target="_blank">{ fav.AppDomain }</a>
+										<a class="text-foreground-light hover:text-foreground inline-flex items-center gap-1 text-xs" href={ templ.SafeURL(fav.AppDomain) } target="_blank">
+											<span class="truncate max-w-40 md:max-w-72 lg:max-w-96">{ trimProtocol(fav.AppDomain) }</span>
+											@shared.Icon(icons.OutIcon, "size-3 shrink-0")
+										</a>
 									}
 								</span>
 							}
@@ -53,4 +58,10 @@ templ List(favs []*types.FavoriteDTO) {
 			}
 		</div>
 	}
+}
+
+func trimProtocol(url string) string {
+	url = strings.TrimPrefix(url, "https://")
+	url = strings.TrimPrefix(url, "http://")
+	return strings.TrimSuffix(url, "/")
 }
