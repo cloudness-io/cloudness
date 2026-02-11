@@ -22,7 +22,7 @@ templ LayoutWithNav(dto *dto.BaseLayoutOption, contents templ.Component) {
 		<div class="sticky top-0 z-50">
 			<div id="toast" class="toast-wrapper"></div>
 		</div>
-		<div class="sticky top-0 z-10">
+		<div class="relative top-0 z-10">
 			@navigations.MainNav(dto.Nav)
 		</div>
 		@shared.ProgressIndicator()
