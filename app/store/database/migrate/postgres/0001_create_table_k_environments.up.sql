@@ -3,6 +3,7 @@ CREATE TABLE environments (
     environment_uid INTEGER NOT NULL,
     environment_tenant_id INTEGER NOT NULL,
     environment_project_id INTEGER NOT NULL REFERENCES projects (project_id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    environment_sequence INTEGER NOT NULL,
     environment_name TEXT NOT NULL,
 	 environment_slug TEXT NOT NULL,
     environment_created_by INTEGER NOT NULL,
