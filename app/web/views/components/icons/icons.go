@@ -16,7 +16,7 @@ const (
 
 	//Fav
 	ToFavIcon = "ph ph-star"
-	IsFavIcon = "ph-fill ph-star"
+	IsFavIcon = "ph-fill ph-star text-yellow-600"
 
 	PipelineSucessIcon  = "ph-fill ph-check-circle"
 	PipelineErrorIcon   = "ph ph-x-circle"

@@ -35,17 +35,8 @@ func HandleGet(projectCtrl *project.Controller, envCtrl *environment.Controller,
 			// w.Header().Set("HX-Push-Url", routes.EnvironmentCtx(ctx)+routes.EnvironmentApplication)
 			// handlerapplication.RenderAppList(ctx, w, r, envs, envCtrl, appCtrl)
 			// return
-			render.Redirect(w, routes.EnvironmentCtxUID(ctx, env.UID))
+			render.RedirectWithRefresh(w, routes.EnvironmentCtxUID(ctx, env.UID))
 			return
-		}
-
-		if env != nil {
-			apps, err = appCtrl.List(ctx, tenant.ID, project.ID, env.ID)
-			if err != nil {
-				log.Error().Err(err).Msg("error listing applications")
-				render.ToastError(ctx, w, err)
-				return
-			}
 		}
 
 		render.Page(ctx, w, vproject.Overview(project, env, apps))

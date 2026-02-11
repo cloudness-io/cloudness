@@ -3,6 +3,7 @@ package vtenant
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vproject"
+import "github.com/cloudness-io/cloudness/app/web/views/components/vfavorite"
 
 templ Home(tenant *types.Tenant, projects []*types.Project, canEdit bool) {
 	@shared.PageView(&shared.PageViewProps{
@@ -15,6 +16,9 @@ templ Home(tenant *types.Tenant, projects []*types.Project, canEdit bool) {
 			}
 			@shared.PageContentShort() {
 				@vproject.ListProjects(projects)
+				if len(projects) > 0 {
+					@vfavorite.ListPlaceholder(tenant)
+				}
 			}
 		}
 	}

@@ -271,6 +271,11 @@
   animation-delay: 1.15s;
 }
 
+.htmx-request .content,
+.htmx-request.content {
+  display: none;
+}
+
 .htmx-request.progress-indicator {
   display: inline;
 }
@@ -337,7 +342,7 @@
 }
 
 @utility link {
-  @apply hover:text-foreground cursor-pointer disabled:text-link-disabled hover:underline disabled:hover:no-underline;
+  @apply text-foreground-light hover:text-foreground cursor-pointer disabled:text-link-disabled hover:underline disabled:hover:no-underline;
 }
 
 .button-link {

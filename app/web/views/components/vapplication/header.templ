@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/components/vfavorite"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
@@ -50,6 +51,7 @@ templ appHeader(app *types.Application) {
 							@shared.Icon(icons.OutIcon, "cursor-pointer")
 						</a>
 					}
+					@vfavorite.SymbolPlaceHolder(app)
 				</div>
 				<div id="subtitle" class="flex flex-row flex-wrap items-center gap-1 text-xs leading-4 h-4">
 					<!--TODO: Add application type here-->

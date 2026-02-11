@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
 
@@ -11,13 +12,13 @@ templ SymbolPlaceHolder(app *types.Application) {
 	<div
 		id={ fmt.Sprintf("favorite-%d", app.UID) }
 		hx-get={ routes.ApplicationCtx(ctx) + "/" + routes.AppFavorite }
+		hx-push-url="false"
 		hx-trigger="load"
+		hx-target="this"
 		hx-swap="innerHTML"
 		hx-indicator="#fav-app"
 	>
-		<div id="fav-app">
-			@Symbol(app, false)
-		</div>
+		<div id="fav-app"></div>
 	</div>
 }
 
@@ -30,11 +31,17 @@ templ Symbol(app *types.Application, isFav bool) {
 			hx-get={ routes.AppFavorite + "/remove" }
 		}
 		hx-trigger="click"
+		hx-indicator="#fav-loader, .content"
 	>
-		if isFav {
-			<i class={ icons.IsFavIcon }></i>
-		} else {
-			<i class={ icons.ToFavIcon }></i>
-		}
+		<span id="fav-icon" class="content">
+			if isFav {
+				<i class={ icons.IsFavIcon }></i>
+			} else {
+				<i class={ icons.ToFavIcon }></i>
+			}
+		</span>
+		<span id="fav-loader" class="htmx-indicator">
+			@shared.SpinnerTiny()
+		</span>
 	</span>
 }
