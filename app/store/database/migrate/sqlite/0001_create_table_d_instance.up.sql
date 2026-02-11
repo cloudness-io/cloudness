@@ -17,6 +17,7 @@ CREATE TABLE instances (
 ,instance_registry_mirror_enabled 		BOOLEAN
 ,instance_registry_mirror_size	 		INTEGER
 ,instance_external_scripts				TEXT
+,instance_additional_scripts            TEXT
 ,instance_created                       INTEGER
 ,instance_updated                       INTEGER
 
