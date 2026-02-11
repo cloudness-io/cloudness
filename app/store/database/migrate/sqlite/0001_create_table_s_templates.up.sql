@@ -5,7 +5,6 @@ CREATE TABLE templates (
 ,template_name					TEXT NOT NULL
 ,template_icon					TEXT
 ,template_readme				TEXT
-,template_tags					TEXT   --comma separated
 ,template_spec					TEXT NOT NULL
 ,template_created				BIGINT NOT NULL
 
@@ -38,3 +37,6 @@ CREATE TABLE template_tags(
     ON UPDATE NO ACTION
     ON DELETE CASCADE
 );
+
+CREATE INDEX idx_template_tags_tag_id ON template_tags(tag_id);
+CREATE INDEX idx_template_tags_template_id ON template_tags(template_id);

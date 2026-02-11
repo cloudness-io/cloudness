@@ -13,12 +13,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HandleGetWithoutTenantUID(tenantCtrl *tenant.Controller) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		render.RedirectWithRefresh(w, routes.TenantBaseURL())
-	}
-}
-
 func HandleGet(tenantCtrl *tenant.Controller, projectCtrl *project.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

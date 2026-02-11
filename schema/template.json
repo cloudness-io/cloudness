@@ -22,7 +22,7 @@
     "tags": {
       "type": "array",
       "items": {
-        "types": "string"
+        "type": "string"
       },
       "description": "Tags for application"
     },
