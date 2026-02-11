@@ -41,24 +41,18 @@ func (m *K8sManager) getKubeKeyForDomain(subdomain, hostname string) (string, er
 	return kubeName, nil
 }
 
-func (m *K8sManager) certificateSecretName(key string) string {
-	return key + "-secret"
-}
-
 func (m *K8sManager) getApplicationUIDFromPodLabels(labels map[string]string) int64 {
-	appName := labels["app.kubernetes.io/name"] //will be of type app-123123123
+	appIdentifier := labels["app.kubernetes.io/cloudness-identifier"] //will be of type app-123123123
 
-	appUIDStr, found := strings.CutPrefix(appName, "app-")
-
-	if found {
-		appUID, _ := strconv.ParseInt(appUIDStr, 10, 64)
+	if appIdentifier != "" {
+		appUID, _ := strconv.ParseInt(appIdentifier, 10, 64)
 		return appUID
 	}
 
 	return 0
 }
 
-func (m *K8sManager) getUpdateTimeFromPodLabels(labels map[string]string) int64 {
+func (m *K8sManager) getUpdateTimeFromPodAnnotations(labels map[string]string) int64 {
 	updateTimeStr, found := labels["cloudness.io/deployment-time"]
 	if !found {
 		return 0

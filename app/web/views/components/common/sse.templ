@@ -8,15 +8,27 @@ import (
 	"strings"
 )
 
-func renderStreamer(ctx context.Context) bool {
+func shouldRenderStreamerOOB(ctx context.Context) bool {
+	// not a project route
+	currUrl, cOK := request.CurrentFullUrlFrom(ctx)
+	if !cOK || !strings.Contains(currUrl, "/project/") {
+		return false
+	}
+
+	// has not previous url, so a fresh page load ?? !!!
 	prevUrl, ok := request.HxCallerUrlFrom(ctx)
 	if !ok {
-		// not a hx request, alway render renderStreamer
-		return true
+		return true // not a hx request, alway render renderStreamer
 	}
 
 	project, projOk := request.ProjectFrom(ctx)
+	// does not have a current project
+	if !projOk {
+		return false
+	}
+
 	isFromSameProject := strings.Contains(prevUrl, fmt.Sprintf("/project/%d", project.UID))
+	// navigated from a different project, so re-render
 	if !isFromSameProject {
 		return true
 	}
@@ -25,7 +37,7 @@ func renderStreamer(ctx context.Context) bool {
 }
 
 templ RenderSSEStreamer() {
-	if renderStreamer(ctx) {
+	if shouldRenderStreamerOOB(ctx) {
 		<div id="stream-container" hx-swap-oob="true">
 			<div
 				hx-ext="sse"

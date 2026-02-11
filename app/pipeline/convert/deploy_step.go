@@ -87,15 +87,16 @@ func deployCommand(
 
 func getTemplateInput(image string, input *pipeline.RunnerContextInput, spec *types.ApplicationSpec, vars map[string]string) (*templates.TemplateIn, error) {
 	in := &templates.TemplateIn{
-		Namespace:   input.Application.ParentSlug,
-		Identifier:  input.Application.GetIdentifierStr(),
-		Image:       image,
-		MaxReplicas: spec.Deploy.MaxReplicas,
-		CPU:         spec.Deploy.CPU,
-		Memory:      spec.Deploy.Memory,
-		Volumes:     make([]*templates.Volume, 0),
-		Variables:   make(map[string]string),
-		Secrets:     make(map[string]string),
+		Namespace:           input.Application.ParentSlug,
+		Identifier:          input.Application.GetIdentifierStr(),
+		CloudnessIdentifier: fmt.Sprintf("%d", input.Application.UID),
+		Image:               image,
+		MaxReplicas:         spec.Deploy.MaxReplicas,
+		CPU:                 spec.Deploy.CPU,
+		Memory:              spec.Deploy.Memory,
+		Volumes:             make([]*templates.Volume, 0),
+		Variables:           make(map[string]string),
+		Secrets:             make(map[string]string),
 		//networking
 		ServicePorts: make([]int, 0),
 		HasState:     input.Application.Type == enum.ApplicationTypeStateful,
