@@ -38,6 +38,7 @@ const projectColumns = `
 	project_tenant_id,
 	project_name,
 	project_uid,
+	project_slug,
 	project_description,
 	project_created_by,
 	project_created,
@@ -47,6 +48,7 @@ const projectColumns = `
 const projectInsert = `
 INSERT INTO projects (
 	project_uid
+	,project_slug
 	,project_tenant_id
 	,project_name
 	,project_description
@@ -56,6 +58,7 @@ INSERT INTO projects (
 	,project_deleted
 ) values (
 	:project_uid
+	,:project_slug
 	,:project_tenant_id
 	,:project_name
 	,:project_description

@@ -30,7 +30,7 @@ templ projectGeneralSettings(project *types.Project) {
 		@shared.CardContainer() {
 			<form
 				class="form"
-				x-data={ xdata.ToFormData(&projectCtrl.CreateProjectInput{Name: project.Name, Description: project.Description}) }
+				x-data={ xdata.ToFormData(&projectCtrl.CreateProjectInput{Name: project.Name, Slug: project.Slug, Description: project.Description}) }
 				hx-push-url="false"
 				hx-swap="none"
 				hx-indicator="#overlay-spinner"
@@ -42,6 +42,15 @@ templ projectGeneralSettings(project *types.Project) {
 					Label: "Name",
 					Attrs: templ.Attributes{
 						"x-model": "form.name",
+					},
+				})
+				@shared.NewInput(&shared.NewInputProps{
+					Name:      "slug",
+					Label:     "Slug",
+					Disabled:  true,
+					AllowCopy: true,
+					Attrs: templ.Attributes{
+						"x-model": "form.slug",
 					},
 				})
 				@shared.NewTextarea(&shared.NewTextareaProps{

@@ -17,6 +17,7 @@ import (
 
 type CreateProjectInput struct {
 	Name        string `json:"name"`
+	Slug        string `json:"slug"`
 	Description string `json:"description"`
 }
 
@@ -46,6 +47,7 @@ func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *
 		UID:         helpers.GenerateUID(),
 		TenantID:    tenant.ID,
 		Name:        in.Name,
+		Slug:        helpers.Slugify("p", in.Name),
 		Description: in.Description,
 		CreateBy:    userID,
 		Created:     now,

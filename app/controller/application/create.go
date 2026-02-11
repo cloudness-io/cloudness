@@ -105,6 +105,8 @@ func (c *Controller) CreateWithoutTx(ctx context.Context, dto *createOrUpdateDto
 	application.DeploymentStatus = enum.ApplicationDeploymentStatusNeedsDeployment
 	application.PrivateDomain = privateDomain
 	application.Name = helpers.CapitalizeString(privateDomain)
+	application.Slug = helpers.Slugify("", application.Name)
+	application.ParentSlug = dto.Environment.Slug
 
 	application, err = c.applicationStore.Create(ctx, application)
 	if err != nil {

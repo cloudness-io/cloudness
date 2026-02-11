@@ -61,9 +61,9 @@ func (c *Controller) SoftDelete(ctx context.Context, app *types.Application, opt
 	})
 }
 
-func (c *Controller) SoftDeleteInEnvironment(ctx context.Context, envID, now int64) error {
+func (c *Controller) SoftDeleteInEnvironment(ctx context.Context, env *types.Environment, now int64) error {
 	apps, err := c.applicationStore.List(ctx, &types.ApplicationFilter{
-		EnvironmentID: &envID,
+		EnvironmentID: &env.ID,
 	})
 	if err != nil {
 		return err
@@ -102,5 +102,5 @@ func (c *Controller) clearResources(ctx context.Context, server *types.Server, a
 		return err
 	}
 
-	return manager.DeleteResources(ctx, server, app.Namespace(), app.GetIdentifierStr())
+	return manager.DeleteResources(ctx, server, app.ParentSlug, app.GetIdentifierStr())
 }

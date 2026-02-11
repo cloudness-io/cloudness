@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/cloudness-io/cloudness/errors"
 	"github.com/cloudness-io/cloudness/types/enum"
@@ -17,6 +16,8 @@ type Application struct {
 	EnvironmentUID        int64                            `db:"application_environment_uid"              json:"environment_uid"`
 	ServerID              int64                            `db:"application_server_id"                    json:"-"`
 	Name                  string                           `db:"application_name"                         json:"name"`
+	Slug                  string                           `db:"application_slug"                         json:"slug"`
+	ParentSlug            string                           `db:"application_parent_slug"                  json:"parent_slug"`
 	Description           string                           `db:"application_description"                  json:"description"`
 	Type                  enum.ApplicationType             `db:"application_type"                         json:"type"`
 	Status                enum.ApplicationStatus           `db:"application_status"                       json:"status"`
@@ -46,10 +47,9 @@ type ApplicationFilter struct {
 	DeletedBeforeOrAt *int64               `json:"deleted_before_or_at,omitempty"`
 }
 
-//helpers
-
+// helpers
 func (a *Application) GetIdentifierStr() string {
-	return fmt.Sprintf("app-%d", a.UID)
+	return a.Slug
 }
 
 // GetGithubAppID returns the github app id if it exists

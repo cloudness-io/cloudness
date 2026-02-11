@@ -3,6 +3,7 @@ CREATE TABLE projects (
 ,project_uid            INTEGER NOT NULL
 ,project_tenant_id      INTEGER
 ,project_name           TEXT NOT NULL
+,project_slug           TEXT NOT NULL
 ,project_description    TEXT
 ,project_created_by     INTEGER NOT NULL
 ,project_created        BIGINT NOT NULL
@@ -10,6 +11,7 @@ CREATE TABLE projects (
 ,project_deleted        BIGINT DEFAULT NULL
 
 ,UNIQUE(project_uid, project_tenant_id)
+,UNIQUE(project_slug)
 
 ,CONSTRAINT fk_project_tenant_id FOREIGN KEY (project_tenant_id)
     REFERENCES tenants (tenant_id) MATCH SIMPLE

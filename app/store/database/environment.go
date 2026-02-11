@@ -40,6 +40,7 @@ const environmentColumns = `
    environment_project_id,
 	environment_sequence,
    environment_name,
+	environment_slug,
    environment_created_by,
    environment_created,
    environment_updated,
@@ -52,6 +53,7 @@ INSERT INTO environments (
    ,environment_project_id
 	,environment_sequence
    ,environment_name
+	,environment_slug
    ,environment_created_by
    ,environment_created
    ,environment_updated
@@ -61,6 +63,7 @@ INSERT INTO environments (
    ,:environment_project_id
 	,:environment_sequence
    ,:environment_name
+	,:environment_slug
    ,:environment_created_by
    ,:environment_created
    ,:environment_updated

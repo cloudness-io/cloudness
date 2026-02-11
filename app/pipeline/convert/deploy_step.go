@@ -23,7 +23,7 @@ func deployCommand(
 	spec *types.ApplicationSpec,
 	vars map[string]string,
 ) error {
-	namespace := in.Application.Namespace()
+	namespace := in.Application.ParentSlug
 	name := in.Application.GetIdentifierStr()
 	_, pullImage, _ := specSvc.GetImage(in.Application, in.Deployment, in.Config)
 
@@ -87,7 +87,7 @@ func deployCommand(
 
 func getTemplateInput(image string, input *pipeline.RunnerContextInput, spec *types.ApplicationSpec, vars map[string]string) (*templates.TemplateIn, error) {
 	in := &templates.TemplateIn{
-		Namespace:   input.Application.Namespace(),
+		Namespace:   input.Application.ParentSlug,
 		Identifier:  input.Application.GetIdentifierStr(),
 		Image:       image,
 		MaxReplicas: spec.Deploy.MaxReplicas,

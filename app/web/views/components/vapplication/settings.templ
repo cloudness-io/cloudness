@@ -52,6 +52,11 @@ func getSettingsSections(
 ) []*shared.ContentViewerSection {
 	sections := []*shared.ContentViewerSection{
 		{
+			Name:      "General",
+			IconClass: icons.ApplicationIcon,
+			Content:   generalForm(application),
+		},
+		{
 			Name:      spec.GetSourceText(application),
 			IconClass: spec.GetSourceIcon(application),
 			Content:   sourceSettingsFrom(application, ghApp),

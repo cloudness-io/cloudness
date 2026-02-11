@@ -25,6 +25,8 @@ func (c *Controller) Create(ctx context.Context, tenant *types.Tenant, project *
 	now := time.Now().UTC().UnixMilli()
 	volume := &types.Volume{
 		Name:           in.Name,
+		Slug:           helpers.Slugify("", in.Name),
+		ParentSlug:     env.Slug,
 		UID:            helpers.GenerateUID(),
 		TenantID:       tenant.ID,
 		ProjectID:      project.ID,

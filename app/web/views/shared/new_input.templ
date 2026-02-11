@@ -73,7 +73,7 @@ templ NewInput(props *NewInputProps) {
 							readonly
 							aria-disabled="true"
 						}
-						class={ "flex w-full rounded-md border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-light text-sm leading-4 px-3 py-2 h-[34px]",
+						class={ "flex w-full rounded-md border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-muted text-sm leading-4 px-3 py-2 h-[34px]",
 						props.Class,
 							templ.KV("pr-10", props.Type == "password" && !props.Disabled) }
 						value={ props.Value }
@@ -91,12 +91,14 @@ templ NewInput(props *NewInputProps) {
 							class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-foreground-lighter hover:text-foreground"
 							@click={ fmt.Sprintf("navigator.clipboard.writeText(document.querySelector('input[name=%s]').value), copyMsg = true, setTimeout(() => copyMsg = false, 1000)", props.Name) }
 						>
-							@Icon(icons.CopyIcon, "cursor-pointer")
+							<span x-show="!copyMsg" x-cloak>
+								@Icon(icons.CopyIcon, "cursor-pointer")
+							</span>
+							<span x-show="copyMsg" x-cloak>
+								@Icon(icons.SuccessIcon, "")
+							</span>
 						</button>
 					}
-				</div>
-				<div x-show="copyMsg" x-transition x-cloak class="text-xs text-success">
-					Copied to clipboard!
 				</div>
 				<div id={ props.Name + "-error" }></div>
 				if props.ValueDescription != "" {

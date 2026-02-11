@@ -56,7 +56,8 @@ templ ListEdit(envs []*types.Environment, selected *types.Environment) {
 			for _,env := range envs {
 				<div class="flex items-center place-content-between mx-w-lg px-4 py-2 border rounded-md" x-data="{environmentEditModel: false, environmentDeleteModel: false}">
 					<div class="whitespace-nowrap text-left text-foreground-light">{ env.Name }</div>
-					<div class="whitespace-nowrap cursor-pointer">
+					<div class="whitespace-nowrap cursor-pointer flex flex-row gap-2">
+						<span class="text-foreground-lighter">{ env.Slug }</span>
 						@shared.MenuDropDown(getEnvMenuDropdownProps(ctx, env))
 						@shared.Modal("environmentEditModel", editEnvironmentForm(env))
 						@shared.Modal("environmentDeleteModel", deleteEnvironmentForm(env))

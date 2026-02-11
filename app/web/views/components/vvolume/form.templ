@@ -56,6 +56,17 @@ templ form(action enum.VolumeFormAction, in *types.VolumeCreateInput, uid int64)
 				"autofocus": true,
 			},
 		})
+		if action != enum.VolumeFormActionCreate {
+			@shared.NewInput(&shared.NewInputProps{
+				Label:     "Slug",
+				Name:      "slug",
+				Disabled:  true,
+				AllowCopy: true,
+				Attrs: templ.Attributes{
+					"x-model": "form.slug",
+				},
+			})
+		}
 		@shared.NewInput(&shared.NewInputProps{
 			Label:            "Mount Path",
 			LabelDescription: "Directory inside the container",

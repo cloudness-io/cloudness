@@ -8,6 +8,8 @@ CREATE TABLE volumes (
     volume_server_id INTEGER REFERENCES servers (server_id) ON UPDATE NO ACTION ON DELETE CASCADE,
     volume_application_id INTEGER DEFAULT NULL REFERENCES applications (application_id) ON UPDATE NO ACTION ON DELETE SET NULL,
     volume_name TEXT NOT NULL,
+	 volume_slug TEXT NOT NULL,
+	 volume_parent_slug TEXT NOT NULL,
     volume_mount_path TEXT NOT NULL,
     volume_host_path TEXT,
     volume_size INTEGER NOT NULL,
@@ -15,5 +17,6 @@ CREATE TABLE volumes (
     volume_created BIGINT NOT NULL,
     volume_updated BIGINT NOT NULL,
     volume_deleted BIGINT DEFAULT NULL,
-    UNIQUE (volume_uid)
+    UNIQUE (volume_uid),
+	 UNIQUE (volume_tenant_id, volume_project_id, volume_environment_id, volume_slug)
 );

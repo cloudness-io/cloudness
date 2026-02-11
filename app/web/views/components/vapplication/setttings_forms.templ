@@ -10,6 +10,26 @@ import (
 	"github.com/cloudness-io/cloudness/types"
 )
 
+templ generalForm(app *types.Application) {
+	@shared.CardContainer() {
+		<div class="form">
+			@shared.NewInput(&shared.NewInputProps{
+				Label:            "Display Name",
+				Value:            app.Name,
+				ValueDescription: "To update the application display name, please click on the application name on the header section",
+				Disabled:         true,
+			})
+			@shared.NewInput(&shared.NewInputProps{
+				Name:      "cloudness_app_slug",
+				Label:     "Slug",
+				Value:     app.Slug,
+				Disabled:  true,
+				AllowCopy: true,
+			})
+		</div>
+	}
+}
+
 templ sourceSettingsFrom(app *types.Application, ghApp *types.GithubApp) {
 	@shared.CardContainer() {
 		<div class="form">

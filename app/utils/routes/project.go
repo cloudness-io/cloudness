@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/cloudness-io/cloudness/app/request"
 )
@@ -48,8 +47,4 @@ func ProjectConnectionGithubUID(ghAppUID int64) string {
 
 func ProjectConnectionGithubUIDCtx(ctx context.Context, ghAppUID int64) string {
 	return fmt.Sprintf("%s/%s/%d", ProjectCtx(ctx), ProjectConnectionGithub, ghAppUID)
-}
-
-func IsProjectUrl(url string) bool {
-	return strings.Contains(url, "/project")
 }

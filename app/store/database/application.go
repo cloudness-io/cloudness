@@ -46,6 +46,8 @@ const applicationColumns = `
 	,application_environment_uid
 	,application_server_id
 	,application_name
+	,application_slug
+	,application_parent_slug
 	,application_description
 	,application_type
 	,application_status
@@ -70,6 +72,8 @@ INSERT INTO applications  (
 	,application_environment_uid
 	,application_server_id
 	,application_name
+	,application_slug
+	,application_parent_slug
 	,application_description
 	,application_type
 	,application_status
@@ -92,6 +96,8 @@ INSERT INTO applications  (
 	,:application_environment_uid
 	,:application_server_id
 	,:application_name
+	,:application_slug
+	,:application_parent_slug
 	,:application_description
 	,:application_type
 	,:application_status

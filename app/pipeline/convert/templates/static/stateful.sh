@@ -46,7 +46,7 @@ kubectl delete deployment/$DEPLOYMENT_NAME -n "$NAMESPACE" --ignore-not-found=tr
 
 # 8- Remove HTTPRoute if not present
 if [ "$HAS_HTTPROUTE" = "false" ]; then
-kubectl delete httproute -n "$NAMESPACE" -l identifier="$DEPLOYMENT_NAME"
+kubectl delete httproute -n "$NAMESPACE" -l app.kubernetes.io/instance="$DEPLOYMENT_NAME"
 fi
 
 # 9- Deployment success

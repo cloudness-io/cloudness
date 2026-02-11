@@ -5,20 +5,23 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"strings"
 )
 
 func renderStreamer(ctx context.Context) bool {
-	_, projOk := request.ProjectFrom(ctx)
 	prevUrl, ok := request.HxCallerUrlFrom(ctx)
 	if !ok {
-		// not a hx request
-		return projOk
+		// not a hx request, alway render renderStreamer
+		return true
 	}
 
-	isPreviousProjectUrl := routes.IsProjectUrl(prevUrl)
-	isCurrentProjectUrl := projOk
+	project, projOk := request.ProjectFrom(ctx)
+	isFromSameProject := strings.Contains(prevUrl, fmt.Sprintf("/project/%d", project.UID))
+	if !isFromSameProject {
+		return true
+	}
 
-	return isCurrentProjectUrl && (isPreviousProjectUrl == false)
+	return projOk
 }
 
 templ RenderSSEStreamer() {

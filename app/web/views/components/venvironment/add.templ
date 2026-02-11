@@ -41,7 +41,7 @@ templ add() {
 				<div
 					class="flex items-end col-span-8 space-x-2 ml-auto"
 				>
-					@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.ProjectEnvironment, "hx-push-url": "true"})
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "hx-get": routes.ProjectEnvironment, "hx-push-url": "true"})
 					@shared.ButtonPrimary("Create", templ.Attributes{
 						"type": "submit",
 					})

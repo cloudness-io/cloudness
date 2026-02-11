@@ -19,7 +19,7 @@ func (m *K8sManager) ListArtifacts(ctx context.Context, server *types.Server, ap
 	}
 
 	var pods *corev1.PodList
-	pods, err = client.CoreV1().Pods(app.Namespace()).List(ctx, metav1.ListOptions{
+	pods, err = client.CoreV1().Pods(app.ParentSlug).List(ctx, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/instance=%s", app.GetIdentifierStr()),
 	})
 
@@ -37,7 +37,7 @@ func (m *K8sManager) TailLogs(ctx context.Context, server *types.Server, app *ty
 		return nil, nil, err
 	}
 
-	pods, err := client.CoreV1().Pods(app.Namespace()).List(ctx, metav1.ListOptions{
+	pods, err := client.CoreV1().Pods(app.ParentSlug).List(ctx, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/instance=%s", app.GetIdentifierStr()),
 	})
 	if err != nil {
@@ -49,7 +49,7 @@ func (m *K8sManager) TailLogs(ctx context.Context, server *types.Server, app *ty
 
 	go func() {
 		for i, pod := range pods.Items {
-			req := client.CoreV1().Pods(app.Namespace()).GetLogs(pod.Name, &corev1.PodLogOptions{
+			req := client.CoreV1().Pods(app.ParentSlug).GetLogs(pod.Name, &corev1.PodLogOptions{
 				Follow:    true,
 				TailLines: nil,
 			})
