@@ -42,7 +42,7 @@ templ teamSettingsSection(tenant *types.Tenant) {
 						"x-model": "form.name",
 					},
 				})
-				@shared.NewInput(&shared.NewInputProps{
+				@shared.NewTextarea(&shared.NewTextareaProps{
 					Name:  "description",
 					Label: "Description",
 					Attrs: templ.Attributes{

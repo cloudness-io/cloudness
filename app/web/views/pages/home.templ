@@ -1,9 +1,6 @@
 package pages
 
 import (
-	"fmt"
-	"github.com/cloudness-io/cloudness/app/request"
-	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/vtenant"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
@@ -12,24 +9,11 @@ import (
 templ Home(tenants []*types.TenantMembershipUser) {
 	@shared.PageContainer(shared.PageSizeMedium) {
 		@shared.PageHeaderShort() {
-			<div class="flex items-center justify-between gap-4">
-				<h1>Teams </h1>
-				<div class="flex items-center gap-2">
-					if request.IsSuperAdmin(ctx) {
-						@shared.AddButton("New Team", fmt.Sprintf("%s/new", routes.TenantBase))
-					}
-				</div>
-			</div>
+			<h1>Teams </h1>
 		}
 		@shared.PageContentShort() {
-			if len(tenants) == 0 {
-				if request.IsSuperAdmin(ctx) {
-					@vtenant.AddTeamCard()
-				} else {
-					@vtenant.NoTeamAccessCard()
-				}
-			} else {
-				@vtenant.List(tenants)
+			@shared.PageSectionEmpty() {
+				@vtenant.ListTenants(tenants)
 			}
 		}
 	}

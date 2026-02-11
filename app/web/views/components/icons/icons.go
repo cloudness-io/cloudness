@@ -77,4 +77,8 @@ const (
 	VariablesIcon  = "ph ph-brackets-curly"
 	MetricsIcon    = "ph ph-chart-line-up text-teal-600"
 	TooltipIcon    = "ph ph-info"
+
+	//common
+	SearchIcon = "ph ph-magnifying-glass"
+	FilterIcon = "ph ph-filter"
 )

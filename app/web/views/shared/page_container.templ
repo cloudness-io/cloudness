@@ -91,3 +91,11 @@ templ PageSection(header string, description templ.Component, actionComp templ.C
 		</div>
 	</div>
 }
+
+templ PageSectionEmpty() {
+	<div data-slot="page-section" data-orientation="vertical" class="pt-12 first:pt-2 last:pb-12 gap-4 flex flex-col">
+		<div data-slot="page-section-content" class="">
+			{ children... }
+		</div>
+	</div>
+}
