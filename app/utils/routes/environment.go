@@ -26,6 +26,10 @@ func EnvironmentNew() string {
 	return fmt.Sprintf("%s/new", EnvironmentBase)
 }
 
+func EnvironmentNewCtx(ctx context.Context) string {
+	return fmt.Sprintf("%s/%s", ProjectCtx(ctx), EnvironmentNew())
+}
+
 func EnvironmentCtx(ctx context.Context) string {
 	environment, _ := request.EnvironmentFrom(ctx)
 	return fmt.Sprintf("%s/environment/%d", ProjectCtx(ctx), environment.UID)
