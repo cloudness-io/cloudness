@@ -22,28 +22,32 @@ templ MainNav(dto *dto.NavBarOption) {
 	<header
 		hx-sync="#main:replace"
 		hx-push-url="true"
-		class="h-12 grid grid-flow-col pl-4 min-w-full border-b bg-primary"
+		class="h-24 md:h-12"
 	>
-		<div class="flex items-center text-sm">
-			<a
-				class="flex items-center space-x-1.5 max-w-max cursor-pointer"
-				hx-get={ getBaseUrl(ctx) }
-			>
-				<img src={ views.Asset("logo.svg") } class="size-4 w-auto" alt="logo"/>
-			</a>
-			<div class="hidden md:block">
+		<div class="flex flex-col">
+			<div class="h-12 grid grid-flow-col pl-4 min-w-full border-b bg-primary">
+				<div class="flex items-center text-sm">
+					<a
+						class="flex items-center space-x-1.5 max-w-max cursor-pointer"
+						hx-get={ getBaseUrl(ctx) }
+					>
+						<img src={ views.Asset("logo.svg") } class="size-4 w-auto" alt="logo"/>
+					</a>
+					<div class="hidden md:block">
+						@shared.BreadCrumbWithoutSwap()
+					</div>
+				</div>
+				<div class="flex items-center ml-auto space-x-2">
+					<span class="size-6">
+						@shared.AppLinkGithub()
+					</span>
+					@ProfileDropdown(dto)
+				</div>
+			</div>
+			<!-- mobile set md:hidden-->
+			<div class="h-12 block md:hidden min-w-full border-b bg-primary flex items-center">
 				@shared.BreadCrumbWithoutSwap()
 			</div>
 		</div>
-		<div class="flex items-center ml-auto space-x-2">
-			<span class="size-6">
-				@shared.AppLinkGithub()
-			</span>
-			@ProfileDropdown(dto)
-		</div>
 	</header>
-	<!-- mobile set md:hidden-->
-	<div class="h-12 block md:hidden min-w-full border-b bg-primary flex items-center">
-		@shared.BreadCrumbWithoutSwap()
-	</div>
 }
