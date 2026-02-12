@@ -35,4 +35,7 @@ type ServerManager interface {
 
 	//Metrics
 	ListMetrics(ctx context.Context, server *types.Server) ([]*types.AppMetrics, error)
+
+	//Application status
+	ListApplicationStatuses(ctx context.Context, server *types.Server) ([]*types.AppStatus, error)
 }

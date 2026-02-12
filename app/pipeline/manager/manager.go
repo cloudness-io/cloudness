@@ -57,6 +57,9 @@ type (
 		//Metrics
 		// UploadMetrics uploads the full metrics to server
 		UploadMetrics(ctx context.Context, metrics []*types.AppMetrics) error
+
+		// UploadAppStatus Uploads the application status
+		UploadAppStatus(ctx context.Context, status []*types.AppStatus) error
 	}
 )
 
@@ -344,6 +347,20 @@ func (m *runnerManager) UploadMetrics(ctx context.Context, metrics []*types.AppM
 	if err := m.metricsStore.UpsertMany(ctx, metrics); err != nil {
 		log.Ctx(ctx).Error().Err(err).Msg("manager: error uploading metrics")
 		return err
+	}
+	return nil
+}
+
+func (m *runnerManager) UploadAppStatus(ctx context.Context, statuses []*types.AppStatus) error {
+	for _, status := range statuses {
+		if _, err := m.applicationStore.UpdateStatus(ctx, status.ApplicationUID, status.Status); err != nil {
+			log.Ctx(ctx).Error().Err(err).Msg("manager: error updating application status")
+			continue
+		}
+
+		if err := m.sseStreamer.Publish(ctx, status.ProjectID, enum.SSETypeApplicationStatusUpdated, status.ToEvent()); err != nil {
+			log.Warn().Err(err).Msg("manager: could not publish application updated event")
+		}
 	}
 	return nil
 }
