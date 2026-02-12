@@ -274,7 +274,7 @@ type (
 		UpdateDeploymentStatus(ctx context.Context, application *types.Application) (*types.Application, error)
 
 		// UpdateStatus updates application status
-		UpdateStatus(ctx context.Context, application *types.Application) (*types.Application, error)
+		UpdateStatus(ctx context.Context, appUID int64, status enum.ApplicationStatus) (*types.Application, error)
 
 		// UpdateDeploymentTriggerTime updates the application to latest trigger time
 		UpdateDeploymentTriggerTime(ctx context.Context, application *types.Application) (*types.Application, error)

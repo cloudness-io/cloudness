@@ -56,8 +56,11 @@ templ appHeader(app *types.Application) {
 				<div id="subtitle" class="flex flex-row flex-wrap items-center gap-1 text-xs leading-4 h-4">
 					<!--TODO: Add application type here-->
 					<div>Application |</div>
+					<div>Status:</div>
+					@AppStatus(app.UID, app.Status, false)
+					|
 					<div>Deployment Status:</div>
-					@AppStatus(app, false)
+					@AppDeploymentStatus(app, false)
 				</div>
 			</div>
 		</div>

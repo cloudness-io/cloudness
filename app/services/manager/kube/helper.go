@@ -42,11 +42,22 @@ func (m *K8sManager) getKubeKeyForDomain(subdomain, hostname string) (string, er
 }
 
 func (m *K8sManager) getApplicationUIDFromPodLabels(labels map[string]string) int64 {
-	appIdentifier := labels["app.kubernetes.io/cloudness-identifier"] //will be of type app-123123123
+	appIdentifier := labels["app.kubernetes.io/cloudness-app"] //will be of type 123123123
 
 	if appIdentifier != "" {
 		appUID, _ := strconv.ParseInt(appIdentifier, 10, 64)
 		return appUID
+	}
+
+	return 0
+}
+
+func (m *K8sManager) getProjectIDFromPodLabels(labels map[string]string) int64 {
+	projectIdentifier := labels["app.kubernetes.io/cloudness-project-identifier"] //will be of type 123123123
+
+	if projectIdentifier != "" {
+		projectID, _ := strconv.ParseInt(projectIdentifier, 10, 64)
+		return projectID
 	}
 
 	return 0

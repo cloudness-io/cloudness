@@ -38,4 +38,7 @@ type RunnerClient interface {
 	//Metrics
 	// UploadMetrics uploads the full metrics to server
 	UploadMetrics(ctx context.Context, metrics []*types.AppMetrics) error
+
+	// UploadAppStatus Uploads the application status
+	UploadAppStatus(ctx context.Context, status []*types.AppStatus) error
 }

@@ -6,7 +6,7 @@ import "github.com/cloudness-io/cloudness/types/enum"
 import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 
-func getAttributes(swap bool) templ.Attributes {
+func getSwapAttributes(swap bool) templ.Attributes {
 	if swap {
 		return templ.Attributes{
 			"hx-swap-oob": "true",
@@ -14,24 +14,25 @@ func getAttributes(swap bool) templ.Attributes {
 	}
 	return templ.Attributes{}
 }
-func getAppStatusID(app *types.Application) string {
-	return fmt.Sprintf("app-status-%d", app.UID)
+
+func getAppDeploymentStatusID(app *types.Application) string {
+	return fmt.Sprintf("app-deployment-status-%d", app.UID)
 }
 
-templ AppStatus(app *types.Application, swap bool) {
-	<div id={ getAppStatusID(app) } { getAttributes(swap)... }>
+templ AppDeploymentStatus(app *types.Application, swap bool) {
+	<div id={ getAppDeploymentStatusID(app) } { getSwapAttributes(swap)... }>
 		switch true {
 			case 	app.Updated > app.DeploymentTriggeredAt, 
 					app.DeploymentStatus == "" ,
 					app.DeploymentStatus == enum.ApplicationDeploymentStatusNeedsDeployment:
-				@statusBadge(app, enum.ApplicationDeploymentStatusNeedsDeployment)
+				@deploymentStatusBadge(app, enum.ApplicationDeploymentStatusNeedsDeployment)
 			default:
-				@statusBadge(app, app.DeploymentStatus)
+				@deploymentStatusBadge(app, app.DeploymentStatus)
 		}
 	</div>
 }
 
-templ statusBadge(app *types.Application, status enum.ApplicationDeploymentStatus) {
+templ deploymentStatusBadge(app *types.Application, status enum.ApplicationDeploymentStatus) {
 	<span
 		class={
 			"inline-flex items-center justify-center gap-1 text-xs",

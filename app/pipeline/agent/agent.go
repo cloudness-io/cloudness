@@ -94,6 +94,13 @@ func (a *Agent) Start(ctx context.Context) error {
 						return
 					}
 				}()
+
+				go func() {
+					if err := a.runStatusMonitor(rCtx, *config); err != nil {
+						log.Ctx(ctx).Error().Err(err).Msg("agent: error running metrics scrapper")
+						return
+					}
+				}()
 				// }
 			}
 		}

@@ -54,13 +54,23 @@ func renderFunc(ctx context.Context, w io.Writer, event *sse.Event) error {
 			log.Ctx(ctx).Err(err).Msg("sse render: error rendering deployment full status")
 			return err
 		}
-	case enum.SSETypeApplicationUpdated:
+	case enum.SSETypeApplicationDeploymentUpdated:
 		d := new(types.Application)
 		if err := json.Unmarshal(event.Data, d); err != nil {
 			log.Ctx(ctx).Err(err).Msg("sse render: error unmarshalling application")
 			return err
 		}
-		if err := vapplication.AppStatus(d, true).Render(ctx, w); err != nil {
+		if err := vapplication.AppDeploymentStatus(d, true).Render(ctx, w); err != nil {
+			log.Ctx(ctx).Err(err).Msg("sse render: error rendering application status")
+			return err
+		}
+	case enum.SSETypeApplicationStatusUpdated:
+		s := new(types.AppStatusEvent)
+		if err := json.Unmarshal(event.Data, s); err != nil {
+			log.Ctx(ctx).Err(err).Msg("sse render: error unmarshalling application status")
+			return err
+		}
+		if err := vapplication.AppStatus(s.ApplicationUID, s.Status, true).Render(ctx, w); err != nil {
 			log.Ctx(ctx).Err(err).Msg("sse render: error rendering application status")
 			return err
 		}

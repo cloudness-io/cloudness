@@ -80,3 +80,7 @@ func (e *embeddedClient) Upload(ctx context.Context, deploymentID int64, logs []
 func (e *embeddedClient) UploadMetrics(ctx context.Context, metrics []*types.AppMetrics) error {
 	return e.manager.UploadMetrics(ctx, metrics)
 }
+
+func (e *embeddedClient) UploadAppStatus(ctx context.Context, status []*types.AppStatus) error {
+	return e.manager.UploadAppStatus(ctx, status)
+}

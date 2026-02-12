@@ -22,7 +22,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Identifier }}
         app.kubernetes.io/instance: {{ .Identifier }}
-        app.kubernetes.io/cloudness-identifier: "{{ .CloudnessIdentifier }}"
+        app.kubernetes.io/cloudness-app: "{{ .CloudnessAppIdentifier }}"
+        app.kubernetes.io/cloudness-project-identifier: "{{ .CloudnessProjectID }}"
         app.kubernetes.io/component: app
         app.kubernetes.io/managed-by: cloudness
     spec:
@@ -148,7 +149,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Identifier }}
         app.kubernetes.io/instance: {{ .Identifier }}
-        app.kubernetes.io/cloudness-identifier: "{{ .CloudnessIdentifier }}"
+        app.kubernetes.io/cloudness-app: "{{ .CloudnessAppIdentifier }}"
+        app.kubernetes.io/cloudness-project-identifier: "{{ .CloudnessProjectID }}"
         app.kubernetes.io/component: app
         app.kubernetes.io/managed-by: cloudness
     spec:
