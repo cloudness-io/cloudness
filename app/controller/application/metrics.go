@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/cloudness-io/cloudness/types"
@@ -21,24 +22,94 @@ func (c *Controller) GetMetrics(ctx context.Context, application *types.Applicat
 }
 
 func convertToMetricsView(application *types.Application, metrics []*types.AppMetricsAggregate) *types.AppMetricsViewModel {
-	cpuInstanceData := make(map[string]map[int64]float64)
-	memInstanceData := make(map[string]map[int64]float64)
-	allTimestamps := make(map[int64]bool)
-	instanceNameMap := make(map[string]string)
 	var bytesToMB float64 = 1024 * 1024
+	allTimestamps := make(map[int64]bool)
+
+	// Collect per-instance data and time ranges.
+	type instanceInfo struct {
+		name    string
+		minTime int64
+		maxTime int64
+		cpu     map[int64]float64
+		mem     map[int64]float64
+	}
+
+	instances := make(map[string]*instanceInfo)
 
 	for _, db := range metrics {
-		if _, ok := instanceNameMap[db.InstanceName]; !ok {
-			instanceNameMap[db.InstanceName] = fmt.Sprintf("%s-%d", application.Name, len(instanceNameMap))
+		inst, ok := instances[db.InstanceName]
+		if !ok {
+			inst = &instanceInfo{
+				name:    db.InstanceName,
+				minTime: db.BucketTimestamp,
+				maxTime: db.BucketTimestamp,
+				cpu:     make(map[int64]float64),
+				mem:     make(map[int64]float64),
+			}
+			instances[db.InstanceName] = inst
 		}
-		instanceName, _ := instanceNameMap[db.InstanceName]
-		if _, ok := cpuInstanceData[instanceName]; !ok {
-			cpuInstanceData[instanceName] = make(map[int64]float64)
-			memInstanceData[instanceName] = make(map[int64]float64)
+		inst.cpu[db.BucketTimestamp] = db.CPU
+		inst.mem[db.BucketTimestamp] = db.Memory
+		if db.BucketTimestamp < inst.minTime {
+			inst.minTime = db.BucketTimestamp
 		}
-		cpuInstanceData[instanceName][db.BucketTimestamp] = db.CPU
-		memInstanceData[instanceName][db.BucketTimestamp] = db.Memory
+		if db.BucketTimestamp > inst.maxTime {
+			inst.maxTime = db.BucketTimestamp
+		}
 		allTimestamps[db.BucketTimestamp] = true
+	}
+
+	// Sort instances by their first appearance so we can merge
+	// non-overlapping pods (e.g. old pod → new pod after deployment)
+	// into the same series slot.
+	sortedInstances := make([]*instanceInfo, 0, len(instances))
+	for _, inst := range instances {
+		sortedInstances = append(sortedInstances, inst)
+	}
+	sort.Slice(sortedInstances, func(i, j int) bool {
+		return sortedInstances[i].minTime < sortedInstances[j].minTime
+	})
+
+	type replicaSlot struct {
+		label   string
+		maxTime int64
+		cpu     map[int64]float64
+		mem     map[int64]float64
+	}
+
+	var slots []*replicaSlot
+
+	for _, inst := range sortedInstances {
+		merged := false
+		for _, slot := range slots {
+			if inst.minTime > slot.maxTime {
+				// Non-overlapping — same replica, different pod name after deploy.
+				slot.maxTime = inst.maxTime
+				for ts, val := range inst.cpu {
+					slot.cpu[ts] = val
+				}
+				for ts, val := range inst.mem {
+					slot.mem[ts] = val
+				}
+				merged = true
+				break
+			}
+		}
+		if !merged {
+			slot := &replicaSlot{
+				label:   fmt.Sprintf("%s-%d", application.Name, len(slots)),
+				maxTime: inst.maxTime,
+				cpu:     make(map[int64]float64),
+				mem:     make(map[int64]float64),
+			}
+			for ts, val := range inst.cpu {
+				slot.cpu[ts] = val
+			}
+			for ts, val := range inst.mem {
+				slot.mem[ts] = val
+			}
+			slots = append(slots, slot)
+		}
 	}
 
 	// Create sorted timestamp array
@@ -46,49 +117,37 @@ func convertToMetricsView(application *types.Application, metrics []*types.AppMe
 	for t := range allTimestamps {
 		timestamps = append(timestamps, t)
 	}
-
-	// Sort timestamps
-	for i := 0; i < len(timestamps)-1; i++ {
-		for j := i + 1; j < len(timestamps); j++ {
-			if timestamps[i] > timestamps[j] {
-				timestamps[i], timestamps[j] = timestamps[j], timestamps[i]
-			}
-		}
-	}
+	sort.Slice(timestamps, func(i, j int) bool {
+		return timestamps[i] < timestamps[j]
+	})
 
 	// Build CPU series
-	cpuSeries := make([]*types.MetricsSeriesViewModel, 0, len(cpuInstanceData))
-	for instanceName, data := range cpuInstanceData {
+	cpuSeries := make([]*types.MetricsSeriesViewModel, 0, len(slots))
+	for _, slot := range slots {
 		seriesValue := make([]float64, len(timestamps))
 		for i, ts := range timestamps {
-			if val, ok := data[ts]; ok {
+			if val, ok := slot.cpu[ts]; ok {
 				seriesValue[i] = val
-			} else {
-				seriesValue[i] = 0
 			}
 		}
-
 		cpuSeries = append(cpuSeries, &types.MetricsSeriesViewModel{
-			Label:      instanceName,
+			Label:      slot.label,
 			Timestamps: timestamps,
 			Values:     seriesValue,
 		})
 	}
 
 	// Memory series
-	memSeries := make([]*types.MetricsSeriesViewModel, 0, len(memInstanceData))
-	for instanceName, data := range memInstanceData {
+	memSeries := make([]*types.MetricsSeriesViewModel, 0, len(slots))
+	for _, slot := range slots {
 		seriesValue := make([]float64, len(timestamps))
 		for i, ts := range timestamps {
-			if val, ok := data[ts]; ok {
+			if val, ok := slot.mem[ts]; ok {
 				seriesValue[i] = val / float64(bytesToMB)
-			} else {
-				seriesValue[i] = 0
 			}
 		}
-
 		memSeries = append(memSeries, &types.MetricsSeriesViewModel{
-			Label:      instanceName,
+			Label:      slot.label,
 			Timestamps: timestamps,
 			Values:     seriesValue,
 		})
