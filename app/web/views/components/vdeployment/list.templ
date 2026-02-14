@@ -5,7 +5,6 @@ import (
 	"github.com/cloudness-io/cloudness/app/web/views/components/common"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
-	"time"
 )
 
 templ List(app *types.Application, deployments []*types.Deployment) {
@@ -33,11 +32,7 @@ templ List(app *types.Application, deployments []*types.Deployment) {
 									<div class="flex flex-col items-end">
 										@common.DateTime(deployment.Created)
 										if deployment.Started > 0 {
-											if deployment.Stopped > 0 {
-												@common.TimeDiff(deployment.Started, deployment.Stopped)
-											} else {
-												@common.TimeDiff(deployment.Started, time.Now().UTC().UnixMilli())
-											}
+											@DeploymentDuration(deployment.UID, deployment.Started, deployment.Stopped, false)
 										}
 									</div>
 								</td>

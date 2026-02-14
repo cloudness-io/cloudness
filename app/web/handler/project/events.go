@@ -54,13 +54,29 @@ func renderFunc(ctx context.Context, w io.Writer, event *sse.Event) error {
 			log.Ctx(ctx).Err(err).Msg("sse render: error rendering deployment full status")
 			return err
 		}
+		if d.Started > 0 {
+			if err := vdeployment.DeploymentStarted(d.UID, d.Started, true).Render(ctx, w); err != nil {
+				log.Ctx(ctx).Err(err).Msg("sse render: error rendering deployment started")
+				return err
+			}
+		}
+		if d.Stopped > 0 {
+			if err := vdeployment.DeploymentDuration(d.UID, d.Started, d.Stopped, true).Render(ctx, w); err != nil {
+				log.Ctx(ctx).Err(err).Msg("sse render: error rendering deployment duration")
+				return err
+			}
+			if err := vdeployment.DeploymentStopped(d.UID, d.Stopped, true).Render(ctx, w); err != nil {
+				log.Ctx(ctx).Err(err).Msg("sse render: error rendering deployment stopped")
+				return err
+			}
+		}
 	case enum.SSETypeApplicationDeploymentUpdated:
-		d := new(types.Application)
-		if err := json.Unmarshal(event.Data, d); err != nil {
+		app := new(types.Application)
+		if err := json.Unmarshal(event.Data, app); err != nil {
 			log.Ctx(ctx).Err(err).Msg("sse render: error unmarshalling application")
 			return err
 		}
-		if err := vapplication.AppDeploymentStatus(d, true).Render(ctx, w); err != nil {
+		if err := vapplication.AppDeploymentStatus(app, true).Render(ctx, w); err != nil {
 			log.Ctx(ctx).Err(err).Msg("sse render: error rendering application status")
 			return err
 		}

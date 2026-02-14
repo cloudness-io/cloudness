@@ -61,27 +61,23 @@ func getDescription(app *types.Application, d *types.Deployment) []*DescriptionG
 		term:    "Triggered By",
 		details: triggeredBy(d),
 	})
-	if d.Started > 0 {
+	desc = append(desc, &DescriptionGridItems{
+		term:    "Started",
+		details: DeploymentStarted(d.UID, d.Started, false),
+	})
+	desc = append(desc, &DescriptionGridItems{
+		term:    "Ended",
+		details: DeploymentStopped(d.UID, d.Stopped, false),
+	})
+	desc = append(desc, &DescriptionGridItems{
+		term:    "Duration",
+		details: DeploymentDuration(d.UID, d.Started, d.Stopped, false),
+	})
+	if d.Error != "" {
 		desc = append(desc, &DescriptionGridItems{
-			term:    "Started",
-			details: common.DateTimeYear(d.Started),
+			term:    "Error",
+			details: shared.TextComp(d.Error),
 		})
-		if d.IsDone() {
-			desc = append(desc, &DescriptionGridItems{
-				term:    "Ended",
-				details: common.DateTimeYear(d.Stopped),
-			})
-			desc = append(desc, &DescriptionGridItems{
-				term:    "Duration",
-				details: common.TimeDiff(d.Started, d.Stopped),
-			})
-		}
-		if d.Error != "" {
-			desc = append(desc, &DescriptionGridItems{
-				term:    "Error",
-				details: shared.TextComp(d.Error),
-			})
-		}
 	}
 	return desc
 }

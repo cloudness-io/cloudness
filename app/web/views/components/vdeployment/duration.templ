@@ -1,0 +1,72 @@
+package vdeployment
+
+import "fmt"
+import "github.com/cloudness-io/cloudness/app/web/views/components/common"
+
+func getSwapAttributes(swap bool) templ.Attributes {
+	if swap {
+		return templ.Attributes{
+			"hx-swap-oob": "true",
+		}
+	}
+	return templ.Attributes{}
+}
+
+func getDeploymentDurationID(deploymentUID int64) string {
+	return fmt.Sprintf("deployment-duration-%d", deploymentUID)
+}
+
+func getDeploymentStartedID(deploymentUID int64) string {
+	return fmt.Sprintf("deployment-started-%d", deploymentUID)
+}
+
+func getDeploymentStoppedID(deploymentUID int64) string {
+	return fmt.Sprintf("deployment-stopped-%d", deploymentUID)
+}
+
+templ DeploymentDuration(deploymentUID, started, stopped int64, swap bool) {
+	<div
+		id={ getDeploymentDurationID(deploymentUID) }
+		{ getSwapAttributes(swap)... }
+		data-started={ started }
+		data-stopped={ stopped }
+	>
+		if stopped > 0 {
+			if swap {
+				@common.TimeDiffStatic(started, stopped)
+			} else {
+				@common.TimeDiff(started, stopped)
+			}
+		} else {
+			@common.TimeDiffTick(started, stopped)
+		}
+	</div>
+}
+
+templ DeploymentStarted(deploymentUID, started int64, swap bool) {
+	<div
+		id={ getDeploymentStartedID(deploymentUID) }
+		{ getSwapAttributes(swap)... }
+		data-started={ started }
+	>
+		if started > 0 {
+			@common.DateTimeYear(started)
+		} else {
+			<span>-</span>
+		}
+	</div>
+}
+
+templ DeploymentStopped(deploymentUID, stopped int64, swap bool) {
+	<div
+		id={ getDeploymentStoppedID(deploymentUID) }
+		{ getSwapAttributes(swap)... }
+		data-stopped={ stopped }
+	>
+		if stopped > 0 {
+			@common.DateTimeYear(stopped)
+		} else {
+			<span>-</span>
+		}
+	</div>
+}
