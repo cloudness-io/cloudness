@@ -1,6 +1,45 @@
 package common
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
+
+// durationString formats a duration between two Unix milli timestamps as h/m/s, rounded to the nearest second.
+func durationString(startTime int64, endTime int64) string {
+	if startTime <= 0 {
+		return "0s"
+	}
+
+	effectiveEnd := endTime
+	if effectiveEnd <= 0 {
+		effectiveEnd = time.Now().UTC().UnixMilli()
+	}
+
+	diffMillis := effectiveEnd - startTime
+	if diffMillis < 0 {
+		return "0s"
+	}
+
+	secs := (diffMillis + 500) / 1000 // round to nearest second
+	h := secs / 3600
+	m := (secs % 3600) / 60
+	s := secs % 60
+
+	parts := make([]string, 0, 3)
+	if h > 0 {
+		parts = append(parts, fmt.Sprintf("%dh", h))
+	}
+	if m > 0 {
+		parts = append(parts, fmt.Sprintf("%dm", m))
+	}
+	if len(parts) == 0 || s > 0 {
+		parts = append(parts, fmt.Sprintf("%ds", s))
+	}
+
+	return strings.Join(parts, " ")
+}
 
 templ Date(t int64) {
 	<span x-data={ fmt.Sprintf("{ time : %d }", t) } x-init="time = moment(time).format('MMM Do')">
@@ -26,6 +65,30 @@ templ TimeAgo(t int64) {
 	</span>
 }
 
+templ TimeDiffTick(startTime int64, endTime int64) {
+	if startTime > 0 {
+		<span
+			x-data={ fmt.Sprintf("{ startTime : %d, endTime: %d, diff:'', timerId: null }", startTime, endTime) }
+			x-init="() => {
+		const compute = () => {
+			const effectiveEnd = endTime > 0 ? endTime : Date.now();
+			diff = humanizeDuration(
+				moment.duration(moment(effectiveEnd).diff(moment(startTime))),
+				{ round: true, languages:{en:{h:'h',m:'m',s:'s',}} }
+			);
+		};
+		compute();
+		if (endTime <= 0) {
+			timerId = setInterval(compute, 1000);
+		}
+		return () => { if (timerId) clearInterval(timerId); };
+	}"
+		>
+			<span x-text="diff"></span>
+		</span>
+	}
+}
+
 templ TimeDiff(startTime int64, endTime int64) {
 	<span
 		x-data={ fmt.Sprintf("{ startTime : %d, endTime: %d, diff:'' }", startTime, endTime) }
@@ -34,4 +97,8 @@ templ TimeDiff(startTime int64, endTime int64) {
 	>
 		<span x-text="diff"></span>
 	</span>
+}
+
+templ TimeDiffStatic(startTime int64, endTime int64) {
+	<span>{ durationString(startTime, endTime) }</span>
 }
