@@ -41,7 +41,7 @@ func HandleCreateWithRegistry(appCtrl *application.Controller) http.HandlerFunc 
 		app, err := appCtrl.CreateRegistry(ctx, session.Principal.DisplayName, tenant, project, env, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error creating application")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		ctx = request.WithApplication(ctx, app)

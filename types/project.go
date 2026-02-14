@@ -7,6 +7,7 @@ type Project struct {
 	TenantID    int64  `db:"project_tenant_id"    json:"-"`
 	UID         int64  `db:"project_uid"          json:"uid"`
 	Name        string `db:"project_name"         json:"name"`
+	Slug        string `db:"project_slug"         json:"slug"`
 	Description string `db:"project_description"  json:"description"`
 	CreateBy    int64  `db:"project_created_by"   json:"-"`
 

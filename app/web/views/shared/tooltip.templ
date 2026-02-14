@@ -16,15 +16,14 @@ templ TooltipWrapper(text string) {
 	if text == "" {
 		{ children... }
 	} else {
-		<button
-			type="button"
-			class="relative"
+		<span
+			class="relative inline-flex [&::before]:z-50 [&::after]:z-50"
 			aria-label={ text }
-			data-balloon-pos="right"
+			data-balloon-pos="down"
 			data-balloon-length="medium"
 			data-balloon-break=""
 		>
 			{ children... }
-		</button>
+		</span>
 	}
 }

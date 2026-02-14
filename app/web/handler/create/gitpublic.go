@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/cloudness-io/cloudness/app/controller/application"
-	"github.com/cloudness-io/cloudness/app/controller/gitpublic"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
@@ -15,32 +14,26 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HandleGetGitPublicView() http.HandlerFunc {
+func HandleNewGit(appCtrl *application.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		repoURL := r.URL.Query().Get("repoURL")
 
-		render.Page(ctx, w, vcreate.GitPublicLoad())
-	}
-}
-
-func HandleLoadGitPublicRepo(appCtrl *application.Controller) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		in := new(gitpublic.RepoLoadModel)
-		if err := json.NewDecoder(r.Body).Decode(in); err != nil {
-			log.Ctx(ctx).Error().Err(err).Msg("Error decoding json")
-			render.ToastError(ctx, w, err)
+		//on new page render
+		if repoURL == "" {
+			render.Page(ctx, w, vcreate.GitPublicPage())
 			return
 		}
 
-		appIn, err := appCtrl.GetGitpublicIn(ctx, in.RepoURL)
+		//on load
+		appIn, err := appCtrl.GetGitpublicIn(ctx, repoURL)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error getting git repository info")
 			render.ToastError(ctx, w, err)
 			return
 		}
 
-		render.Page(ctx, w, vcreate.GitPublicForm(appIn))
+		render.Page(ctx, w, vcreate.GitPublicLoadedPage(appIn))
 	}
 }
 
@@ -61,7 +54,7 @@ func HandleCreateGitPublic(appCtrl *application.Controller) http.HandlerFunc {
 
 		app, err := appCtrl.Create(ctx, session.Principal.DisplayName, tenant, project, env, in)
 		if err != nil {
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		ctx = request.WithApplication(ctx, app)

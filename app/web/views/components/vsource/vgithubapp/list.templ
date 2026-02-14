@@ -1,32 +1,80 @@
 package vgithubapp
 
 import (
+	"context"
 	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
 
-templ List(ghApps []*types.GithubApp, selected *types.GithubApp, urlPathPattern string) {
-	<hr class="w-full border-t border-dotted"/>
-	<div class="flex flex-col gap-3 mt-2" x-data="{openAddGithubAppModal: false}">
-		@header()
+func getGHAppButtonComp(ctx context.Context) templ.Component {
+	if request.IsProjectOwner(ctx) {
+		return shared.AddButton("New Github App", fmt.Sprintf("%s/%s/new", routes.ProjectCtx(ctx), routes.ProjectConnectionGithub))
+	}
+	return templ.NopComponent
+}
+
+templ ListGHApps(ghApps []*types.GithubApp, selectedURL string) {
+	@shared.PageSection("Github Apps", shared.TextComp(ghAppDescription), getGHAppButtonComp(ctx)) {
 		if len(ghApps) == 0 {
-			@shared.NoData("No Github Apps found", createButton())
+			if request.IsProjectOwner(ctx) {
+				@addGithubCard()
+			} else {
+				@noGithubAppCard()
+			}
 		} else {
-			<ul
-				class="flex flex-wrap gap-3"
-				if selected != nil {
-					x-data={ fmt.Sprintf("{selected: '%d'}", selected.UID) }
-				} else {
-					x-data="{selected: ''}"
-				}
-			>
-				for _, ghApp := range ghApps {
-					<li hx-get={ fmt.Sprintf(urlPathPattern, ghApp.UID) }>
-						@GithubTile(ghApp)
-					</li>
-				}
-			</ul>
+			@listGHApps(ghApps, selectedURL, request.IsProjectOwner(ctx))
 		}
-	</div>
+	}
+}
+
+func getGHAppActionURL(ctx context.Context, ghApp *types.GithubApp, param string) string {
+	if ghApp.AppID == 0 || ghApp.InstallationID == 0 {
+		return fmt.Sprintf("%s/%s", routes.ProjectCtx(ctx), routes.ProjectConnectionGithubUID(ghApp.UID))
+	}
+	return fmt.Sprintf("%s/%d", param, ghApp.UID)
+}
+
+templ listGHApps(ghApps []*types.GithubApp, selectedURL string, canEdit bool) {
+	@shared.Table() {
+		@shared.TableHeadFull("Name", "Organization", "Status")
+		@shared.TableBody() {
+			for _, ghApp := range ghApps {
+				@shared.TableBodyRow(templ.Attributes{
+					"hx-get":        getGHAppActionURL(ctx, ghApp, selectedURL),
+					"data-disabled": fmt.Sprintf("%t", !canEdit),
+				}) {
+					@shared.TableBodyCell() {
+						<span class="flex items-center gap-2 text-foreground-light">
+							@shared.Icon(icons.SourceGithubIcon, "overflow-hidden")
+							{ ghApp.Name }
+						</span>
+					}
+					@shared.TableBodyCell() {
+						<span class="text-foreground-lighter italic">
+							if ghApp.Organization != "" {
+								{ ghApp.Organization }
+							} else {
+								Personal
+							}
+						</span>
+					}
+					@shared.TableBodyCell() {
+						<span>
+							if ghApp.AppID == 0 {
+								<p class="text-xs text-error">Registration pending</p>
+							} else if ghApp.InstallationID == 0 {
+								<p class="text-xs text-error">Installation pending</p>
+							} else {
+								<p class="text-xs text-success">Connected</p>
+							}
+						</span>
+					}
+				}
+			}
+		}
+	}
 }

@@ -35,7 +35,7 @@ templ CheckBox(props *CheckBoxProps) {
 		</div>
 	</div>
 	if props.Disclaimer != "" {
-		<p class="text-tx-secondary text-xs">
+		<p class="text-foreground-light text-xs">
 			@templ.Raw(props.Disclaimer)
 		</p>
 	}

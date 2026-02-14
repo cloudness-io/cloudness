@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cloudness-io/cloudness/app/controller/application"
+	"github.com/cloudness-io/cloudness/app/controller/githubapp"
 	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
@@ -13,6 +14,22 @@ import (
 
 	"github.com/rs/zerolog/log"
 )
+
+func HandleListGithubApps(ghAppCtrl *githubapp.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		tenant, _ := request.TenantFrom(ctx)
+		project, _ := request.ProjectFrom(ctx)
+
+		ghApps, err := ghAppCtrl.List(ctx, tenant.ID, project.ID)
+		if err != nil {
+			log.Ctx(ctx).Error().Err(err).Msg("Error listing github apps")
+			render.ToastError(ctx, w, err)
+			return
+		}
+		render.Page(ctx, w, vcreate.ListGithubApps(tenant, project, ghApps))
+	}
+}
 
 func HandleGetGithubView(appCtrl *application.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +60,7 @@ func HandleCreateGithub(appCtrl *application.Controller) http.HandlerFunc {
 
 		app, err := appCtrl.CreateGithub(ctx, session.Principal.DisplayName, tenant, project, env, nil, ghApp, in)
 		if err != nil {
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 		ctx = request.WithApplication(ctx, app)

@@ -3,7 +3,7 @@ package routes
 const (
 	Login    = "/login"
 	Logout   = "/logout"
-	Profile  = "/profile"
+	Account  = "/account"
 	Register = "/register"
 	NotFound = "/404"
 	Error    = "/500"

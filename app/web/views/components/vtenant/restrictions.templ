@@ -1,0 +1,160 @@
+package vtenant
+
+import (
+	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/app/web/views/xdata"
+	"github.com/cloudness-io/cloudness/types"
+)
+
+templ Restrictions(tenant *types.Tenant, restrictions *types.TenantRestrictions, canEdit bool) {
+	@shared.PageView(&shared.PageViewProps{
+		ActiveName: TenantNavRestrictions,
+		Options:    getTenantNav(tenant, canEdit),
+	}) {
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Limits</h1>
+				<div class="heading-subSection text-foreground-light">Manage your team limits and permissions.</div>
+			}
+			@shared.PageContentShort() {
+				@shared.PageSection("", templ.NopComponent, templ.NopComponent) {
+					@shared.CardContainer() {
+						<form
+							class="form"
+							x-data={ xdata.ToFormData(restrictions) }
+							hx-push-url="false"
+							hx-swap="none"
+							hx-indicator="#overlay-spinner"
+							hx-patch={ routes.TenantRestrictions }
+							x-cloak
+						>
+							@shared.NewCheckbox(&shared.NewCheckboxProps{
+								Name:             "allow_admin",
+								Label:            "Allow Admin",
+								LabelDescription: "Allow admins to edit team settings and restrictions, if unset only super admins can do it.",
+								Disabled:         !canEdit,
+								Attrs: templ.Attributes{
+									"x-model.boolean": "form.allow_admin",
+									"x-bind:checked":  "form.allow_admin === 'true'",
+									"@change":         "form.allow_admin = $el.checked ? 'true' : 'false'",
+								},
+							})
+							<div>
+								<h3 class="py-1">Project Limits</h3>
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_projects",
+									Label:            "Max Projects",
+									Type:             "number",
+									LabelDescription: "Maximum number of projects allowed to be created in this team.",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_projects",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+							</div>
+							<div>
+								<h3 class="py-1">Application Limits</h3>
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_apps",
+									Label:            "Max Apps",
+									Type:             "number",
+									LabelDescription: "Maximum number of applications allowed to be created in this team.",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_apps",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_instances",
+									Label:            "Max Instances",
+									Type:             "number",
+									LabelDescription: "Maximum number of instances allowed per application in this team.",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_instances",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_cpu",
+									Label:            "Max CPUs",
+									Type:             "number",
+									LabelDescription: "Maximum CPUs per application.",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_cpu",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_memory",
+									Label:            "Max Memory",
+									Type:             "number",
+									LabelDescription: "Maximum Memory per application.",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_memory",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+							</div>
+							<div>
+								<h3 class="py-1">Volume Limits</h3>
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_volumes",
+									Label:            "Max Volumes",
+									Type:             "number",
+									LabelDescription: "Maximum number of volumes allowed to be created in this team.",
+									ValueDescription: "Volume size is in MiB",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_volumes",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "min_volume_size",
+									Label:            "Min Volume Size",
+									Type:             "number",
+									LabelDescription: "Minimum size allowed per volume in this team.",
+									ValueDescription: "Volume size is in MiB",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.min_volume_size",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "max_volume_size",
+									Label:            "Max Volume Size",
+									Type:             "number",
+									LabelDescription: "Maximum size allowed per volume in this team.",
+									ValueDescription: "Volume size is in MiB",
+									Disabled:         !canEdit,
+									Attrs: templ.Attributes{
+										"x-model.number": "form.max_volume_size",
+										"x-bind:min":     "1",
+										"x-bind:max":     "100",
+									},
+								})
+							</div>
+							if canEdit {
+								@shared.UpdateDivNew()
+							}
+						</form>
+					}
+				}
+			}
+		}
+	}
+}

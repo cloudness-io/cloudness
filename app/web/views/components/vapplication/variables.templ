@@ -9,17 +9,22 @@ import (
 )
 
 templ VariablesNew(app *types.Application, dto *types.VariableDTO) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavEnvvars,
-		Header:     shared.CommandBar(getCommandButtons()),
 		Options:    getAppPageNav(app),
 	}) {
-		<div class="flex items-center gap-1 mb-1">
-			@shared.Icon(icons.EnvironmentVariablesIcon, "size-6 icon-2xl")
-			<h3>Environment Variables</h3>
-		</div>
-		@vvariable.VariablesManager(dto)
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@shared.PageSection("Environment Variables", shared.TextComp("Manage the environment variables for this application."),
+					templ.NopComponent) {
+					@vvariable.VariablesManager(dto)
+				}
+			}
+		}
 	}
 }
 

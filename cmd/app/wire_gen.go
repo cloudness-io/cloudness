@@ -146,7 +146,7 @@ func initSystem(ctx context.Context, config2 *types.Config) (*server.System, err
 	if err != nil {
 		return nil, err
 	}
-	cleanupService := cleanup.ProvideService(jobScheduler, executor, serverStore, tenantStore, projectStore, environmentStore, applicationStore, volumeStore, managerFactory)
+	cleanupService := cleanup.ProvideService(jobScheduler, executor, serverStore, tenantStore, projectStore, environmentStore, applicationStore, volumeStore, tokenStore, managerFactory)
 	servicesServices := services.ProvideServices(jobScheduler, cleanupService)
 	backgroundService := background.ProvideService(mutexManager)
 	system := server.NewSystem(bootstrapBootstrap, serverServer, agentAgent, servicesServices, backgroundService)

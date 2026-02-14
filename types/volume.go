@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/cloudness-io/cloudness/types/enum"
 )
 
@@ -16,6 +14,8 @@ type Volume struct {
 	ServerID       int64  `db:"volume_server_id"       json:"-"`
 	ApplicaitonID  *int64 `db:"volume_application_id"  json:"application_id"`
 	Name           string `db:"volume_name"            json:"name"`
+	Slug           string `db:"volume_slug"            json:"slug"`
+	ParentSlug     string `db:"volume_parent_slug"     json:"parent_slug"`
 	MountPath      string `db:"volume_mount_path"      json:"mount_path"`
 	HostPath       string `db:"volume_host_path"       json:"host_path"`
 	Size           int64  `db:"volume_size"            json:"size"`
@@ -41,6 +41,7 @@ type VolumeFilter struct {
 // input
 type VolumeCreateInput struct {
 	Name      string  `json:"name"`
+	Slug      string  `json:"slug"`
 	MountPath string  `json:"mountPath"`
 	Size      int64   `json:"size,string"`
 	Server    *Server `json:"-"`
@@ -48,12 +49,13 @@ type VolumeCreateInput struct {
 
 // helpers
 func (v *Volume) GetIdentifierStr() string {
-	return fmt.Sprintf("volume-%d", v.UID)
+	return v.Slug
 }
 
 func (v *Volume) ToInput() *VolumeCreateInput {
 	return &VolumeCreateInput{
 		Name:      v.Name,
+		Slug:      v.Slug,
 		MountPath: v.MountPath,
 		Size:      v.Size,
 	}

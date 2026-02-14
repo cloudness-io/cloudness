@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
+	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 	"strings"
 )
@@ -33,18 +34,13 @@ templ edit(v *types.UserVariable) {
 		</div>
 		@variableTypeRadio(string(v.Type))
 		<div class="flex justify-end items-center space-x-2">
-			<button type="button" class="button-neutral" x-on:click="edit=false">
-				Cancel
-			</button>
-			<button
-				type="button"
-				class="button-primary"
-				hx-patch={ fmt.Sprintf("%s/%d", routes.AppVariables, v.UID) }
-				hx-push-url="false"
-				hx-swap="none"
-			>
-				Update
-			</button>
+			@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "x-on:click": "edit=false"})
+			@shared.ButtonPrimary("Update", templ.Attributes{
+				"type":        "button",
+				"hx-patch":    fmt.Sprintf("%s/%d", routes.AppVariables, v.UID),
+				"hx-push-url": "false",
+				"hx-swap":     "none",
+			})
 		</div>
 	</form>
 }

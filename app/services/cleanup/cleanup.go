@@ -15,12 +15,15 @@ type Service struct {
 	executor  *job.Executor
 
 	//stores
-	serverStore   store.ServerStore
-	tenantStore   store.TenantStore
-	projectStore  store.ProjectStore
-	envStore      store.EnvironmentStore
-	appStore      store.ApplicationStore
-	volumeStore   store.VolumeStore
+	serverStore  store.ServerStore
+	tenantStore  store.TenantStore
+	projectStore store.ProjectStore
+	envStore     store.EnvironmentStore
+	appStore     store.ApplicationStore
+	volumeStore  store.VolumeStore
+	tokenStore   store.TokenStore
+
+	//factory
 	serverFactory manager.ManagerFactory
 }
 
@@ -33,6 +36,7 @@ func New(
 	envStore store.EnvironmentStore,
 	appStore store.ApplicationStore,
 	volumeStore store.VolumeStore,
+	tokenStore store.TokenStore,
 	serverFactory manager.ManagerFactory,
 ) *Service {
 	return &Service{
@@ -45,6 +49,7 @@ func New(
 		envStore:      envStore,
 		appStore:      appStore,
 		volumeStore:   volumeStore,
+		tokenStore:    tokenStore,
 		serverFactory: serverFactory,
 	}
 }
@@ -77,20 +82,38 @@ func (s *Service) registerJobHandlers() error {
 	); err != nil {
 		return fmt.Errorf("failed to register job handler for deleted artifacts cleanup: %w", err)
 	}
+
+	if err := s.executor.Register(
+		jobTypeTokens,
+		newTokenCleanupJob(s.tokenStore),
+	); err != nil {
+		return fmt.Errorf("failed to register job handler for token cleanup: %w", err)
+	}
+
 	return nil
 }
 
 // scheduleRecurringCleanupJobs schedules the cleanup jobs.
 func (s *Service) scheduleRecurringCleanupJobs(ctx context.Context) error {
-	err := s.scheduler.AddRecurring(
+	if err := s.scheduler.AddRecurring(
 		ctx,
 		jobTypeDeletedArtifacts,
 		jobTypeDeletedArtifacts,
 		jobCronDeletedArtifacts,
 		jobMaxDurationDeletedArtifacts,
-	)
-	if err != nil {
+	); err != nil {
 		return fmt.Errorf("failed to schedule deleted artifacts cleanup job: %w", err)
 	}
+
+	if err := s.scheduler.AddRecurring(
+		ctx,
+		jobTypeTokens,
+		jobTypeTokens,
+		jobCronTokens,
+		jobMaxDurationTokens,
+	); err != nil {
+		return fmt.Errorf("failed to schedule token cleanup job: %w", err)
+	}
+
 	return nil
 }

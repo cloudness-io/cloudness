@@ -28,3 +28,20 @@ func (c *Controller) SoftDeleteInApplication(ctx context.Context, appID, now int
 
 	return nil
 }
+
+func (c *Controller) SoftDeleteInEnvironment(ctx context.Context, envID, now int64) error {
+	volumes, err := c.volumeStore.List(ctx, &types.VolumeFilter{
+		EnvironmentID: &envID,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, volume := range volumes {
+		if err := c.volumeStore.SoftDelete(ctx, volume, now); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

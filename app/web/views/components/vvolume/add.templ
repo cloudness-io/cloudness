@@ -1,0 +1,13 @@
+package vvolume 
+
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+import "github.com/cloudness-io/cloudness/types/enum"
+
+import specSvc "github.com/cloudness-io/cloudness/app/services/spec"
+
+templ AddButton() {
+	<div x-data="{openAddVolumeModal: false}">
+		@shared.AddButtonNew("Add Volume", templ.Attributes{"type": "button", "x-on:click": "openAddVolumeModal = true"})
+		@shared.Modal("openAddVolumeModal", form(enum.VolumeFormActionCreate, specSvc.DefaultVolumeInput(), 0))
+	</div>
+}

@@ -18,6 +18,7 @@ const (
 	PathParamVariableUID    = "variable_uid"
 	PathParamTemplateID     = "template_id"
 	PathParamMetricsSpan    = "metrics_span"
+	PathParamSelectedUID    = "selected"
 )
 
 func GetTenantUIDFromPath(r *http.Request) (int64, error) {
@@ -103,4 +104,12 @@ func GetAuthProviderFromPath(r *http.Request) (string, error) {
 func GetMetricsSpanFromPath(r *http.Request) string {
 	span, _ := PathParam(r, PathParamMetricsSpan)
 	return span
+}
+
+func GetSelectedUIDFromPath(r *http.Request) (int64, error) {
+	id, err := PathParamOrError(r, PathParamSelectedUID)
+	if err != nil {
+		return 0, err
+	}
+	return strconv.ParseInt(id, 10, 64)
 }

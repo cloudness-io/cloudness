@@ -3,33 +3,18 @@ package venvironment
 import (
 	"context"
 	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 )
 
-templ List(envs []*types.Environment, selected *types.Environment, urlPathPattern string) {
-	<div class="flex flex-col gap-3" x-data="{openAddEnvironmentModal: false}">
-		@Header(false)
-		if len(envs) == 0 {
-			@shared.NoData("No environments found", createButton())
-		} else {
-			<ul
-				class="flex flex-wrap gap-3"
-				if selected != nil {
-					x-data={ fmt.Sprintf("{selected: '%d'}", selected.UID) }
-				} else {
-					x-data="{selected: ''}"
-				}
-			>
-				for _, env := range envs {
-					<li hx-get={ fmt.Sprintf(urlPathPattern, env.UID) }>
-						@EnvTile(env)
-					</li>
-				}
-			</ul>
-		}
-	</div>
+func getEnvAddButtonComp(ctx context.Context) templ.Component {
+	if request.IsProjectOwner(ctx) {
+		return shared.AddButton("New Environment", fmt.Sprintf("%s/new", routes.ProjectEnvironment))
+	}
+	return templ.NopComponent
 }
 
 func getEnvMenuDropdownProps(ctx context.Context, env *types.Environment) []*shared.MenuDropDownProps {
@@ -55,14 +40,24 @@ func getEnvMenuDropdownProps(ctx context.Context, env *types.Environment) []*sha
 	return props
 }
 
+templ ListEnvironments(envs []*types.Environment) {
+	@shared.PageSection("Manage your Environments", templ.NopComponent, getEnvAddButtonComp(ctx)) {
+		if len(envs) == 0 {
+			@AddEnvironmentCard()
+		} else {
+			@ListEdit(envs, nil)
+		}
+	}
+}
+
 templ ListEdit(envs []*types.Environment, selected *types.Environment) {
-	<div x-data="{openAddEnvironmentModal: false}">
-		@Header(true)
-		<div class="flex flex-col gap-2 mt-2 mb-4">
+	<div class="w-full" x-data="{openAddEnvironmentModal: false}">
+		<div class="flex flex-col gap-2 mt-2 mb-4 w-full">
 			for _,env := range envs {
-				<div class="flex items-center place-content-between max-w-md px-4 py-2 border rounded-md" x-data="{environmentEditModel: false, environmentDeleteModel: false}">
-					<div class="whitespace-nowrap text-left">{ env.Name }</div>
-					<div class="whitespace-nowrap cursor-pointer">
+				<div class="flex items-center place-content-between mx-w-lg px-4 py-2 border rounded-md" x-data="{environmentEditModel: false, environmentDeleteModel: false}">
+					<div class="whitespace-nowrap text-left text-foreground-light">{ env.Name }</div>
+					<div class="whitespace-nowrap cursor-pointer flex flex-row gap-2">
+						<span class="text-foreground-lighter">{ env.Slug }</span>
 						@shared.MenuDropDown(getEnvMenuDropdownProps(ctx, env))
 						@shared.Modal("environmentEditModel", editEnvironmentForm(env))
 						@shared.Modal("environmentDeleteModel", deleteEnvironmentForm(env))

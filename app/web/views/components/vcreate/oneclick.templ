@@ -1,30 +1,35 @@
 package vcreate
 
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vtemplate"
 import "github.com/cloudness-io/cloudness/app/utils/routes"
 
 templ OneClick(templates []*types.Template) {
-	@createHeader()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: navOneclick,
 		Options:    getCreatePageNavs(),
+		BackUrl:    routes.EnvironmentCtx(ctx),
+		BackText:   "Applications",
 	}) {
-		<div class="flex place-items-baseline align-middle gap-1">
-			@shared.Icon(icons.SourceOneclickIcon, ``)
-			<h3>OneClick</h3>
-		</div>
-		@vtemplate.List(templates, routes.AppNewOneclick)
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderShort() {
+				<h1>OneClick</h1>
+				<div class="heading-susbection text-foreground-light">Deploy applications from preconfigured templates.</div>
+			}
+			@shared.PageContentShort() {
+				@vtemplate.List(templates, routes.AppNewOneclick)
+			}
+		}
 	}
 }
 
 templ TemplatePreview(template *types.Template) {
-	@createHeader()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: navOneclick,
 		Options:    getCreatePageNavs(),
+		BackUrl:    routes.EnvironmentCtx(ctx),
+		BackText:   "Applications",
 		Content:    vtemplate.Preview(template, routes.AppNewOneclick),
 	})
 }

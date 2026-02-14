@@ -659,7 +659,7 @@ func (s *Scheduler) AddRecurring(
 		return fmt.Errorf("invalid cron definition string for job type=%s: %w", jobType, err)
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	nowMilli := now.UnixMilli()
 
 	nextExec := cronExp.Next(now)

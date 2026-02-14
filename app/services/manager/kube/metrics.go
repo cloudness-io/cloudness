@@ -23,16 +23,11 @@ func (m *K8sManager) ListMetrics(ctx context.Context, server *types.Server) ([]*
 	}
 
 	now := time.Now().UTC()
-	nowMilli := time.Now().UTC().UnixMilli()
 	metrics := make([]*types.AppMetrics, 0)
 
 	for _, pod := range podMetrics.Items {
 		appUID := m.getApplicationUIDFromPodLabels(pod.Labels)
-		updatedAt := m.getUpdateTimeFromPodLabels(pod.Labels)
 		if appUID == 0 {
-			continue
-		}
-		if updatedAt != 0 && updatedAt > (nowMilli-(10_000)) {
 			continue
 		}
 		var cpu int64

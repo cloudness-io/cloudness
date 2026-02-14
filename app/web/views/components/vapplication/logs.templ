@@ -3,24 +3,25 @@ package vapplication
 import (
 	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
-	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/robert-nix/ansihtml"
 )
 
 templ Logs(app *types.Application) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavLogs,
 		Options:    getAppPageNav(app),
-		Header:     shared.CommandBar(getCommandButtons()),
 	}) {
-		<div class="flex place-items-baseline align-middle gap-1">
-			@shared.Icon(icons.LogsSectionIcon, ``)
-			<h3>Logs</h3>
-		</div>
-		@LogContainer(app)
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@LogContainer(app)
+			}
+		}
 	}
 }
 
@@ -48,17 +49,19 @@ templ logContainer(withSpinner bool, initMsg string) {
 	>
 		if withSpinner {
 			<div class="log-spinner mx-auto mt-16">
-				<span class="spinner w-12 h-12"></span>
+				@shared.Spinner()
 			</div>
 		} else {
-			<div class="text-tx-secondary p-1">{ initMsg }</div>
+			<div class="text-foreground-light p-1">{ initMsg }</div>
 		}
 	</div>
 }
 
 templ LogLine(log *types.ArtifactLogLine) {
 	<div class="flex flex-row basis-auto shrink-0 w-full">
-		<span class="text-tx-secondary min-w-20 mr-4 select-none text-right">{ log.ArtifactUID } </span>
-		@templ.Raw(string(ansihtml.ConvertToHTML([]byte(log.Log))))
+		<span class="text-foreground-lighter min-w-20 mr-4 select-none text-right italic">{ log.ArtifactUID } </span>
+		<span class="text-foreground-light">
+			@templ.Raw(string(ansihtml.ConvertToHTML([]byte(log.Log))))
+		</span>
 	</div>
 }

@@ -38,7 +38,7 @@ func HandlePatchRegistry(instanceCtrl *instance.Controller) http.HandlerFunc {
 		instance, err := instanceCtrl.UpdateRegistry(ctx, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating instance registry settings")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

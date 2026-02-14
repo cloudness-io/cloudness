@@ -7,6 +7,8 @@ CREATE TABLE applications (
 ,application_environment_uid            INTEGER NOT NULL
 ,application_server_id                  INTEGER NOT NULL
 ,application_name                       TEXT NOT NULL
+,application_slug                       TEXT NOT NULL
+,application_parent_slug                TEXT NOT NULL
 ,application_description                TEXT
 ,application_domain 					TEXT
 ,application_custom_domain				TEXT
@@ -23,7 +25,7 @@ CREATE TABLE applications (
 ,application_updated                    BIGINT NOT NULL
 ,application_deleted                    BIGINT DEFAULT NULL
 
-,UNIQUE (application_tenant_id, application_project_id, application_environment_id, application_uid)
+,UNIQUE (application_tenant_id, application_project_id, application_environment_id, application_slug)
 ,UNIQUE (application_tenant_id, application_project_id, application_environment_id, application_private_domain)
 
 ,CONSTRAINT fk_application_tenant_id FOREIGN KEY (application_tenant_id)

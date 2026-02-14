@@ -12,10 +12,9 @@ import (
 const (
 	ProjectNavOverview     string = "Overview"
 	ProjectNavEnvironments string = "Environments"
-	ProjectNavSource       string = "Source"
+	ProjectNavConnections  string = "Connections"
 	ProjectNavMembers      string = "Members"
 	ProjectNavSettings     string = "Settings"
-	ProjectNavDelete       string = "Danger"
 )
 
 func getProjectPageNav(ctx context.Context) []*shared.PageNavItem {
@@ -31,10 +30,11 @@ func getProjectPageNav(ctx context.Context) []*shared.PageNavItem {
 			ActionUrl: routes.ProjectEnvironment,
 		},
 		{
-			Name:      ProjectNavSource,
+			Name:      ProjectNavConnections,
 			Icon:      icons.SourceGitIcon,
-			ActionUrl: routes.ProjectSource,
+			ActionUrl: routes.ProjectConnections,
 		},
+
 		{
 			Name:      ProjectNavMembers,
 			Icon:      icons.MembersIcon,
@@ -45,11 +45,6 @@ func getProjectPageNav(ctx context.Context) []*shared.PageNavItem {
 			Name:      ProjectNavSettings,
 			Icon:      icons.SettingsIcon,
 			ActionUrl: routes.ProjectSettings,
-		},
-		{
-			Name:      ProjectNavDelete,
-			Icon:      icons.DeleteIcon,
-			ActionUrl: routes.ProjectDelete,
 		},
 	}
 }

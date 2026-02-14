@@ -58,8 +58,11 @@ func (c *Controller) findByUID(ctx context.Context, tenantUID int64) (*types.Ten
 
 func (c *Controller) sanitizeCreateInput(in *CreateTenantInput) error {
 	errors := check.NewValidationErrors()
+	if err := check.DisplayName(in.Name); err != nil {
+		errors.AddValidationError("name", err)
+	}
 	if err := check.Description(in.Description); err != nil {
-		errors.AddValidationError("Description", err)
+		errors.AddValidationError("description", err)
 	}
 	if errors.HasError() {
 		return errors

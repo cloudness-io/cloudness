@@ -1,18 +1,13 @@
 package views
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/cloudness-io/cloudness/app/request"
+	"github.com/cloudness-io/cloudness/version"
 )
 
+var assetVersion = version.Version.String()
+
 func Asset(name string) string {
-	return fmt.Sprintf("/public/assets/%s", name)
-}
-
-func HasEnvironment(ctx context.Context) bool {
-	_, ok := request.EnvironmentFrom(ctx)
-
-	return ok
+	return fmt.Sprintf("/public/assets/%s?v=%s", name, assetVersion)
 }

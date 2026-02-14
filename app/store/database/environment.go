@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/cloudness-io/cloudness/app/store"
+	"github.com/cloudness-io/cloudness/helpers"
 	baseStore "github.com/cloudness-io/cloudness/store"
 	"github.com/cloudness-io/cloudness/store/database"
 	"github.com/cloudness-io/cloudness/store/database/dbtx"
@@ -37,7 +38,9 @@ const environmentColumns = `
    environment_uid,
 	environment_tenant_id,
    environment_project_id,
+	environment_sequence,
    environment_name,
+	environment_slug,
    environment_created_by,
    environment_created,
    environment_updated,
@@ -48,7 +51,9 @@ INSERT INTO environments (
    environment_uid
 	,environment_tenant_id
    ,environment_project_id
+	,environment_sequence
    ,environment_name
+	,environment_slug
    ,environment_created_by
    ,environment_created
    ,environment_updated
@@ -56,7 +61,9 @@ INSERT INTO environments (
    :environment_uid
 	,:environment_tenant_id
    ,:environment_project_id
+	,:environment_sequence
    ,:environment_name
+	,:environment_slug
    ,:environment_created_by
    ,:environment_created
    ,:environment_updated
@@ -65,6 +72,7 @@ INSERT INTO environments (
 const environmentUpdate = `
    UPDATE environments
    SET
+	environment_sequence = :environment_sequence,
    environment_name = :environment_name,
    environment_updated = :environment_updated,
 	environment_deleted = :environment_deleted
@@ -203,6 +211,7 @@ func (s *EnvironmentStore) Update(ctx context.Context, environment *types.Enviro
 
 func (s *EnvironmentStore) SoftDelete(ctx context.Context, environment *types.Environment, deletedAt int64) error {
 	environment.Deleted = &deletedAt
+	environment.Seq = helpers.RandomNum(9000, 9999)
 	_, err := s.Update(ctx, environment)
 	return err
 }
@@ -269,6 +278,8 @@ func (s *EnvironmentStore) applySortFilter(stmt squirrel.SelectBuilder, filter *
 		stmt = stmt.OrderBy("environment_updated " + filter.Order.String())
 	case enum.EnvironmentAttrDeleted:
 		stmt = stmt.OrderBy("environment_deleted " + filter.Order.String())
+	case enum.EnvironmentAttrSequence:
+		stmt = stmt.OrderBy("environment_sequence " + filter.Order.String())
 	}
 
 	return stmt

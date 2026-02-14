@@ -5,15 +5,18 @@ import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/app/web/views/components/vdeployment"
 
 templ DeploymentsList(app *types.Application, deployments []*types.Deployment) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavDeployments,
-		Content:    deploymentsList(app, deployments),
 		Options:    getAppPageNav(app),
-		Header:     shared.CommandBar(getCommandButtons()),
-	})
-}
-
-templ deploymentsList(app *types.Application, deployments []*types.Deployment) {
-	@vdeployment.List(app, deployments)
+	}) {
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@vdeployment.List(app, deployments)
+			}
+		}
+	}
 }

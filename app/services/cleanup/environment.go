@@ -34,14 +34,6 @@ func (j *deletedArtifactsJob) cleanupEnviornments(ctx context.Context, tenantID,
 		log.Ctx(ctx).Info().Msgf("found %d environments to be cleaned up", len(envsToCleanup))
 
 		for _, env := range envsToCleanup {
-			if err := j.cleanupApps(ctx, &env.TenantID, &env.ProjectID, &env.ID, nil, tracker); err != nil {
-				return err
-			}
-
-			if err := j.cleanupVolumes(ctx, &env.TenantID, &env.ProjectID, &env.ID, nil, tracker); err != nil {
-				return err
-			}
-
 			if err := j.purgeEnvironmentArtifacts(ctx, env); err != nil {
 				return err
 			}
@@ -68,7 +60,7 @@ func (j *deletedArtifactsJob) purgeEnvironmentArtifacts(ctx context.Context, env
 			return err
 		}
 
-		if err := manager.DeleteNamespace(ctx, server, env.Namespace()); err != nil {
+		if err := manager.DeleteNamespace(ctx, server, env.Slug); err != nil {
 			return err
 		}
 	}

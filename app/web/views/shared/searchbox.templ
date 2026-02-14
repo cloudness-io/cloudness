@@ -1,0 +1,20 @@
+package shared
+
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+
+type SearchBoxProps struct {
+	Placeholder string
+	Attr        templ.Attributes
+}
+
+templ SearchBox(props *SearchBoxProps) {
+	<div class="relative group">
+		<input
+			placeholder={ props.Placeholder }
+			class="flex rounded-md border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-muted aria-[] aria-[invalid=true]:bg-destructive-200 aria-[invalid=true]:border-destructive-400 aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:border-destructive h-[26px] text-xs px-2.5 py-1 pl-7 w-32 md:w-64"
+			{ props.Attr... }
+		/>
+		@Icon(icons.SearchIcon, "absolute inset-y-0 left-0 pl-2 pt-3 flex items-center pointer-events-none text-foreground-light stroke-[1.5] h-[14px] w-[14px]")
+		<div class="absolute inset-y-0 right-0 pl-3 pr-1 flex space-x-1 items-center"></div>
+	</div>
+}

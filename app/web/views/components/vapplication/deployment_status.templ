@@ -1,0 +1,64 @@
+package vapplication
+
+import "github.com/cloudness-io/cloudness/types"
+import "fmt"
+import "github.com/cloudness-io/cloudness/types/enum"
+import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
+import "github.com/cloudness-io/cloudness/app/web/views/shared"
+
+func getSwapAttributes(swap bool) templ.Attributes {
+	if swap {
+		return templ.Attributes{
+			"hx-swap-oob": "true",
+		}
+	}
+	return templ.Attributes{}
+}
+
+func getAppDeploymentStatusID(app *types.Application) string {
+	return fmt.Sprintf("app-deployment-status-%d", app.UID)
+}
+
+templ AppDeploymentStatus(app *types.Application, swap bool) {
+	<div id={ getAppDeploymentStatusID(app) } { getSwapAttributes(swap)... }>
+		switch true {
+			case 	app.Updated > app.DeploymentTriggeredAt, 
+					app.DeploymentStatus == "" ,
+					app.DeploymentStatus == enum.ApplicationDeploymentStatusNeedsDeployment:
+				@deploymentStatusBadge(app, enum.ApplicationDeploymentStatusNeedsDeployment)
+			default:
+				@deploymentStatusBadge(app, app.DeploymentStatus)
+		}
+	</div>
+}
+
+templ deploymentStatusBadge(app *types.Application, status enum.ApplicationDeploymentStatus) {
+	<span
+		class={
+			"inline-flex items-center justify-center gap-1 text-xs",
+			templ.KV("text-error", status == enum.DeploymentStatusFailed),
+			templ.KV("text-warning bg-transparent", status == enum.ApplicationDeploymentStatusNeedsDeployment),
+			templ.KV("text-pending", status == enum.ApplicationDeploymentStatusDeploying),
+			templ.KV("text-success", status == enum.ApplicationDeploymentStatusSuccess),
+		}
+	>
+		if status == enum.ApplicationDeploymentStatusDeploying {
+			@shared.Icon(icons.PipelineRunningIcon, "text-pending animate-spin")
+		}
+		<p class="whitespace-nowrap capitalize">{ string(status) }</p>
+	</span>
+}
+
+func getTooltipMsg(status enum.ApplicationDeploymentStatus) string {
+	switch status {
+	case enum.ApplicationDeploymentStatusNeedsDeployment:
+		return "Needs deployment for latest changes to be effective"
+	case enum.ApplicationDeploymentStatusDeploying:
+		return "Deployment is in progress"
+	case enum.ApplicationDeploymentStatusFailed:
+		return "Deployment failed"
+	case enum.ApplicationDeploymentStatusSuccess:
+		return "Deployment successful"
+	}
+	return ""
+}

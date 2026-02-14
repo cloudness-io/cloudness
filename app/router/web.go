@@ -29,6 +29,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/middleware/hx"
 	middlewareinject "github.com/cloudness-io/cloudness/app/middleware/inject"
 	"github.com/cloudness-io/cloudness/app/middleware/logging"
+	middlewarenav "github.com/cloudness-io/cloudness/app/middleware/nav"
 	"github.com/cloudness-io/cloudness/app/middleware/nocache"
 	middlewarerestrict "github.com/cloudness-io/cloudness/app/middleware/restrict"
 	"github.com/cloudness-io/cloudness/app/middleware/url"
@@ -36,6 +37,7 @@ import (
 	accounthandler "github.com/cloudness-io/cloudness/app/web/handler/account"
 	handlerapplication "github.com/cloudness-io/cloudness/app/web/handler/application"
 	authhandler "github.com/cloudness-io/cloudness/app/web/handler/auth"
+	handlerConn "github.com/cloudness-io/cloudness/app/web/handler/connections"
 	handlercreate "github.com/cloudness-io/cloudness/app/web/handler/create"
 	handlerdeployment "github.com/cloudness-io/cloudness/app/web/handler/deployment"
 	handlerenvironment "github.com/cloudness-io/cloudness/app/web/handler/environment"
@@ -44,14 +46,11 @@ import (
 	handlerLogs "github.com/cloudness-io/cloudness/app/web/handler/logs"
 	handlerproject "github.com/cloudness-io/cloudness/app/web/handler/project"
 	handlerserver "github.com/cloudness-io/cloudness/app/web/handler/server"
-	handlersource "github.com/cloudness-io/cloudness/app/web/handler/source"
 	handlertenant "github.com/cloudness-io/cloudness/app/web/handler/tenant"
 	handlervariable "github.com/cloudness-io/cloudness/app/web/handler/variable"
 	handlervolume "github.com/cloudness-io/cloudness/app/web/handler/volume"
-	webhookhandler "github.com/cloudness-io/cloudness/app/web/handler/webhook"
 	"github.com/cloudness-io/cloudness/app/web/public"
 	"github.com/cloudness-io/cloudness/app/web/render"
-	"github.com/cloudness-io/cloudness/app/web/views/dto"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/enum"
 
@@ -111,8 +110,6 @@ func NewWebHandler(
 	r.Use(hx.PopulateHxCallerUrl())
 
 	r.Use(url.PopulateCurrentUrl())
-
-	r.Use(middlewareinject.PopulateTargetElemet())
 
 	// serve static files
 	if config.Environment == "local" {
@@ -182,11 +179,8 @@ func setupRoutesV1WithAuth(r chi.Router,
 
 func setupWebhooks(r chi.Router, tenantCtrl *tenant.Controller, projectCtrl *project.Controller, ghAppCtrl *githubapp.Controller) {
 	r.Route("/webhooks", func(r chi.Router) {
-		r.Route("/source", func(r chi.Router) {
-			r.Route("/github", func(r chi.Router) {
-				r.Get("/redirect", webhookhandler.HandleGithubRedirect(tenantCtrl, projectCtrl, ghAppCtrl))
-				r.Get("/install", webhookhandler.HandleGithubInstall(tenantCtrl, projectCtrl, ghAppCtrl))
-			})
+		r.Route("/github", func(r chi.Router) {
+			// r.Post("/events", handlerConn.HandleGithubEvent())
 		})
 	})
 }
@@ -194,8 +188,11 @@ func setupWebhooks(r chi.Router, tenantCtrl *tenant.Controller, projectCtrl *pro
 func setupInstance(r chi.Router, instanceCtrl *instance.Controller, serverCtrl *server.Controller, authCtrl *auth.Controller) {
 	r.Route("/settings", func(r chi.Router) {
 		r.Use(middlewarerestrict.ToSuperAdmin())
+		r.Use(middlewarenav.PopulateNavItemKey("Instance Settings"))
 		r.Get("/", handlerinstance.HandleGetSettings(instanceCtrl, serverCtrl))
-		r.Patch("/", handlerinstance.HandlePatchInstanceSettings(instanceCtrl, serverCtrl))
+		r.Patch("/fqdn", handlerinstance.HandlePatchFQDN(instanceCtrl, serverCtrl))
+		r.Patch("/dns", handlerinstance.HandlePatchDNS(instanceCtrl, serverCtrl))
+		r.Patch("/scripts", handlerinstance.HandlePatchScripts(instanceCtrl, serverCtrl))
 		r.Route("/auth", func(r chi.Router) {
 			r.Get("/", handlerinstance.HandleGetAuth(instanceCtrl, authCtrl))
 			r.Patch("/password", handlerinstance.HandlePatchPassword(instanceCtrl, authCtrl))
@@ -239,13 +236,20 @@ func setupTenant(r chi.Router,
 	favCtrl *favorite.Controller,
 ) {
 	r.Route("/", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) { render.RedirectWithRefresh(w, "/team") })
 		r.Route("/team", func(r chi.Router) {
-			r.Route("/create", func(r chi.Router) {
+			r.Use(middlewarenav.PopulateNavItemKey("Team"))
+			r.Get("/", handlertenant.HandleList(tenantCtrl))
+			r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlertenant.HandleListNavigation(tenantCtrl))
+			r.Route("/new", func(r chi.Router) {
 				r.Use(middlewarerestrict.ToSuperAdmin())
+				r.Use(middlewarenav.PopulateNavItemKey("New Team"))
+				r.Get("/", handlertenant.HandleNew())
 				r.Post("/", handlertenant.HandleAdd(tenantCtrl))
 			})
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTenantUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectTenant(tenantCtrl))
+				r.Use(middlewarenav.PopulateNavTeam())
 				r.Get("/", handlertenant.HandleGet(tenantCtrl, projectCtrl))
 				r.Get("/favorites", handlerfavorite.HandleListFavorites(favCtrl))
 				setupProject(r, appCtx, tenantCtrl, projectCtrl, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
@@ -253,22 +257,20 @@ func setupTenant(r chi.Router,
 				// Admin routes
 				r.Route("/", func(r chi.Router) {
 					r.Use(middlewarerestrict.ToTeamAdmin())
-					r.Get("/settings", handlertenant.HandleGetSettings())
+					r.Get("/settings", handlertenant.HandleGetSettings(tenantCtrl))
 					r.Patch("/settings", handlertenant.HandlePatchGeneralSettings(tenantCtrl))
-					r.Get("/limits", handlertenant.HandleGetLimits(tenantCtrl))
-					r.Patch("/limits", handlertenant.HandlePatchLimits(tenantCtrl))
+					r.Get("/restrictions", handlertenant.HandleGetRestrictions(tenantCtrl))
+					r.Patch("/restrictions", handlertenant.HandlePatchRestrictions(tenantCtrl))
 					r.Route("/members", func(r chi.Router) {
 						r.Get("/", handlertenant.HandleListMembers(tenantCtrl))
 						r.Post("/", handlertenant.HandleAddMember(tenantCtrl))
 						r.Patch("/", handlertenant.HandlePatchMember(tenantCtrl))
 						r.Delete("/", handlertenant.HandleDeleteMember(tenantCtrl))
 					})
-					r.Get("/delete", handlertenant.HandleGetDelete())
 					r.Delete("/delete", handlertenant.HandleDeleteTeam(tenantCtrl))
 				})
 			})
 		})
-		r.Get("/", handlertenant.HandleGetWithoutTenantUID(tenantCtrl))
 	})
 }
 
@@ -288,26 +290,28 @@ func setupProject(r chi.Router,
 	favCtrl *favorite.Controller,
 ) {
 	r.Route("/project", func(r chi.Router) {
-		r.Route("/create", func(r chi.Router) {
+		r.Route("/new", func(r chi.Router) {
 			r.Use(middlewarerestrict.ToTeamAdmin())
+			r.Use(middlewarenav.PopulateNavItemKey("New Project"))
+			r.Get("/", handlerproject.HandleNew())
 			r.Post("/", handlerproject.HandleAdd(projectCtrl))
 		})
-		r.Get("/nav", handlerproject.HandleListNavigation(projectCtrl))
+		r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlerproject.HandleListNavigation(projectCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamProjectUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectProject(projectCtrl))
 			r.Use(middlewarerestrict.ToProjectRole())
+			r.Use(middlewarenav.PopulateNavProject())
 			r.Route("/", func(r chi.Router) {
 				r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
 				r.Get("/", handlerproject.HandleGet(projectCtrl, envCtrl, appCtrl))
 				r.Get("/overview", handlerproject.HandleGet(projectCtrl, envCtrl, appCtrl))
 				r.Get("/settings", handlerproject.HandleGetSettingsGeneral(projectCtrl))
 				r.Patch("/settings", handlerproject.HandleUpdateSettingsGeneral(projectCtrl))
-				r.Get("/delete", handlerproject.HandleGetDeleteView(projectCtrl))
 				r.Delete("/delete", handlerproject.HandleDelete(projectCtrl))
 			})
 			r.Get("/events", handlerproject.HandleEvents(appCtx, projectCtrl))
+			setupProjectConnections(r, ghAppCtrl, gitPublicCtrl)
 			setupEnvionment(r, appCtx, envCtrl, ghAppCtrl, gitPublicCtrl, appCtrl, varCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
-			setupProjectSource(r, ghAppCtrl, gitPublicCtrl)
 
 			// Admin/Owner routes
 			r.Route("/members", func(r chi.Router) {
@@ -331,14 +335,22 @@ func setupEnvionment(r chi.Router,
 	templCtrl *template.Controller, favCtrl *favorite.Controller,
 ) {
 	r.Route("/environment", func(r chi.Router) {
+		r.Route("/new", func(r chi.Router) {
+			r.Use(middlewarerestrict.ToProjectOwner())
+			r.Use(middlewarenav.PopulateNavItemKey("New Environment"))
+			r.Get("/", handlerenvironment.HandleNew())
+			r.Post("/", handlerenvironment.HandleAdd(envCtrl))
+		})
 		r.Get("/", handlerenvironment.HandleList(envCtrl))
-		r.Post("/create", handlerenvironment.HandleAdd(envCtrl))
-		r.Get("/nav", handlerenvironment.HandleListNavigation(envCtrl))
+		r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlerenvironment.HandleListNavigation(envCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamEnvironmentUID), func(r chi.Router) {
 			r.Use(middlewareinject.InjectEnvironment(envCtrl))
+			r.Use(middlewarenav.PopulateNavEnvironment())
 			r.Route("/", func(r chi.Router) {
 				r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
-				r.Patch("/settings", handlerenvironment.HandleUpdate(envCtrl))
+				r.Get("/", handlerenvironment.HandleGet(envCtrl, appCtrl))
+				r.Patch("/", handlerenvironment.HandleUpdate(envCtrl))
+				r.Delete("/", handlerenvironment.HandleDelete(envCtrl))
 				r.Route("/volumes", func(r chi.Router) {
 					r.Get("/", handlervolume.HandleListUnattached(volumeCtrl))
 					r.Route(fmt.Sprintf("/{%s}", request.PathParamVolumeUID), func(r chi.Router) {
@@ -346,7 +358,6 @@ func setupEnvionment(r chi.Router,
 						r.Delete("/", handlervolume.HandleDelete(volumeCtrl))
 					})
 				})
-				r.Delete("/delete", handlerenvironment.HandleDelete(envCtrl))
 			})
 			setupApplication(r, appCtx, envCtrl, appCtrl, varCtrl, ghAppCtrl, gitPublicCtrl, deploymentCtrl, logsCtrl, volumeCtrl, templCtrl, favCtrl)
 		})
@@ -356,10 +367,11 @@ func setupEnvionment(r chi.Router,
 func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment.Controller, appCtrl *application.Controller, varCtrl *variable.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, deploymentCtrl *deployment.Controller, logsCtrl *logs.Controller, volumeCtrl *volume.Controller, templCtrl *template.Controller, favCtrl *favorite.Controller) {
 	r.Route("/application", func(r chi.Router) {
 		r.Get("/", handlerapplication.HandleList(envCtrl, appCtrl))
-		r.Get("/nav", handlerapplication.HandleListNavigation(appCtrl))
+		r.Get(fmt.Sprintf("/nav/{%s}", request.PathParamSelectedUID), handlerapplication.HandleListNavigation(appCtrl))
 		r.Route(fmt.Sprintf("/{%s}", request.PathParamApplicationUID), func(r chi.Router) {
 			//Inject application here
 			r.Use(middlewareinject.InjectApplication(appCtrl))
+			r.Use(middlewarenav.PopulateNavApplication())
 			r.Get("/", handlerapplication.HandleListDeployments(appCtrl, deploymentCtrl))
 			r.Patch("/name", handlerapplication.HandleUpdateName(appCtrl))
 			r.Patch("/icon", handlerapplication.HandleUpdateIcon(appCtrl))
@@ -412,27 +424,24 @@ func setupApplication(r chi.Router, appCtx context.Context, envCtrl *environment
 			r.Delete("/delete", handlerapplication.HandleDeleteApplication(appCtrl))
 			setupDeployment(r, appCtx, appCtrl, deploymentCtrl, logsCtrl)
 		})
-		setupApplicationCreate(r, appCtrl, ghAppCtrl, gitPublicCtrl, templCtrl)
+		setupApplicationNew(r, appCtrl, ghAppCtrl, gitPublicCtrl, templCtrl)
 	})
 }
 
-func setupApplicationCreate(r chi.Router, appCtrl *application.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, templCtrl *template.Controller) {
+func setupApplicationNew(r chi.Router, appCtrl *application.Controller, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller, templCtrl *template.Controller) {
 	r.Route("/new", func(r chi.Router) {
-		r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
-		r.Route("/git", func(r chi.Router) {
-			r.Get("/", handlercreate.HandleListGitOptions(dto.SourceCategoryGit))
-			r.Route("/github", func(r chi.Router) {
-				r.Get("/", handlercreate.HandleListGithubApps(ghAppCtrl))
-				r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
-					r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
-					r.Get("/", handlercreate.HandleGetGithubView(appCtrl))
-					r.Post("/", handlercreate.HandleCreateGithub(appCtrl))
-				})
-			})
-			r.Route("/git-public", func(r chi.Router) {
-				r.Get("/", handlercreate.HandleGetGitPublicView())
-				r.Post("/load-repo", handlercreate.HandleLoadGitPublicRepo(appCtrl))
-				r.Post("/", handlercreate.HandleCreateGitPublic(appCtrl))
+		r.Use(middlewarenav.PopulateNavItemKey("New Application"))
+		r.Use(middlewarerestrict.ModificationToProjectOwner()) // only owners can modify, others can view
+		r.Route("/git-public", func(r chi.Router) {
+			r.Get("/", handlercreate.HandleNewGit(appCtrl))
+			r.Post("/", handlercreate.HandleCreateGitPublic(appCtrl))
+		})
+		r.Route("/github", func(r chi.Router) {
+			r.Get("/", handlercreate.HandleListGithubApps(ghAppCtrl))
+			r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
+				r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
+				r.Get("/", handlercreate.HandleGetGithubView(appCtrl))
+				r.Post("/", handlercreate.HandleCreateGithub(appCtrl))
 			})
 		})
 		r.Route("/registry", func(r chi.Router) {
@@ -442,15 +451,15 @@ func setupApplicationCreate(r chi.Router, appCtrl *application.Controller, ghApp
 		r.Route("/database", func(r chi.Router) {
 			r.Get("/", handlercreate.HandleGetDatabaseView(templCtrl))
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTemplateID), func(r chi.Router) {
+				r.Get("/", handlercreate.HandleTemplatePreview(templCtrl, "database"))
 				r.Post("/", handlercreate.HandleTemplateCreate(templCtrl))
-				r.Get("/preview", handlercreate.HandleTemplatePreview(templCtrl, "database"))
 			})
 		})
 		r.Route("/oneclick", func(r chi.Router) {
 			r.Get("/", handlercreate.HandleGetOnelickTemplate(templCtrl))
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamTemplateID), func(r chi.Router) {
+				r.Get("/", handlercreate.HandleTemplatePreview(templCtrl, "oneclick"))
 				r.Post("/", handlercreate.HandleTemplateCreate(templCtrl))
-				r.Get("/preview", handlercreate.HandleTemplatePreview(templCtrl, "oneclick"))
 			})
 		})
 	})
@@ -468,25 +477,31 @@ func setupDeployment(r chi.Router, appCtx context.Context, appCtrl *application.
 	})
 }
 
-func setupProjectSource(r chi.Router, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller) {
-	r.Route("/source", func(r chi.Router) {
-		r.Get("/", handlersource.HandleListConfigurableSource())
-		r.Route("/git-public", func(r chi.Router) {
-			r.Get("/list-branches", handlersource.HandleListGitpublicBranches(gitPublicCtrl))
-		})
+func setupProjectConnections(r chi.Router, ghAppCtrl *githubapp.Controller, gitPublicCtrl *gitpublic.Controller) {
+	r.Route("/connections", func(r chi.Router) {
+		r.Get("/", handlerConn.HandleListForProject(ghAppCtrl))
 		r.Route("/github", func(r chi.Router) {
-			r.Get("/", handlersource.HandleListGithubApps(ghAppCtrl))
-			r.Post("/", handlersource.HandleAddGithubApp(ghAppCtrl))
+			r.Route("/new", func(r chi.Router) {
+				r.Use(middlewarenav.PopulateNavItemKey("New Github App"))
+				r.Use(middlewarerestrict.ToProjectOwner())
+				r.Get("/", handlerConn.HandleNewGithubApp())
+				r.Post("/", handlerConn.HandleAddGithubApp(ghAppCtrl))
+			})
 			r.Route(fmt.Sprintf("/{%s}", request.PathParamSourceUID), func(r chi.Router) {
 				r.Use(middlewareinject.InjectGithubAppSource(ghAppCtrl))
 				r.Route("/", func(r chi.Router) {
 					r.Use(middlewarerestrict.ToProjectOwner())
-					r.Get("/", handlersource.HandleGetGithubApp(ghAppCtrl))
-					r.Delete("/", handlersource.HandleDeleteGithubApp(ghAppCtrl))
+					r.Get("/", handlerConn.HandleGetGithubApp(ghAppCtrl))
+					r.Get("/callback", handlerConn.HandleGithubCallback(ghAppCtrl))
+					r.Get("/install", handlerConn.HandleGithubInstall(ghAppCtrl))
+					r.Delete("/", handlerConn.HandleDeleteGithubApp(ghAppCtrl))
 				})
-				r.Get("/list-repos", handlersource.HandleListGithubRepos(ghAppCtrl))
-				r.Get("/list-branches", handlersource.HandleListGithubBranches(ghAppCtrl))
+				r.Get("/list-repos", handlerConn.HandleListGithubRepos(ghAppCtrl))
+				r.Get("/list-branches", handlerConn.HandleListGithubBranches(ghAppCtrl))
 			})
+		})
+		r.Route("/git-public", func(r chi.Router) {
+			r.Get("/list-branches", handlerConn.HandleListGitpublicBranches(gitPublicCtrl))
 		})
 	})
 }
@@ -509,10 +524,10 @@ func setupAccountWithoutAuth(r chi.Router, config *types.Config, instanceCtrl *i
 func setupAccount(r chi.Router, config *types.Config, authCtrl *auth.Controller, userCtrl *user.Controller, tenantCtrl *tenant.Controller) {
 	cookieName := config.Token.CookieName
 	r.Get("/logout", accounthandler.HandleLogout(authCtrl, cookieName))
-	r.Route("/profile", func(r chi.Router) {
+	r.Route("/account", func(r chi.Router) {
+		r.Use(middlewarenav.PopulateNavItemKey("Account"))
 		r.Get("/", accounthandler.HandleGetProfile(userCtrl))
 		r.Patch("/", accounthandler.HandlePatchProfile(userCtrl))
-		r.Get("/teams", accounthandler.HandleGetSwitch(userCtrl, tenantCtrl))
 		r.Get("/session", accounthandler.HandleGetSession(userCtrl))
 		r.Get("/delete", accounthandler.HandleGetDelete(userCtrl))
 	})

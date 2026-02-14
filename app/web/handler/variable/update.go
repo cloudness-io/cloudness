@@ -33,7 +33,7 @@ func HandlePatch(appCtrl *application.Controller, varCtrl *variable.Controller) 
 
 		if err := varCtrl.Update(ctx, env.ID, app.ID, variableUID, in); err != nil {
 			log.Error().Err(err).Msg("error updating variable")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -66,7 +66,7 @@ func HandleGenerate(appCtrl *application.Controller, varCtrl *variable.Controlle
 
 		if err := varCtrl.UpdateGenerate(ctx, env.ID, app.ID, variableUID, in); err != nil {
 			log.Error().Err(err).Msg("error generating variable")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

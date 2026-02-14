@@ -4,7 +4,6 @@ import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 
 templ Delete(user *types.User) {
-	@accountHeader(user.DisplayName)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AccountNavDelete,
 		Options:    getAccountPageNav(),

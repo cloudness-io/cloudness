@@ -9,13 +9,20 @@ import (
 )
 
 templ Metrics(app *types.Application, metrics *types.AppMetricsViewModel, span enum.MetricsSpan) {
-	@appHeader(app)
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: AppNavMetrics,
-		Header:     shared.CommandBar(getCommandButtons()),
-		Content:    metricsContent(metrics, span),
 		Options:    getAppPageNav(app),
-	})
+	}) {
+		@shared.PageContainer(shared.PageSizeLarge) {
+			@shared.PageHeaderFull() {
+				@appHeader(app)
+				@shared.CommandBar(getCommandButtons())
+			}
+			@shared.PageContentFull() {
+				@metricsContent(metrics, span)
+			}
+		}
+	}
 }
 
 templ metricsContent(metrics *types.AppMetricsViewModel, span enum.MetricsSpan) {
@@ -41,7 +48,7 @@ templ metricsContent(metrics *types.AppMetricsViewModel, span enum.MetricsSpan) 
 }
 
 templ metricsSpanSwitcher(span enum.MetricsSpan) {
-	<div role="group" dir="ltr" class="rounded-md text-tx-secondary grid grid-cols-4 w-full max-w-none sm:max-w-max sm:w-auto sm:flex" tabindex="0" style="outline: none;">
+	<div role="group" dir="ltr" class="rounded-md text-foreground-light grid grid-cols-4 w-full max-w-none sm:max-w-max sm:w-auto sm:flex" tabindex="0" style="outline: none;">
 		for _, mSpan := range enum.MetricsSpans {
 			<button
 				type="button"

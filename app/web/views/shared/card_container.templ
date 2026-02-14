@@ -1,0 +1,32 @@
+package shared
+
+templ CardContainer() {
+	<div
+		class="overflow-hidden rounded-lg text-foreground shadow-sm grow bg-secondary p-3 transition-colors border flex items-center min-h-[70px]"
+	>
+		{ children... }
+	</div>
+}
+
+templ CardContainerClickable() {
+	<div
+		class="overflow-hidden rounded-lg text-foreground shadow-sm grow bg-secondary p-3 transition-colors hover:bg-secondary-hover border hover:border-default cursor-pointer flex items-center min-h-[70px]"
+	>
+		{ children... }
+	</div>
+}
+
+templ CardHeader(title string, description string) {
+	<div class="border-b border-default flex items-center px-sm py-4">
+		<div>
+			<h3>{ title }</h3>
+			<p class="text-sm text-foreground-lighter text-balance">{ description }</p>
+		</div>
+	</div>
+}
+
+templ AlertCardContainer() {
+	<div class="relative w-full text-sm rounded-lg border p-4 bg-error/5 border-error/50 overflow-hidden">
+		{ children... }
+	</div>
+}

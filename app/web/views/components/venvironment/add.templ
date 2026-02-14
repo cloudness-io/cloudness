@@ -1,43 +1,68 @@
 package venvironment
 
 import (
-	"github.com/cloudness-io/cloudness/app/controller/environment"
+	"fmt"
+	"github.com/cloudness-io/cloudness/app/request"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 )
 
-templ add(values *environment.CreateEnvironmentInput, errors map[string]string) {
+const EnvironmentDescription = "An environment isolates configuration, secrets, and infrastructure so you can safely deploy and operate apps for different purposes like production or testing."
+
+templ AddEnvironmentPage() {
+	@shared.PageContainer(shared.PageSizeSmall) {
+		@shared.PageContentShort() {
+			@shared.CardContainer() {
+				@add()
+			}
+		}
+	}
+}
+
+templ add() {
 	<form
 		id="addEnvironment"
+		class="form"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
 		hx-push-url="false"
+		hx-post={ routes.EnvironmentNew() }
 	>
-		<div class="flex items-center justify-between">
-			<h1 class="text-2xl font-medium">Create New Environment</h1>
-		</div>
-		<p class="text-xs text-tx-secondary">
-			Environment is a logical container where you can group related services
-		</p>
-		<div class="mt-2 flex flex-col gap-4">
-			<label for="Name">Environment Display Name</label>
-			@shared.Input(&shared.InputProps{
-				Name:        "name",
-				Value:       values.Name,
-				Placeholder: "Production",
-				Attrs: templ.Attributes{
-					"autofocus": true,
-				},
-				Error: errors["name"],
-			})
-		</div>
-		<div class="flex justify-end mt-6">
-			<button
-				type="submit"
-				class="button-primary"
-				hx-swap="none"
-				hx-post={ routes.EnvironmentCreate() }
-			>
-				Create
-			</button>
+		@shared.CardHeader("Create a new Environment", EnvironmentDescription)
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "name",
+			Label:       "Environment Name",
+			Placeholder: "Production",
+		})
+		<div class="flex h-12 items-center px-sm">
+			<div class="grid grid-cols-12 w-full gap-4 items-center">
+				<div class="col-span-4"></div>
+				<div
+					class="flex items-end col-span-8 space-x-2 ml-auto"
+				>
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"type": "button", "hx-get": routes.ProjectEnvironment, "hx-push-url": "true"})
+					@shared.ButtonPrimary("Create", templ.Attributes{
+						"type": "submit",
+					})
+				</div>
+			</div>
 		</div>
 	</form>
+}
+
+templ AddEnvironmentCard() {
+	if request.IsProjectOwner(ctx) {
+		<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+			<div class="flex flex-col gap-y-3 items-center">
+				@shared.Icon(icons.EnvironmentIcon, "icon-lg size-6 text-foreground-lighter")
+				<div class="flex flex-col items-center text-center">
+					<h3>Create a new Environment</h3>
+				</div>
+			</div>
+			@shared.AddButtonNeutral("New Environment", fmt.Sprintf("%s/new", routes.ProjectEnvironment))
+		</div>
+	} else {
+		@noEnvironmentCard()
+	}
 }

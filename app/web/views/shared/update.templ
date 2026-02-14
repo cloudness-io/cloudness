@@ -1,40 +1,46 @@
 package shared
 
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
-
 templ UpdateDiv(patchUrl string) {
-	@updateDiv(templ.Attributes{"hx-patch": patchUrl})
+	@updateDiv("Save", templ.Attributes{"hx-patch": patchUrl})
 }
 
 templ UpdateDivPost(postUrl string) {
-	@updateDiv(templ.Attributes{"hx-post": postUrl})
+	@updateDiv("Save", templ.Attributes{"hx-post": postUrl})
 }
 
-templ updateDiv(buttonAttr templ.Attributes) {
+templ UpdateDivNew() {
+	@updateDiv("Save", templ.Attributes{})
+}
+
+templ UpdateDivNewWithText(text string) {
+	@updateDiv(text, templ.Attributes{})
+}
+
+templ updateDiv(text string, buttonAttr templ.Attributes) {
 	<div
-		class="flex flex-col sm:flex-row justify-end h-full space-x-2 max-w-sm sm:max-w-md md:max-w-lg w-full mt-2 gap-2"
+		class="flex items-center justify-end space-x-2"
 		x-cloak
 	>
+		<!--
 		<div
-			class="flex flex-row items-center gap-2 text-yellow-500"
+			class="flex flex-row items-center gap-2 text-yellow-500 text-xs md:text-sm"
 			:class="isModified() ? 'block' :	'hidden'"
 		>
 			<i class={ icons.WarningIcon,"icon-base" }></i>
 			<p class="font-semibold">You have unsaved changes.</p>
 		</div>
-		<div class="flex gap-2">
-			<button type="button" class="button-neutral" x-on:click="reset()">
-				Reset
-			</button>
-			<button
-				type="submit"
-				class="button-primary"
-				:disabled="JSON.stringify(form) == JSON.stringify(initial)"
-				hx-swap="none"
-				{ buttonAttr... }
-			>
-				Save	
-			</button>
+		-->
+		<div class="flex gap-2" x-cloak>
+			@ButtonNeutral("Cancel", templ.Attributes{
+				"type":       "button",
+				"x-on:click": "reset()",
+				":class":     "isModified() ? 'block' : 'hidden'",
+			})
+			@ButtonPrimary(text, templ.Attributes{
+				"type":      "submit",
+				":disabled": "JSON.stringify(form) == JSON.stringify(initial)",
+				"hx-swap":   "none",
+			})
 		</div>
 	</div>
 }

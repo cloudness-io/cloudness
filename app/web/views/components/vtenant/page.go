@@ -8,33 +8,38 @@ import (
 )
 
 const (
-	TenantNavSettings string = "Settings"
-	TenantNavMembers  string = "Members"
-	TenantNavLimits   string = "Limits"
-	TenantNavDelete   string = "Danger"
+	TenantNavProjects     string = "Projects"
+	TenantNavSettings     string = "Team Settings"
+	TenantNavMembers      string = "Team"
+	TenantNavRestrictions string = "Restrictions"
+	TenantNavDelete       string = "Danger"
 )
 
-func getTenantNav(tenant *types.Tenant) []*shared.PageNavItem {
+func getTenantNav(tenant *types.Tenant, canEdit bool) []*shared.PageNavItem {
 	return []*shared.PageNavItem{
 		{
-			Name:      tenant.Name,
-			Icon:      icons.TeamIcon,
-			ActionUrl: routes.TenantSettings,
+			Name:      TenantNavProjects,
+			Icon:      icons.HomeIcon,
+			ActionUrl: routes.TenantUID(tenant.UID),
 		},
 		{
 			Name:      TenantNavMembers,
-			Icon:      icons.MembersIcon,
+			Icon:      icons.TeamMembersIcon,
 			ActionUrl: routes.TenantMembers,
+			Disabled:  !canEdit,
 		},
 		{
-			Name:      TenantNavLimits,
+			Name:      TenantNavRestrictions,
 			Icon:      icons.LimitsIcon,
-			ActionUrl: routes.TenantLimits,
+			ActionUrl: routes.TenantRestrictions,
+			Disabled:  !canEdit,
+			Hide:      !canEdit,
 		},
 		{
-			Name:      TenantNavDelete,
-			Icon:      icons.DeleteIcon,
-			ActionUrl: routes.TenantDelete,
+			Name:      TenantNavSettings,
+			Icon:      icons.SettingsIcon,
+			ActionUrl: routes.TenantSettings,
+			Disabled:  !canEdit,
 		},
 	}
 }

@@ -11,9 +11,9 @@ type MenuDropDownProps struct {
 
 templ MenuDropDown(props []*MenuDropDownProps) {
 	<div x-data="{ isActive: false }" class="relative">
-		<i class={ icons.MenuDropdownIcon, "icon-xl hover:no-underline" } x-on:click.stop="isActive = !isActive"></i>
+		<i class={ icons.MenuDropdownIcon, "icon-base hover:no-underline" } x-on:click.stop="isActive = !isActive"></i>
 		<div
-			class="absolute end-0 z-20 max-w-56 w-fit border bg-dropdown shadow-lg"
+			class="absolute end-0 z-10 max-w-56 w-fit border bg-overlay-default text-foreground-light shadow-lg rounded-md	divide-y"
 			role="menu"
 			x-cloak
 			x-transition
@@ -23,11 +23,11 @@ templ MenuDropDown(props []*MenuDropDownProps) {
 		>
 			for _, opt := range props {
 				<span
-					class={ "px-2 py-2 hover:bg-secondary text-left flex items-center gap-2 text-xs", opt.Class }
+					class={ "px-2 py-2 hover:bg-overlay-hover hover:text-foreground text-left flex items-center gap-2 text-xs", opt.Class }
 					role="menuitem"
 					{ opt.Attrs... }
 				>
-					<i class={ opt.IconClass, "text-brand", opt.Class }></i>
+					<i class={ opt.IconClass, opt.Class }></i>
 					{ opt.Name }
 				</span>
 			}

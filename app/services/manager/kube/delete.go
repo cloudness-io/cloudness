@@ -27,7 +27,7 @@ func (m *K8sManager) DeleteResources(ctx context.Context, server *types.Server, 
 		Version:  "v1",
 		Resource: "httproutes",
 	}
-	label := fmt.Sprintf("identifier=%s", identifier)
+	label := fmt.Sprintf("app.kubernetes.io/instance=%s", identifier)
 
 	deleteOption := metav1.DeleteOptions{}
 	listOption := metav1.ListOptions{
@@ -73,7 +73,7 @@ func (m *K8sManager) DeleteVolume(ctx context.Context, server *types.Server, vol
 		return err
 	}
 
-	err = client.CoreV1().PersistentVolumeClaims(volume.Namespace()).Delete(ctx, volume.GetIdentifierStr(), metav1.DeleteOptions{})
+	err = client.CoreV1().PersistentVolumeClaims(volume.ParentSlug).Delete(ctx, volume.GetIdentifierStr(), metav1.DeleteOptions{})
 	if err != nil && !errors.IsNotFound(err) {
 		return err
 	}
@@ -91,13 +91,13 @@ func (m *K8sManager) DeleteApplication(ctx context.Context, server *types.Server
 		return err
 	}
 
-	namespace := app.Namespace()
+	namespace := app.ParentSlug
 	httpGvr := schema.GroupVersionResource{
 		Group:    "gateway.networking.k8s.io",
 		Version:  "v1",
 		Resource: "httproutes",
 	}
-	label := fmt.Sprintf("identifier=%s", app.GetIdentifierStr())
+	label := fmt.Sprintf("app.kubernetes.io/instance=%s", app.GetIdentifierStr())
 
 	deleteOption := metav1.DeleteOptions{}
 	listOption := metav1.ListOptions{

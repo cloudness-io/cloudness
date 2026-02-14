@@ -9,7 +9,7 @@ import (
 	"github.com/cloudness-io/cloudness/app/controller/auth"
 	"github.com/cloudness-io/cloudness/app/controller/instance"
 	"github.com/cloudness-io/cloudness/app/request"
-	authhandler "github.com/cloudness-io/cloudness/app/web/handler/auth"
+	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/render"
 
 	"github.com/rs/zerolog"
@@ -29,7 +29,7 @@ func AttemptWeb(authenticator authn.Authenticator, instanceCtrl *instance.Contro
 			if err != nil {
 				log.Error().Err(err).Msg("authentication failed")
 				if errors.Is(err, authn.ErrNoAuthData) || strings.HasPrefix(err.Error(), "JWT:") {
-					authhandler.HandleGet(authCtrl, instanceCtrl, cookieName).ServeHTTP(w, r)
+					render.RedirectExternal(w, r, routes.Login)
 					return
 				} else {
 					render.Error500(w, r)

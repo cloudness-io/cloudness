@@ -1,0 +1,28 @@
+package vapplication
+
+import "fmt"
+import "github.com/cloudness-io/cloudness/types/enum"
+
+func getAppStatusID(appUID int64) string {
+	return fmt.Sprintf("app-status-%d", appUID)
+}
+
+templ AppStatus(appUID int64, status enum.ApplicationStatus, swap bool) {
+	<div id={ getAppStatusID(appUID) } { getSwapAttributes(swap)... }>
+		@appStatusBadge(appUID, status)
+	</div>
+}
+
+templ appStatusBadge(appUID int64, status enum.ApplicationStatus) {
+	<span
+		class={
+			"inline-flex items-center justify-center gap-1 text-xs",
+			templ.KV("text-error", status == enum.ApplicationStatusError),
+			templ.KV("text-warning bg-transparent", status == enum.ApplicationStatusPaused),
+			templ.KV("text-pending", status == enum.ApplicationStatusSleeping),
+			templ.KV("text-success", status == enum.ApplicationStatusRunning),
+		}
+	>
+		<p class="whitespace-nowrap capitalize">{ string(status) }</p>
+	</span>
+}

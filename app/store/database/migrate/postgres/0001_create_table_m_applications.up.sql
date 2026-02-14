@@ -7,6 +7,8 @@ CREATE TABLE applications (
     application_environment_uid INTEGER NOT NULL,
     application_server_id INTEGER NOT NULL REFERENCES servers (server_id) ON UPDATE NO ACTION ON DELETE CASCADE,
     application_name TEXT NOT NULL,
+	 application_slug TEXT NOT NULL,
+	 application_parent_slug TEXT NOT NULL,
     application_description TEXT,
     application_domain TEXT,
     application_custom_domain TEXT,
@@ -25,7 +27,7 @@ CREATE TABLE applications (
         application_tenant_id,
         application_project_id,
         application_environment_id,
-        application_uid
+		  application_slug
     ),
     UNIQUE (
         application_tenant_id,

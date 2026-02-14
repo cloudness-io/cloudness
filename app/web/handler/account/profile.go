@@ -53,7 +53,7 @@ func HandlePatchProfile(userCtrl *user.Controller) http.HandlerFunc {
 		user, err := userCtrl.Update(ctx, principal.ID, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating profile")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 

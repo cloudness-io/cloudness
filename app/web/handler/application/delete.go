@@ -2,7 +2,6 @@ package application
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/cloudness-io/cloudness/app/controller/application"
 	"github.com/cloudness-io/cloudness/app/request"
@@ -28,23 +27,21 @@ func HandleDeleteApplication(appCtrl *application.Controller) http.HandlerFunc {
 		app, _ := request.ApplicationFrom(ctx)
 
 		opts := new(application.AppDeleteOption)
-		volumeStr := r.URL.Query().Get("volume")
-		if volumeStr != "" {
-			volume, err := strconv.ParseBool(volumeStr)
-			if err != nil {
-				log.Ctx(ctx).Error().Err(err).Msg("Error parsing volume query param")
-				render.ToastError(ctx, w, err)
-				return
-			}
-			opts.Volume = volume
+		volume, err := request.QueryParamAsBoolOrDefault(r, "volume", false)
+		if err != nil {
+			log.Ctx(ctx).Error().Err(err).Msg("Error parsing volume")
+			render.ToastError(ctx, w, err)
+			return
 		}
-		err := appCtrl.SoftDelete(ctx, app, opts)
+
+		opts.Volume = volume
+		err = appCtrl.SoftDelete(ctx, app, opts)
 		if err != nil {
 			log.Err(err).Msg("error deleting application")
 			render.ToastError(ctx, w, err)
 			return
 		}
 
-		render.Redirect(w, routes.EnvironmentCtx(ctx)+routes.EnvironmentApplication+routes.TargetMainQuery)
+		render.Redirect(w, routes.EnvironmentCtx(ctx))
 	}
 }

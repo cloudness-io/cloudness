@@ -33,8 +33,8 @@ templ ContentViewer(props *ContentViewerProps) {
 					>
 						@Icon(section.IconClass, "icon-plain grayscale-100")
 					</div>
-					<h4 class={ "text-tx-secondary mb-4 sm:pl-8", section.HeaderClass }>{ section.Name }</h4>
-					<div class={ "sm:pl-8 pb-2 sm:pb-3" , props.ContentWrapperClass }>
+					<h2 class={ "text-foreground mb-4 sm:pl-8", section.HeaderClass }>{ section.Name }</h2>
+					<div class={ "sm:mx-8 pb-2 sm:pb-3" , props.ContentWrapperClass }>
 						@section.Content
 					</div>
 				</section>
@@ -50,7 +50,7 @@ templ ContentViewer(props *ContentViewerProps) {
 				for _,section := range props.Sections {
 					<li class="text-substitute">
 						<a
-							class="cursor-pointer hover:text-brand"
+							class="cursor-pointer text-foreground-light hover:text-foreground"
 							href={ templ.SafeURL(fmt.Sprintf("%s#%s", routes.AppSettings, strings.ToLower(section.Name))) }
 						>{ section.Name }</a>
 					</li>

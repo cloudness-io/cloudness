@@ -2,17 +2,13 @@ package vserver
 
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 import "fmt"
 import "github.com/cloudness-io/cloudness/app/web/views/components/common"
 
 templ listCertificatesContainer() {
-	<div class="flex items-center gap-1">
-		@shared.Icon(icons.CertificateIcon, "icon-lg")
-		<h3>Certificates</h3>
-		@shared.LazyRefresher("server-certificates", "/settings/server/certificates")
-	</div>
-	@shared.LazyLoader("server-certificates", "/settings/server/certificates")
+	@shared.PageSection("Certificates", templ.NopComponent, templ.NopComponent) {
+		@shared.LazyLoader("server-certificates", "/settings/server/certificates")
+	}
 }
 
 templ ListCertificates(certs []*types.Certificate) {

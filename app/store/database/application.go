@@ -46,6 +46,8 @@ const applicationColumns = `
 	,application_environment_uid
 	,application_server_id
 	,application_name
+	,application_slug
+	,application_parent_slug
 	,application_description
 	,application_type
 	,application_status
@@ -70,6 +72,8 @@ INSERT INTO applications  (
 	,application_environment_uid
 	,application_server_id
 	,application_name
+	,application_slug
+	,application_parent_slug
 	,application_description
 	,application_type
 	,application_status
@@ -92,6 +96,8 @@ INSERT INTO applications  (
 	,:application_environment_uid
 	,:application_server_id
 	,:application_name
+	,:application_slug
+	,:application_parent_slug
 	,:application_description
 	,:application_type
 	,:application_status
@@ -150,13 +156,13 @@ func (s *ApplicationStore) UpdateDeploymentStatus(ctx context.Context, applicati
 	return s.update(ctx, application, applicationUpdateDeploymentStatus)
 }
 
-func (s *ApplicationStore) UpdateStatus(ctx context.Context, application *types.Application) (*types.Application, error) {
+func (s *ApplicationStore) UpdateStatus(ctx context.Context, appUID int64, status enum.ApplicationStatus) (*types.Application, error) {
 	const applicationUpdateStatus = `UPDATE applications 
 		SET
 			application_status = :application_status
-		WHERE application_id = :application_id`
+		WHERE application_uid = :application_uid`
 
-	return s.update(ctx, application, applicationUpdateStatus)
+	return s.update(ctx, &types.Application{UID: appUID, Status: status}, applicationUpdateStatus)
 }
 
 func (s *ApplicationStore) UpdateDeploymentTriggerTime(ctx context.Context, application *types.Application) (*types.Application, error) {

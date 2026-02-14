@@ -18,6 +18,7 @@ const (
 	updated       = "updated"
 	deleted       = "deleted"
 	deletedAt     = "deleted_at"
+	sequence      = "sequence"
 	date          = "date"
 	defaultString = "default"
 	undefined     = "undefined"

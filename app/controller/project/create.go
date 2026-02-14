@@ -9,6 +9,7 @@ import (
 	"github.com/cloudness-io/cloudness/errors"
 	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types"
+	"github.com/cloudness-io/cloudness/types/check"
 	"github.com/cloudness-io/cloudness/types/enum"
 
 	"github.com/rs/zerolog/log"
@@ -16,12 +17,11 @@ import (
 
 type CreateProjectInput struct {
 	Name        string `json:"name"`
+	Slug        string `json:"slug"`
 	Description string `json:"description"`
 }
 
 func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *types.Tenant, in *CreateProjectInput) (*types.Project, error) {
-
-	//TODO: permission check, only admin?
 	if err := c.sanitizeCreateInput(in); err != nil {
 		log.Ctx(ctx).Err(err).Msg("Error validating project create input")
 		return nil, err
@@ -47,6 +47,7 @@ func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *
 		UID:         helpers.GenerateUID(),
 		TenantID:    tenant.ID,
 		Name:        in.Name,
+		Slug:        helpers.Slugify("p", in.Name),
 		Description: in.Description,
 		CreateBy:    userID,
 		Created:     now,
@@ -66,7 +67,7 @@ func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *
 			return err
 		}
 		_, err = c.envCtrl.Create(ctx, session, tenant, project, &environment.CreateEnvironmentInput{
-			Name: "Development",
+			Name: "Production",
 		})
 		return err
 	})
@@ -75,4 +76,18 @@ func (c *Controller) Create(ctx context.Context, session *auth.Session, tenant *
 	}
 
 	return project, err
+}
+
+func (c *Controller) sanitizeCreateInput(in *CreateProjectInput) error {
+	errors := check.NewValidationErrors()
+	if err := check.DisplayName(in.Name); err != nil {
+		errors.AddValidationError("name", err)
+	}
+	if err := check.Description(in.Description); err != nil {
+		errors.AddValidationError("description", err)
+	}
+	if errors.HasError() {
+		return errors
+	}
+	return nil
 }

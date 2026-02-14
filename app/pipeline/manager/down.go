@@ -39,7 +39,7 @@ func (m *runnerManager) down(ctx context.Context, deployment *types.Deployment) 
 		log.Warn().Err(err).Msg("manager: could not publish deployment updated event")
 	}
 
-	if err := m.sseStreamer.Publish(ctx, app.ProjectID, enum.SSETypeApplicationUpdated, app); err != nil {
+	if err := m.sseStreamer.Publish(ctx, app.ProjectID, enum.SSETypeApplicationDeploymentUpdated, app); err != nil {
 		log.Warn().Err(err).Msg("manager: could not publish application updated event")
 	}
 

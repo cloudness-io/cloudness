@@ -6,60 +6,66 @@ import (
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 	"github.com/cloudness-io/cloudness/types"
+	"strings"
 )
 
+func trimProtocol(url string) string {
+	url = strings.TrimPrefix(url, "https://")
+	url = strings.TrimPrefix(url, "http://")
+	return strings.TrimSuffix(url, "/")
+}
+
+templ appHeaderDescription(env *types.Environment) {
+	<span>
+		You are viewing applications in <b><i>{ env.Name }</i></b> Environment
+	</span>
+}
+
 templ List(env *types.Environment, apps []*types.Application) {
-	<div class="flex flex-col gap-3">
-		<div class="flex items-center gap-1">
-			@shared.Icon(icons.ApplicationIcon, "size-6 icon-2xl")
-			<h3>Applications</h3>
-			@createButton(env.UID)
-		</div>
-		if len(apps) == 0 {
-			@shared.NoData("No application found", createButton(env.UID))
-		} else {
-			@list(env, apps)
-		}
-	</div>
+	@shared.PageSection("Applications", appHeaderDescription(env), shared.AddButton("New Application", routes.ApplicationNew(env.UID))) {
+		@list(env, apps)
+	}
 }
 
 templ list(env *types.Environment, apps []*types.Application) {
 	<div hx-push-url="true" hx-sync="#main:drop">
-		<table class="min-w-full divide-y bg-primary text-left mb-32">
-			<thead>
-				<tr class="text-tx-secondary">
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%]">Name</th>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[35%] truncate overflow-hidden text-ellipsis">Live URL</th>
-					<th class="whitespace-nowrap px-4 py-2 font-medium w-[30%]">Status</th>
-				</tr>
-			</thead>
-			<tbody class="divide-y overflow-y-visible">
+		@shared.Table() {
+			@shared.TableHeadFull("Name", "Live URL", "Status", "Deployment Status")
+			@shared.TableBody() {
 				for _,app := range apps {
-					<tr class="hover:bg-secondary group cursor-pointer" hx-get={ routes.Application(env.UID, app.UID) }>
-						<td class="whitespace-nowrap px-4 py-2 hover:text-brand flex gap-x-1">
-							if app.Spec.Icon != "" {
-								@shared.Icon(app.Spec.Icon, "overflow-hidden")
-							} else {
-								@shared.Icon(icons.ApplicationIcon, "overflow-hidden")
-							}
-							{ app.Name }
-						</td>
-						<td
-							class="whitespace-nowrap px-4 py-2 max-w-40 sm:max-w-full truncate overflow-hidden
-						text-ellipsis"
-							onClick="event.stopPropagation()"
-						>
-							if app.Domain != "" {
-								<a class="link" href={ templ.SafeURL(app.Domain) } target="_blank">{ app.Domain }</a>
-							}
-						</td>
-						<td class="whitespace-nowrap px-4 py-2">
-							@AppStatus(app, false)
-						</td>
-					</tr>
+					@shared.TableBodyRow(templ.Attributes{
+						"hx-get": routes.Application(env.UID, app.UID),
+					}) {
+						@shared.TableBodyCell() {
+							<span class="flex items-center gap-2 text-foreground-light">
+								if app.Spec.Icon != "" {
+									@shared.Icon(app.Spec.Icon, "overflow-hidden")
+								} else {
+									@shared.Icon(icons.ApplicationIcon, "overflow-hidden")
+								}
+								{ app.Name }
+							</span>
+						}
+						@shared.TableBodyCell() {
+							<span onClick="event.stopPropagation()">
+								if app.Domain != "" {
+									<a class="text-foreground-light hover:text-foreground inline-flex items-center gap-1 text-xs" href={ templ.SafeURL(app.Domain) } target="_blank">
+										<span class="truncate max-w-40 md:max-w-72 lg:max-w-96">{ trimProtocol(app.Domain) }</span>
+										@shared.Icon(icons.OutIcon, "size-3 shrink-0")
+									</a>
+								}
+							</span>
+						}
+						@shared.TableBodyCell() {
+							@AppStatus(app.UID, app.Status, false)
+						}
+						@shared.TableBodyCell() {
+							@AppDeploymentStatus(app, false)
+						}
+					}
 				}
-			</tbody>
-		</table>
+			}
+		}
 	</div>
 }
 

@@ -7,18 +7,24 @@ import (
 )
 
 const (
-	navGit      = "Git"
-	navRegistry = "Registry"
-	navDatabase = "Database"
-	navOneclick = "OneClick"
+	navGitPublic = "GitPublic"
+	navGitHub    = "Github"
+	navRegistry  = "Registry"
+	navDatabase  = "Database"
+	navOneclick  = "OneClick"
 )
 
 func getCreatePageNavs() []*shared.PageNavItem {
 	return []*shared.PageNavItem{
 		{
-			Name:      navGit,
+			Name:      navGitPublic,
 			Icon:      icons.SourceGitIcon,
-			ActionUrl: routes.AppNewGit,
+			ActionUrl: routes.AppNewGitPublic,
+		},
+		{
+			Name:      navGitHub,
+			Icon:      icons.SourceGithubIcon,
+			ActionUrl: routes.AppNewGithub,
 		},
 		{
 			Name:      navRegistry,

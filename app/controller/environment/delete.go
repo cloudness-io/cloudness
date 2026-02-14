@@ -15,7 +15,11 @@ func (c *Controller) SoftDelete(ctx context.Context, environment *types.Environm
 			return err
 		}
 
-		if err := c.appCtrl.SoftDeleteInEnvironment(ctx, environment.ID, now); err != nil {
+		if err := c.appCtrl.SoftDeleteInEnvironment(ctx, environment, now); err != nil {
+			return err
+		}
+
+		if err := c.volumeCtrl.SoftDeleteInEnvironment(ctx, environment.ID, now); err != nil {
 			return err
 		}
 		return nil
@@ -35,7 +39,7 @@ func (c *Controller) SoftDeleteInProject(ctx context.Context, projectID, now int
 			return err
 		}
 
-		if err := c.appCtrl.SoftDeleteInEnvironment(ctx, env.ID, now); err != nil {
+		if err := c.appCtrl.SoftDeleteInEnvironment(ctx, env, now); err != nil {
 			return err
 		}
 	}

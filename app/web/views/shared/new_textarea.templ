@@ -1,0 +1,72 @@
+package shared
+
+import "fmt"
+
+type NewTextareaProps struct {
+	Name             string
+	Label            string
+	LabelDescription string
+	Value            string
+	ValueDescription string
+	Placeholder      string
+	Attrs            templ.Attributes
+	Direction        string
+	Rows             int
+
+	//action params
+	Disabled bool
+	Required bool
+}
+
+templ NewTextarea(props *NewTextareaProps) {
+	{{
+		rows := props.Rows
+		if rows == 0 {
+			rows = 4
+		}
+	}}
+	<div>
+		<div class={ "relative text-sm flex flex-col gap-2 md:grid md:grid-cols-12", templ.KV("gap-0", props.Direction == "vertical") }>
+			if props.Label != "" {
+				<div class={ "transition-all duration-500 ease-in-out col-span-4 flex flex-col gap-2",templ.KV("col-span-12",props.Direction == "vertical") }>
+					<label class="text peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm transition-colors text-foreground flex gap-2 items-center break-all leading-normal">
+						<span>{ props.Label }</span>
+					</label>
+					if props.LabelDescription != "" {
+						<div id={ props.Name + "-description" } class="text-xs text-foreground-lighter">{ props.LabelDescription }</div>
+					}
+				</div>
+			}
+			<div class={ "transition-all duration-500 ease-in-out order-1 col-span-8",templ.KV("col-span-12",props.Direction == "vertical") }>
+				<div class="">
+					<textarea
+						name={ props.Name }
+						rows={ fmt.Sprintf("%d", rows) }
+						placeholder={ props.Placeholder }
+						if props.Disabled {
+							disabled
+							aria-disabled="true"
+						}
+						if props.Required {
+							required
+							aria-required="true"
+						}
+						class="flex w-full rounded-md
+					border border-control read-only:border-button bg-foreground/[.026] file:border-0 file:bg-transparent
+					file:text-sm file:font-medium placeholder:text-foreground-muted read-only:text-foreground-light
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background-control
+					focus-visible:ring-offset-2 focus-visible:ring-offset-foreground-muted disabled:cursor-not-allowed
+					disabled:text-foreground-muted text-sm leading-4 px-3 py-2 resize-y"
+						{ props.Attrs... }
+					>{ props.Value }</textarea>
+				</div>
+				<div id={ props.Name + "-error" }></div>
+				if props.ValueDescription != "" {
+					<div id={ props.Name + "-value-description" } class="text-foreground-lighter text-xs mt-2">
+						@templ.Raw(props.ValueDescription)
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}

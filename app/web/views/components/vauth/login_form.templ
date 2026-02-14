@@ -5,30 +5,29 @@ import "github.com/cloudness-io/cloudness/app/utils/routes"
 import "github.com/cloudness-io/cloudness/types"
 
 templ LoginForm(userSignupEnabled bool, demoUser *types.DemoUser) {
-	<form class="mt-6 space-y-3" hx-post={ routes.Login } hx-swap="none">
-		<div>
-			<label class="text-sm font-medium mb-2 block">Email</label>
-			<div class="relative flex items-center">
-				@shared.Input(&shared.InputProps{
-					Name:        "email",
-					HideLabel:   true,
-					Placeholder: "Enter Email",
-					Value:       demoUser.Email,
-				})
-			</div>
-		</div>
-		<div>
-			<label class="text-sm font-medium mb-2 block">Password</label>
-			<div class="relative flex items-center">
-				@shared.Input(&shared.InputProps{
-					Name:        "password",
-					Type:        "password",
-					HideLabel:   true,
-					Placeholder: "Enter password",
-					Value:       demoUser.Password,
-				})
-			</div>
-		</div>
+	<form class="mt-6 space-y-3" hx-post={ routes.Login } hx-swap="none" hx-indicator="#overlay-spinner">
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "email",
+			Label:       "Email",
+			Placeholder: "Enter Email",
+			Value:       demoUser.Email,
+			Direction:   "vertical",
+			Attrs: templ.Attributes{
+				"type":         "email",
+				"autocomplete": "email",
+			},
+		})
+		@shared.NewInput(&shared.NewInputProps{
+			Name:        "password",
+			Label:       "Passowrd",
+			Placeholder: "Enter Password",
+			Value:       demoUser.Password,
+			Type:        "password",
+			Direction:   "vertical",
+			Attrs: templ.Attributes{
+				"type": "password",
+			},
+		})
 		<button type="submit" class="w-full py-2 px-4 text-sm button-primary">
 			Sign in
 		</button>

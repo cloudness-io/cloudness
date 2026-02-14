@@ -3,81 +3,84 @@ package vinstance
 import "github.com/cloudness-io/cloudness/app/web/views/shared"
 import "github.com/cloudness-io/cloudness/types"
 import "github.com/cloudness-io/cloudness/app/web/views/xdata"
-import "github.com/cloudness-io/cloudness/app/web/views/components/icons"
 
 templ Registry(instance *types.Instance) {
-	@header()
 	@shared.PageView(&shared.PageViewProps{
 		ActiveName: InstanceNavRegistry,
 		Options:    getInstanceNav(),
 	}) {
-		<div class="flex items-center gap-1">
-			@shared.Icon(icons.SourceRegistryIcon, "size-6")
-			<h3>Registry</h3>
-		</div>
-		<form
-			class="flex flex-col gap-5 w-full mt-2"
-			x-data={ xdata.ToFormData(instance) }
-			x-cloak
-		>
-			@shared.CheckBox(&shared.CheckBoxProps{
-				Name:    "registry_enabled",
-				Label:   "Enable Registry",
-				Tooltip: "Enabled by default untill 3rd party registry integration is added",
-				Attrs: templ.Attributes{
-					"x-model.boolean": "form.registry_enabled",
-					"x-bind:checked":  "form.registry_enabled === 'true'",
-					"@change":         "form.registry_enabled = $el.checked ? 'true' : 'false'",
-				},
-			})
-			@shared.Input(&shared.InputProps{
-				Name:        "registry_size",
-				Label:       "Registry Volume Size",
-				Tooltip:     "Size of the volume in GB, cannot be downsized",
-				Type:        "number",
-				Placeholder: "1",
-				Required:    true,
-				Attrs: templ.Attributes{
-					"x-model.number":  "form.registry_size",
-					"x-bind:min":      instance.RegistrySize,
-					"x-bind:disabled": "form.registry_enabled !== 'true'",
-				},
-			})
-			@shared.CheckBox(&shared.CheckBoxProps{
-				Name:    "registry_mirror_enabled",
-				Label:   "Enable Mirror Registry",
-				Tooltip: "Mirror registry to store base images used in building, so you do not hit the docker hub rate limit",
-				Attrs: templ.Attributes{
-					"x-model.boolean": "form.registry_mirror_enabled",
-					"x-bind:checked":  "form.registry_mirror_enabled === 'true'",
-					"@change":         "form.registry_mirror_enabled = $el.checked ? 'true' : 'false'",
-				},
-			})
-			@shared.Input(&shared.InputProps{
-				Name:        "registry_mirror_size",
-				Label:       "Mirror Registry Volume Size",
-				Tooltip:     "Size of the volume in GB, cannot be downsized",
-				Type:        "number",
-				Placeholder: "1",
-				Attrs: templ.Attributes{
-					"x-model.number":  "form.registry_mirror_size",
-					"min":             instance.RegistryMirrorSize,
-					"x-bind:disabled": "form.registry_mirror_enabled !== 'true'",
-				},
-			})
-			@shared.UpdateDiv("/settings/registry")
-		</form>
-		<!--
-		<div class="flex flex-col gap-2">
-			if instance.RegistryEnabled {
-				<h4>Registry Status</h4>
-				<div>Registry statis goes here </div>
+		@shared.PageContainer(shared.PageSizeMedium) {
+			@shared.PageHeaderShort() {
+				<h1>Registry</h1>
+				<div class="heading-subsection text-foreground-light">
+					Manage your instance registry. This is where your
+					built images will be saved.
+				</div>
 			}
-			if instance.RegistryProxyEnabled {
-				<h4>Proxy Registry Status</h4>
-				<div>Proxy Registry statis goes here </div>
+			@shared.PageContentShort() {
+				<div class="flex flex-col gap-3 mb-2">
+					@shared.PageSection("Registry Settings", templ.NopComponent, templ.NopComponent) {
+						@shared.CardContainer() {
+							<form
+								class="form"
+								x-data={ xdata.ToFormData(instance) }
+								x-cloak
+								hx-push-url="false"
+								hx-swap="none"
+								hx-indicator="#overlay-spinner"
+								hx-patch={ "/settings/registry" }
+							>
+								@shared.NewCheckbox(&shared.NewCheckboxProps{
+									Name:             "registry_enabled",
+									Label:            "Enable Registry",
+									ValueDescription: "Enabled by default untill 3rd party registry integration is added",
+									Attrs: templ.Attributes{
+										"x-model.boolean": "form.registry_enabled",
+										"x-bind:checked":  "form.registry_enabled === 'true'",
+										"@change":         "form.registry_enabled = $el.checked ? 'true' : 'false'",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "registry_size",
+									Label:            "Registry Volume Size",
+									Type:             "number",
+									Placeholder:      "1",
+									Required:         true,
+									ValueDescription: "Size of the volume in GB, cannot be downsized",
+									Attrs: templ.Attributes{
+										"x-model.number":  "form.registry_size",
+										"x-bind:min":      instance.RegistrySize,
+										"x-bind:disabled": "form.registry_enabled !== 'true'",
+									},
+								})
+								@shared.NewCheckbox(&shared.NewCheckboxProps{
+									Name:             "registry_mirror_enabled",
+									Label:            "Enable Mirror Registry",
+									LabelDescription: "Mirror registry to store base images used in building, so you do not hit the docker hub rate limit",
+									Attrs: templ.Attributes{
+										"x-model.boolean": "form.registry_mirror_enabled",
+										"x-bind:checked":  "form.registry_mirror_enabled === 'true'",
+										"@change":         "form.registry_mirror_enabled = $el.checked ? 'true' : 'false'",
+									},
+								})
+								@shared.NewInput(&shared.NewInputProps{
+									Name:             "registry_mirror_size",
+									Label:            "Mirror Registry Volume Size",
+									Type:             "number",
+									Placeholder:      "1",
+									ValueDescription: "Size of the volume in GB, cannot be downsized",
+									Attrs: templ.Attributes{
+										"x-model.number":  "form.registry_mirror_size",
+										"min":             instance.RegistryMirrorSize,
+										"x-bind:disabled": "form.registry_mirror_enabled !== 'true'",
+									},
+								})
+								@shared.UpdateDivNew()
+							</form>
+						}
+					}
+				</div>
 			}
-		</div>
-		-->
+		}
 	}
 }

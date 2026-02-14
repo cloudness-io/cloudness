@@ -274,7 +274,7 @@ type (
 		UpdateDeploymentStatus(ctx context.Context, application *types.Application) (*types.Application, error)
 
 		// UpdateStatus updates application status
-		UpdateStatus(ctx context.Context, application *types.Application) (*types.Application, error)
+		UpdateStatus(ctx context.Context, appUID int64, status enum.ApplicationStatus) (*types.Application, error)
 
 		// UpdateDeploymentTriggerTime updates the application to latest trigger time
 		UpdateDeploymentTriggerTime(ctx context.Context, application *types.Application) (*types.Application, error)
@@ -393,6 +393,12 @@ type (
 
 		// List lists the templates
 		List(ctx context.Context) ([]*types.Template, error)
+
+		// ListTags lists all template tags
+		ListTags(ctx context.Context) ([]*types.Tag, error)
+
+		// ListByTag lists templates associated with a tag slug
+		ListByTag(ctx context.Context, tag string) ([]*types.Template, error)
 
 		// List by slugs
 		ListBySlugs(ctx context.Context, slugs []string) ([]*types.Template, error)

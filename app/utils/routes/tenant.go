@@ -12,17 +12,21 @@ const (
 
 	TenantSettings      = "settings"
 	TenantMembers       = "members"
-	TenantLimits        = "limits"
+	TenantRestrictions  = "restrictions"
 	TenantDelete        = "delete"
 	TenantMembersAction = "/members"
 )
 
-func Tenant(uid int64) string {
-	return fmt.Sprintf("%s/%d", TenantBase, uid)
+func TenantBaseURL() string {
+	return "/" + TenantBase
 }
 
-func TenantCreate() string {
-	return fmt.Sprintf("/%s/create", TenantBase)
+func TenantUID(uid int64) string {
+	return fmt.Sprintf("/%s/%d", TenantBase, uid)
+}
+
+func TenantNew() string {
+	return fmt.Sprintf("/%s/new", TenantBase)
 }
 
 func TenantCtx(ctx context.Context) string {

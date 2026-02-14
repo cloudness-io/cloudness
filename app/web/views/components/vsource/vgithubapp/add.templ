@@ -1,47 +1,78 @@
 package vgithubapp
 
 import (
-	"github.com/cloudness-io/cloudness/app/controller/githubapp"
+	"fmt"
 	"github.com/cloudness-io/cloudness/app/utils/routes"
+	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
 )
 
-templ add(in *githubapp.CreateGithubAppInput, errors map[string]string) {
-	<h1 class="text-2xl font-medium">Create New Github App</h1>
-	<p class="text-xs text-tx-secondary">
-		Github app will be used to fetch your private github repositories. 
-	</p>
-	<form class="flex flex-col place-items-baseline mt-2 gap-2">
-		@shared.Input(&shared.InputProps{
+const (
+	ghAppDescription = "Github App will be used to fetch your private github repositories."
+)
+
+templ AddGithubAppPage() {
+	@shared.PageContainer(shared.PageSizeSmall) {
+		@shared.PageHeaderShort() {
+			@backToConnectionsLink()
+		}
+		@shared.PageContentShort() {
+			@shared.CardContainer() {
+				@add()
+			}
+		}
+	}
+}
+
+templ add() {
+	<form
+		class="form"
+		hx-push-url="false"
+		hx-swap="none"
+		hx-indicator="#overlay-spinner"
+		hx-post={ routes.ProjectConnectionGithub + "/new" }
+	>
+		@shared.CardHeader("Create a new Github App", ghAppDescription)
+		@shared.NewInput(&shared.NewInputProps{
 			Name:  "name",
 			Label: "Name",
-			Value: in.Name,
-			Error: errors["name"],
 		})
-		@shared.Input(&shared.InputProps{
-			Name:    "organization",
-			Label:   "Organization",
-			Tooltip: "If empty your github username will be used",
-			Value:   in.Name,
-			Error:   errors["name"],
+		@shared.NewInput(&shared.NewInputProps{
+			Name:             "organization",
+			Label:            "Organization",
+			LabelDescription: "If empty your github username will be used",
 		})
 		/*
-		@shared.CheckBox(&shared.CheckBoxProps{
+		@shared.NewCheckBox(&shared.NewCheckBoxProps{
 			Name:    "isTenantWide",
 			Label:   "Team Wide",
-			Tooltip: "",
-			Error:   errors["isTenantWide"],
+			LabelDescription: "",
 		})
 		*/
-		<div class="flex justify-end h-full space-x-2 max-w-sm sm:max-w-md w-full mt-2" x-cloak>
-			<button
-				type="submit"
-				class="button-primary"
-				hx-swap="none"
-				hx-post={ routes.ProjectGithubCtx(ctx, nil) }
-			>
-				Create
-			</button>
+		<div class="flex h-12 items-center px-sm">
+			<div class="grid grid-cols-12 w-full gap-4 items-center">
+				<div class="col-span-4"></div>
+				<div
+					class="flex items-end col-span-8 space-x-2 ml-auto"
+				>
+					@shared.ButtonNeutral("Cancel", templ.Attributes{"hx-get": routes.ProjectConnections, "hx-push-url": "true"})
+					@shared.ButtonPrimary("Create", templ.Attributes{
+						"type": "submit",
+					})
+				</div>
+			</div>
 		</div>
 	</form>
+}
+
+templ addGithubCard() {
+	<div class="border border-dashed w-full bg-secondary rounded-lg px-4 py-10 flex flex-col items-center gap-y-3">
+		<div class="flex flex-col gap-y-3 items-center">
+			@shared.Icon(icons.SourceGithubIcon, "icon-lg size-6 text-foreground-lighter")
+			<div class="flex flex-col items-center text-center">
+				<h3>Create a new Github App</h3>
+			</div>
+		</div>
+		@shared.AddButtonNeutral("New Github App", fmt.Sprintf("%s/%s/new", routes.ProjectCtx(ctx), routes.ProjectConnectionGithub))
+	</div>
 }

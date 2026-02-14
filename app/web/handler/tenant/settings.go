@@ -13,12 +13,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HandleGetSettings() http.HandlerFunc {
+func HandleGetSettings(tenantCtrl *tenant.Controller) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		tenant, _ := request.TenantFrom(ctx)
 
-		render.Page(ctx, w, vtenant.Settings(tenant))
+		canEdit := canEdit(ctx, tenantCtrl, tenant)
+		render.Page(ctx, w, vtenant.Settings(tenant, canEdit))
 	}
 }
 
@@ -37,12 +38,10 @@ func HandlePatchGeneralSettings(tenantCtrl *tenant.Controller) http.HandlerFunc 
 		tenant, err := tenantCtrl.UpdateGeneral(ctx, tenant, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error updating tenant")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
-		ctx = request.WithTenant(ctx, tenant)
-		render.RootWithNav(ctx, w, vtenant.Settings(tenant), routes.TenantCtx(ctx)+"/"+routes.TenantSettings)
-		render.ToastSuccess(ctx, w, "Settings updated successfully")
+		render.Redirect(w, routes.TenantCtx(ctx)+"/"+routes.TenantSettings)
 	}
 }

@@ -60,7 +60,7 @@ func HandleLoginPost(authCtrl *auth.Controller, cookieName string) http.HandlerF
 		tokenResponse, err := authCtrl.Login(ctx, instance, in)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("Error logging in")
-			render.ToastError(ctx, w, err)
+			render.ToastErrorWithValidation(ctx, w, in, err)
 			return
 		}
 
@@ -68,6 +68,6 @@ func HandleLoginPost(authCtrl *auth.Controller, cookieName string) http.HandlerF
 			cookie.IncludeTokenCookie(r, w, tokenResponse, cookieName)
 		}
 
-		render.RedirectWithRefresh(w, "/")
+		render.RedirectWithRefresh(w, routes.TenantBaseURL())
 	}
 }

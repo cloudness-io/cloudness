@@ -22,8 +22,12 @@ func Environment(uid int64) string {
 	return fmt.Sprintf("%s/%d", EnvironmentBase, uid)
 }
 
-func EnvironmentCreate() string {
-	return fmt.Sprintf("%s/create", EnvironmentBase)
+func EnvironmentNew() string {
+	return fmt.Sprintf("%s/new", EnvironmentBase)
+}
+
+func EnvironmentNewCtx(ctx context.Context) string {
+	return fmt.Sprintf("%s/%s", ProjectCtx(ctx), EnvironmentNew())
 }
 
 func EnvironmentCtx(ctx context.Context) string {
@@ -35,8 +39,8 @@ func EnvironmentCtxUID(ctx context.Context, envUID int64) string {
 	return fmt.Sprintf("%s/environment/%d", ProjectCtx(ctx), envUID)
 }
 
-func EnvironmentApplicationCtx(ctx context.Context) string {
-	return fmt.Sprintf("%s/%s%s", EnvironmentCtx(ctx), EnvironmentApplication, TargetMainQuery)
+func EnvironmentUID(envUID int64) string {
+	return fmt.Sprintf("%s/%d", EnvironmentBase, envUID)
 }
 
 func HasApplicationRoute(url string, env *types.Environment) bool {
