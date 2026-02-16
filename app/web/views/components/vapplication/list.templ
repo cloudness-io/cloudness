@@ -5,15 +5,9 @@ import (
 	"github.com/cloudness-io/cloudness/app/utils/routes"
 	"github.com/cloudness-io/cloudness/app/web/views/components/icons"
 	"github.com/cloudness-io/cloudness/app/web/views/shared"
+	"github.com/cloudness-io/cloudness/helpers"
 	"github.com/cloudness-io/cloudness/types"
-	"strings"
 )
-
-func trimProtocol(url string) string {
-	url = strings.TrimPrefix(url, "https://")
-	url = strings.TrimPrefix(url, "http://")
-	return strings.TrimSuffix(url, "/")
-}
 
 templ appHeaderDescription(env *types.Environment) {
 	<span>
@@ -50,7 +44,7 @@ templ list(env *types.Environment, apps []*types.Application) {
 							<span onClick="event.stopPropagation()">
 								if app.Domain != "" {
 									<a class="text-foreground-light hover:text-foreground inline-flex items-center gap-1 text-xs" href={ templ.SafeURL(app.Domain) } target="_blank">
-										<span class="truncate max-w-40 md:max-w-72 lg:max-w-96">{ trimProtocol(app.Domain) }</span>
+										<span class="truncate max-w-40 md:max-w-72 lg:max-w-96">{ helpers.TrimProtocol(app.Domain) }</span>
 										@shared.Icon(icons.OutIcon, "size-3 shrink-0")
 									</a>
 								}
