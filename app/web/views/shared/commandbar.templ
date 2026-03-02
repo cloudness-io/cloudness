@@ -16,7 +16,7 @@ templ CommandBar(commands []*Command) {
 		>
 			for _, cmd := range commands {
 				<button
-					class="group command-btn text-foreground-lighter hover:text-foreground flex gap-1 items-center px-1 cursor-pointer hover:bg-secondary"
+					class="group command-btn text-foreground-lighter hover:text-foreground flex gap-1 items-center px-2 cursor-pointer hover:bg-secondary"
 					{ cmd.Attrs... }
 				>
 					<i class={ cmd.Icon, "text-link/90 group-hover:text-link" }></i>
