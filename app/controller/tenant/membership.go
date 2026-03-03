@@ -32,7 +32,7 @@ func (c *Controller) CreateTenantMembership(ctx context.Context, tenant *types.T
 
 	principal, err := c.userCtrl.FindUserByEmail(ctx, in.Email)
 	if err != nil {
-		if !errors.IsNotFound(err) {
+		if !store.IsNotFound(err) {
 			return err
 		}
 	}

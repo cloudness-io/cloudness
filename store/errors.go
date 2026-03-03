@@ -18,3 +18,7 @@ var (
 		"spaces or repos")
 	ErrPreConditionFailed = errors.New("precondition failed")
 )
+
+func IsNotFound(err error) bool {
+	return errors.Is(err, ErrResourceNotFound)
+}
