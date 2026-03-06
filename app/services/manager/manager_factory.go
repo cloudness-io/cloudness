@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cloudness-io/cloudness/app/services/manager/kube"
+	"github.com/cloudness-io/cloudness/app/services/manager/vm"
 	"github.com/cloudness-io/cloudness/types"
 	"github.com/cloudness-io/cloudness/types/enum"
 )
@@ -12,9 +13,10 @@ type ManagerFactory struct {
 	managers map[enum.ServerType]ServerManager
 }
 
-func NewManagerFactory(k8sManager *kube.K8sManager) ManagerFactory {
+func NewManagerFactory(k8sManager *kube.K8sManager, vmManager *vm.VmManager) ManagerFactory {
 	managers := make(map[enum.ServerType]ServerManager)
 	managers[enum.ServerTypeK8s] = k8sManager
+	managers[enum.ServerTypeVM] = vmManager
 	return ManagerFactory{
 		managers: managers,
 	}

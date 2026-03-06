@@ -52,7 +52,7 @@ func (c *Controller) resolveServerManager(server *types.Server) (manager.ServerM
 	return c.factory.GetServerManager(server)
 }
 
-func (c *Controller) Init(ctx context.Context) (*types.Server, error) {
+func (c *Controller) Init(ctx context.Context, serverType enum.ServerType) (*types.Server, error) {
 	server, err := c.serverStore.Find(ctx, 1)
 	if err != nil && !errors.Is(err, dbStore.ErrResourceNotFound) {
 		return nil, err
@@ -67,8 +67,8 @@ func (c *Controller) Init(ctx context.Context) (*types.Server, error) {
 	server = &types.Server{
 		UID:                           helpers.GenerateUID(),
 		Name:                          "Primary",
-		Description:                   "Primary cluster",
-		Type:                          enum.ServerTypeK8s,
+		Description:                   "Primary server",
+		Type:                          serverType,
 		VolumeSupportsOnlineExpansion: defaults.DefaultVolumeSupportsOnlineExpansion,
 		BuildEnabled:                  true,
 		IsBuildServer:                 false,

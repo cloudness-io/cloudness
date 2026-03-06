@@ -25,7 +25,7 @@ func System(
 	templateCtrl *template.Controller,
 ) func(context.Context) error {
 	return func(ctx context.Context) error {
-		server, err := serverCtrl.Init(ctx)
+		server, err := serverCtrl.Init(ctx, config.Instance.Type)
 		if err != nil {
 			log.Ctx(ctx).Error().Err(err).Msg("failed to initialize server controller")
 			return err

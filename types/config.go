@@ -6,6 +6,7 @@ import (
 
 	"github.com/cloudness-io/cloudness/lock"
 	"github.com/cloudness-io/cloudness/pubsub"
+	"github.com/cloudness-io/cloudness/types/enum"
 )
 
 // Config stores the system configuration.
@@ -28,7 +29,8 @@ type Config struct {
 	}
 
 	Instance struct {
-		AllowNewTenantCreation bool `envconfig:"CLOUDNESS_INSTANCE_ALLOW_NEW_TENANT" default:"true"`
+		Type                   enum.ServerType `envconfig:"CLOUDNESS_INSTANCE_TYPE" default:"kube"`
+		AllowNewTenantCreation bool            `envconfig:"CLOUDNESS_INSTANCE_ALLOW_NEW_TENANT" default:"true"`
 	}
 
 	TenantConfig     TenantConfig
